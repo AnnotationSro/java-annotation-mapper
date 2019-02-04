@@ -2,5 +2,10 @@
 /*.iml
 /*/*.iml
 
-/*/*.zip
-/java-object-mapper-benchmark
+/java-object-mapper-benchmark/*.zip
+/java-object-mapper-benchmark/*.uml
+/java-object-mapper-benchmark/*.png
+/java-object-mapper-benchmark/*.csv
+/java-object-mapper-benchmark/*.plt
+/java-object-mapper-benchmark/readme.md
+
