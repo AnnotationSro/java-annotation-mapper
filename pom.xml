@@ -1,0 +1,208 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>sk.annotation.library.mapper.fast</groupId>
+	<artifactId>fastmaper</artifactId>
+	<version>0.1-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+	<name>fastmaper</name>
+
+	<modules>
+		<module>fmap-common</module>
+		<module>fmap-processor</module>
+		<module>java-object-mapper-benchmark</module>
+		<!--<module>fmap-examples</module>-->
+	</modules>
+
+	<properties>
+		<!-- - - - - - - - - - - - - - - - - - - - - - -->
+		<!-- Disable deploy every module               -->
+		<!--<maven.deploy.skip>true</maven.deploy.skip>-->
+		<maven.deploy.skip>false</maven.deploy.skip>
+		<maven.javadoc.skip>true</maven.javadoc.skip>
+		<source.skip>true</source.skip>
+
+		<!-- - - - - - - - - - - - - - - - - - - - - - -->
+		<!-- Annotation standard properties            -->
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.build.timestamp.format>yyyy-MM-dd-HH-mm-ss</maven.build.timestamp.format>
+		<maven.test.skip>false</maven.test.skip>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>hamcrest-core</artifactId>
+					<groupId>org.hamcrest</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.9.5</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.2</version>
+			<scope>provided</scope>
+		</dependency>
+
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>5.0.8.RELEASE</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.3</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					<timestampFormat>{0, date, yyyy-MM-dd HH:mm:ss}</timestampFormat>
+					<timestampPropertyName>build.datetime</timestampPropertyName>
+					<buildNumberPropertyName>build.hash</buildNumberPropertyName>
+					<scmBranchPropertyName>build.branch</scmBranchPropertyName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.2</version>
+				<configuration>
+					<tagNameFormat>release-@{project.version}</tagNameFormat>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<releaseProfiles>release</releaseProfiles>
+					<arguments>-Prelease -Dmaven.javadoc.skip=true -Dmaven.test.skip=false</arguments>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<!--<useIncrementalCompilation>false</useIncrementalCompilation>-->
+					<useIncrementalCompilation>true</useIncrementalCompilation>
+					<showWarnings>true</showWarnings>
+					<optimize>true</optimize>
+					<showDeprecation>true</showDeprecation>
+					<!--<generatedSourcesDirectory>src/main/java-gen</generatedSourcesDirectory>-->
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.10.3</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.18.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<!--<repositories>
+		<repository>
+			<id>aegon-repo</id>
+			<url>http://nexus.lep05.intranet.aegon.sk/content/repositories/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>aegon-repo-snapshot</id>
+			<url>http://nexus.lep05.intranet.aegon.sk/content/repositories/public/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>aegon-repo</id>
+			<url>http://nexus.lep05.intranet.aegon.sk/content/repositories/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>aegon-repo-snapshot</id>
+			<url>http://nexus.lep05.intranet.aegon.sk/content/repositories/public/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<distributionManagement>
+		<repository>
+			<id>aegon-release</id>
+			<url>http://nexus.lep05.intranet.aegon.sk/content/repositories/aegon/</url>
+		</repository>
+		<snapshotRepository>
+			<id>aegon-snapshot</id>
+			<url>http://nexus.lep05.intranet.aegon.sk/content/repositories/aegon-snapshot/</url>
+		</snapshotRepository>
+	</distributionManagement>-->
+
+	<scm>
+		<url>https://gitlab.lep05.intranet.aegon.sk/annotation/expert2</url>
+		<connection>scm:git:git@gitlab.lep05.intranet.aegon.sk:annotation/expert2.git</connection>
+		<developerConnection>scm:git:git@gitlab.lep05.intranet.aegon.sk:annotation/expert2.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+</project>

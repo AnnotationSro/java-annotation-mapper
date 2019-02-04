@@ -1,0 +1,46 @@
+
+
+
+A copy(O1 o1, O2 o2, O3 o3)
+A copy(O1 o1)
+=>
+	// Generated Always
+    protected boolean isNull(Object ... objs) {
+    	if (objs == null || objs.length==0) return true;
+    	for (Object o: objs) {
+    		if (o != null) return false;
+    	}
+    	return true;
+    }
+    // IMPL: A copy(O1 o1, O2 o2, O3 o3)
+	public A copy(O1 o1, O2 o2, O3 o3) {
+		return copy(o1, o2, o3, null);
+	}
+	// FROM: A copy(O1 o1, O2 o2, O3 o3)
+	public A copy(O1 o1, O2 o2, O3 o3, @Ret A a) {
+		if (isNull(o1, o2, o3)) return a;
+
+		return cache.getOrCreate([o1, o2, o3], retA -> {
+			retA = copy(o1, retA);
+			retA = copy(o2, retA);
+			retA = copy(o3, retA);
+			return retA;
+		});
+	}
+
+	// FROM IMPL: A copy(O1 o1, O2 o2, O3 o3)
+	// FROM IMPL: A copy2(O1 o1)
+    public A copyO12A(O1 o1, A a) {
+    	if (isNull(o1)) return a;
+
+    	return cache.getOrCreate(o1, retA -> {
+			retA.setId(o1.getId());
+			retA.setName(o1.getName());
+			return retA;
+		});
+    }
+
+    // IMPL: A copy(O1 o1)
+	public A copy2(O1 o1) {
+		return copyO12A(o1, null);
+	}

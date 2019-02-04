@@ -1,0 +1,21 @@
+Nutne dokoncit:
+ - Merge metoda pre Collections a Mapy
+ - podpora JAXB objektov (hlavne kolekcie)
+ - podpora pre projectlombok
+
+
+Planovane features - ASAP:
+- pri custom mapovani - methodRequired = ""
+- pri Context() - umoznit scanovat API a pouzit ho pri volani metody
+- primitivne typy (ich default hodnota, sposob mapovania)
+- custom transformacie niektorych typov + ich registracia pre generator:
+   java.util.Calendar/java.util.Date/LocalDate .../java.util.Date/XMLGregorianCalendar
+- register constructors for some custom types
+
+
+Planovane features - later:
+- moznost aktualizovat iba NON_NULL hodnoty
+- moznost scanovania struktury a hladania annotacie
+- stream mapping
+- podpora methodNames v kolekciach
+
