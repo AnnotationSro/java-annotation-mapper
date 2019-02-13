@@ -2,6 +2,7 @@ Nutne dokoncit:
  - Merge metoda pre Collections a Mapy
  - podpora JAXB objektov (hlavne kolekcie)
  - podpora pre projectlombok
+ - detect cycle automaticaly ?
 
 
 Planovane features - ASAP:
