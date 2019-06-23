@@ -1,4 +1,4 @@
-package sk.annotation.library.mapper.fast.processor.data;
+package sk.annotation.library.mapper.fast.processor.data.constructors;
 
 import sk.annotation.library.mapper.fast.processor.data.TypeInfo;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.ImportsTypeDefinitions;
@@ -12,7 +12,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImports {
 	final private TypeInfo typeOriginal;
 	private TypeInfo typeConstructor = null;
-	private boolean constructorReference = false;
+	private boolean constructorReference;
 
 	public TypeConstructorInfo(TypeInfo type, boolean constructorReference) {
 		this.typeOriginal = type;
@@ -31,8 +31,8 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 	public void writeSourceCode(SourceGeneratorContext ctx) {
 		writeSourceCodeWithParams(ctx);
 	}
-	public void writeSourceCodeWithParams(SourceGeneratorContext ctx, String... params) {
-		boolean withParams = params!=null && params.length>0;
+	public void writeSourceCodeWithParams(SourceGeneratorContext ctx, String... sourceAsParams) {
+		boolean withParams = sourceAsParams!=null && sourceAsParams.length>0;
 
 		if (!withParams && constructorReference) {
 			getTypeConstructor(ctx.processingEnv).writeSourceCode(ctx);
@@ -48,9 +48,9 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 		getTypeConstructor(ctx.processingEnv).writeSourceCode(ctx);
 		ctx.pw.print("(");
 		if (withParams) {
-			for (int i = 0; i < params.length; i++) {
+			for (int i = 0; i < sourceAsParams.length; i++) {
 				if (i>0) ctx.pw.print(",");
-				ctx.pw.print(params[i]);
+				ctx.pw.print(sourceAsParams[i]);
 			}
 		}
 		ctx.pw.print(")");

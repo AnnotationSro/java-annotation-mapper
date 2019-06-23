@@ -6,12 +6,11 @@ import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.mapper.fast.annotations.FastMapper;
 import sk.annotation.library.mapper.fast.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.mapper.fast.utils.context.MapperUtil;
+import sk.annotation.library.mapper.fast.utils.MapperInstanceUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import java.lang.annotation.Annotation;
@@ -110,14 +109,14 @@ abstract public class ElementUtils {
 		if (typeElementMapper == null) return null;
 
 		if (typeElementMapper.getAnnotation(FastMapper.class) != null)
-			return fullClassName + MapperUtil.constPostFixClassName;
+			return fullClassName + MapperInstanceUtil.constPostFixClassName;
 
 		// este treba najst vsetky metody d ich annotacie
 		List<? extends Element> allElements = typeElementMapper.getEnclosedElements();
 		for (ExecutableElement el : ElementFilter.constructorsIn(allElements)) {
 			if (el.getAnnotation(FastMapper.class) == null) continue;
 
-			return fullClassName + MapperUtil.constPostFixClassName;
+			return fullClassName + MapperInstanceUtil.constPostFixClassName;
 		}
 
 		return null;

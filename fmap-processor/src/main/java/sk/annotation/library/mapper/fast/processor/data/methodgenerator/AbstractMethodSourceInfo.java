@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.mapper.fast.annotations.enums.MapperFeature;
 import sk.annotation.library.mapper.fast.processor.Constants;
 import sk.annotation.library.mapper.fast.processor.data.*;
+import sk.annotation.library.mapper.fast.processor.data.constructors.TypeConstructorInfo;
 import sk.annotation.library.mapper.fast.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiKey;
@@ -239,14 +240,20 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
     }
 
     protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
+
         // Create transform value
+        TypeInfo inType = new TypeInfo(sourceType);
         TypeInfo retType = new TypeInfo(destinationType);
+
+        // Complete same types +
+        if (TypeUtils.isSame(processingEnv, inType, retType) && TypeUtils.isKnownImmutableType(processingEnv, inType)) return null;
+
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
         subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
         if (!ownerClassInfo.getFeatures().isDisabledToUseMapperRunCtxData()) {
             subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
         }
-        subMethodParams.add(new TypeWithVariableInfo("in", new TypeInfo(sourceType), null, false));
+        subMethodParams.add(new TypeWithVariableInfo("in", inType, null, false));
         subMethodParams.add(new TypeWithVariableInfo("out", retType, null, true));
         MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
 
@@ -279,6 +286,12 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         // Implemented List
         if (isSameType(processingEnv, List.class, types)) {
             return new SimpleMethodApi_List_SourceInfo(ownerClassInfo, subMethodApiSyntax);
+        }
+
+
+        // Implemented List
+        if (isSameType(processingEnv, Map.class, types)) {
+            return new SimpleMethodApi_Map_SourceInfo(ownerClassInfo, subMethodApiSyntax);
         }
 
 

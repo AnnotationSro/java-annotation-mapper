@@ -228,8 +228,11 @@ abstract public class TypeUtils {
     }
 
 
-    private static Class[] cls1 = {java.lang.Enum.class, java.lang.Number.class};
-    private static Class[] cls2 = {java.lang.String.class, java.lang.Boolean.class, java.lang.Character.class};
+    private static Class[] cls1 = {java.lang.Enum.class};
+    private static Class[] cls2 = {java.lang.String.class, java.lang.Boolean.class, java.lang.Character.class,
+            java.lang.Integer.class, java.lang.Long.class,
+            java.lang.Float.class, java.lang.Double.class
+    };
     private static List<TypeMirror> _cls1 = null;
     private static List<TypeMirror> _cls2 = null;
 
@@ -258,5 +261,10 @@ abstract public class TypeUtils {
         }
 
         return false;
+    }
+
+    public static boolean isKnownImmutableType(ProcessingEnvironment processingEnv, TypeInfo inType) {
+        if (inType == null) return true;
+        return isBaseOrPrimitiveType(processingEnv, inType.getType(processingEnv));
     }
 }

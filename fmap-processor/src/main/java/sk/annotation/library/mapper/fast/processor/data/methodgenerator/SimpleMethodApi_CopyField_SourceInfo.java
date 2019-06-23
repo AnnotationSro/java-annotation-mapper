@@ -1,13 +1,12 @@
 package sk.annotation.library.mapper.fast.processor.data.methodgenerator;
 
 import com.sun.tools.javac.code.Type;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import sk.annotation.library.mapper.fast.processor.Constants;
 import sk.annotation.library.mapper.fast.processor.data.*;
 import sk.annotation.library.mapper.fast.processor.data.confwrappers.FieldConfigurationResolver;
 import sk.annotation.library.mapper.fast.processor.data.confwrappers.FieldMappingData;
 import sk.annotation.library.mapper.fast.processor.data.confwrappers.FieldValueAccessData;
+import sk.annotation.library.mapper.fast.processor.data.constructors.TypeConstructorInfo;
 import sk.annotation.library.mapper.fast.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiKey;

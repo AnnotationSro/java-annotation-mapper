@@ -6,7 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.mapper.fast.annotations.FastMapper;
 import sk.annotation.library.mapper.fast.annotations.MapperFieldConfig;
-import sk.annotation.library.mapper.fast.annotations.enums.MapperFeature;
 import sk.annotation.library.mapper.fast.processor.Constants;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiKey;
@@ -14,7 +13,7 @@ import sk.annotation.library.mapper.fast.processor.data.methodgenerator.Abstract
 import sk.annotation.library.mapper.fast.processor.data.methodgenerator.DeclaredMethodSourceInfo;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.mapper.fast.processor.utils.*;
-import sk.annotation.library.mapper.fast.utils.context.MapperUtil;
+import sk.annotation.library.mapper.fast.utils.MapperInstanceUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
@@ -73,7 +72,7 @@ public class MapperClassInfo {
 	private MapperClassInfo(ProcessingEnvironment processingEnv, TypeElement element) {
 		this.parentElement = element;
 		this.fastMapperConfig = element.getAnnotation(FastMapper.class);
-		this.fullClassName = ElementUtils.getQualifiedName(this.parentElement) + MapperUtil.constPostFixClassName;
+		this.fullClassName = ElementUtils.getQualifiedName(this.parentElement) + MapperInstanceUtil.constPostFixClassName;
 		this.simpleClassName = NameUtils.getClassSimpleName(this.fullClassName);
 
 		if (!ApiUtil.canImplementMapper(element)) {

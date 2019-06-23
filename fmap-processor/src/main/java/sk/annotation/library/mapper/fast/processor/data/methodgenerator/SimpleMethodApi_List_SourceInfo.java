@@ -3,7 +3,7 @@ package sk.annotation.library.mapper.fast.processor.data.methodgenerator;
 import com.sun.tools.javac.code.Type;
 import sk.annotation.library.mapper.fast.processor.data.MapperClassInfo;
 import sk.annotation.library.mapper.fast.processor.data.MethodCallApi;
-import sk.annotation.library.mapper.fast.processor.data.TypeConstructorInfo;
+import sk.annotation.library.mapper.fast.processor.data.constructors.TypeConstructorInfo;
 import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.mapper.fast.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
@@ -14,7 +14,6 @@ import sk.annotation.library.mapper.fast.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SimpleMethodApi_List_SourceInfo extends AbstractMethodSourceInfo {
@@ -73,7 +72,7 @@ public class SimpleMethodApi_List_SourceInfo extends AbstractMethodSourceInfo {
 		ctx.pw.print("\n\t");
 		ctx.pw.print(dstVarName);
 		ctx.pw.print(" = ");
-		listConstructorType.writeSourceCodeWithParams(ctx, srcVarName + " == null ? 0 : " + srcVarName + ".size()");
+		listConstructorType.writeSourceCodeWithParams(ctx, srcVarName + ".size()");
 		ctx.pw.print(";");
 		ctx.pw.print("\n}");
 		ctx.pw.print("\nelse {\n\t" + dstVarName  + ".clear();\n}");

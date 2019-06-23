@@ -1,6 +1,8 @@
 package sk.annotation.library.mapper.fast.utils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class MapperRunCtxData {
     private Map<String, Object> ctxVals = new HashMap<>();

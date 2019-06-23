@@ -53,7 +53,6 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
     @Override
     public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
         super.registerImports(ctx, imports);
-        Constants.typeMapperUtil.registerImports(ctx, imports);
         Constants.typeMapperRunCtxDataHolder.registerImports(ctx, imports);
     }
 
