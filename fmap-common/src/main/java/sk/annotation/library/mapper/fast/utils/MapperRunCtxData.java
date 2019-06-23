@@ -1,5 +1,8 @@
 package sk.annotation.library.mapper.fast.utils;
 
+import sk.annotation.library.mapper.fast.utils.cache.DefaultInstanceCache;
+import sk.annotation.library.mapper.fast.utils.cache.InstanceCache;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -18,30 +21,7 @@ public class MapperRunCtxData {
 
     protected InstanceCache instanceCache = null;
     public InstanceCache getInstanceCache() {
-        if (instanceCache == null) instanceCache = new InstanceCache();
+        if (instanceCache == null) instanceCache = new DefaultInstanceCache();
         return instanceCache;
     }
-
-    public Object testTransform(Object o1, Object ret1) {
-        if (o1 == null) return ret1;
-
-        if (ret1 == null) {
-            Optional<Object> ret = instanceCache.get("testTransform", o1);
-            if (ret != null) return ret.orElse(null);
-
-            ret1 = new Object();
-        }
-        else if (instanceCache.isRegistered("testTransform", o1, ret1)) {
-
-        }
-
-
-
-        // copy values
-
-        return ret1;
-
-
-    }
-
 }

@@ -130,43 +130,40 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             * */
             ctx.pw.printNewLine();
             ctx.pw.print("\n// Check cyclic mapping - can disable " + ownerClassInfo.getFeatures().getInfoHowCanBeDisabled(MapperFeature.PREVENT_CYCLIC_MAPPING));
-            ctx.pw.print("\nif (" + varRet.getVariableName() + "==null) {");
-            ctx.pw.print("\n\tjava.util.Optional<");
+            ctx.pw.print("\n" + Constants.typeInstanceCacheValue.getClsType().getSimpleName() + "<");
             varRet.getVariableType().writeSourceCode(ctx);
             ctx.pw.print(
-                    "> oRet = "
-                    + varCtxVariable.getVariableName()
-                    + ".getInstanceCache().get(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
-                    +"\", "
-                    + input.getVariableName()
-                    + ");"
+                    "> cacheValue = "
+                            + varCtxVariable.getVariableName()
+                            + ".getInstanceCache().getCacheValues(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
+                            +"\", "
+                            + input.getVariableName()
+                            + ");"
             );
-            ctx.pw.print("\n\tif (oRet != null) return oRet.orElse(null);");
+//            ctx.pw.print("\nif (" + varRet.getVariableName() + "==null) {");
+//            ctx.pw.print("\n\t");
+//            Constants.typeInstanceCacheValue.writeSourceCode(ctx);
+//            ctx.pw.print("<");
+//            varRet.getVariableType().writeSourceCode(ctx);
+//            ctx.pw.print(
+//                    "> oRet = "
+//                    + varCtxVariable.getVariableName()
+//                    + ".getInstanceCache().getCacheValues(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
+//                    +"\", "
+//                    + input.getVariableName()
+//                    + ");"
+//            );
+            ctx.pw.print("\nif ("+varRet.getVariableName()+"==null) {");
+            ctx.pw.print("\n\tif (cacheValue.isRegisteredAnyValue()) return cacheValue.getValue();");
             ctx.pw.print("\n}");
-            ctx.pw.print("\nelse if (");
-            ctx.pw.print(varCtxVariable.getVariableName()
-                    + ".getInstanceCache().isRegistered(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
-                    +"\", "
-                    + input.getVariableName()
-                    +", "
-                    + varRet.getVariableName()
-                    + ")"
-            );
+            ctx.pw.print("\nelse if (cacheValue.isRegistered(" + varRet.getVariableName() + ")");
             ctx.pw.print(") {\n\treturn " + varRet.getVariableName() + ";\n}\n");
         }
     }
     protected void writeSourceInstanceCacheRegister(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
         if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) {
             if (varCtxVariable==null) throw new IllegalStateException("Illegal state work");
-            ctx.pw.print(
-                    "\n"
-                    + varCtxVariable.getVariableName()
-                    + ".getInstanceCache().put(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
-                    + "\", "
-                    + input.getVariableName()
-                    + ", "
-                    + varRet.getVariableName()
-                    + ");"
+                ctx.pw.print("\ncacheValue.registerValue("+ varRet.getVariableName()+ ");"
             );
         }
     }
@@ -228,6 +225,9 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
     @Override
     public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
+        if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) {
+            Constants.typeInstanceCacheValue.registerImports(ctx, imports);
+        }
         methodApiFullSyntax.registerImports(ctx, imports);
         for (SourceRegisterImports v : sourcesForImports) {
             v.registerImports(ctx, imports);

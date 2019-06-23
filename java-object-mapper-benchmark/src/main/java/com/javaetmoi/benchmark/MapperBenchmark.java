@@ -30,6 +30,7 @@ import java.util.Collection;
 
 //@BenchmarkMode(Mode.All)
 public class MapperBenchmark {
+    static final int iterations = 5;
 
     @Param({"FMapMapper",  "Manual", "MapStruct",  "Selma", "JMapper", "Orika", "ModelMapper", "Dozer"})
     private String type;

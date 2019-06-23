@@ -8,6 +8,8 @@ import sk.annotation.library.mapper.fast.processor.data.TypeInfo;
 import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.mapper.fast.utils.MapperRunCtxData;
 import sk.annotation.library.mapper.fast.utils.MapperRunCtxDataHolder;
+import sk.annotation.library.mapper.fast.utils.cache.InstanceCache;
+import sk.annotation.library.mapper.fast.utils.cache.InstanceCacheValue;
 
 import javax.annotation.Generated;
 import java.time.LocalDateTime;
@@ -50,6 +52,7 @@ abstract public class Constants {
     static final private String reservedNameForMethodId = "**mapper-conf-id**";
     static final private String reservedNameForContextData = "**mapper-ctx**";
 
+    static final public TypeInfo typeInstanceCacheValue = new TypeInfo(InstanceCacheValue.class);
     static final public TypeInfo typeMapperRunCtxData = new TypeInfo(MapperRunCtxData.class);
     static final public TypeInfo typeMapperRunCtxDataHolder = new TypeInfo(MapperRunCtxDataHolder.class);
 

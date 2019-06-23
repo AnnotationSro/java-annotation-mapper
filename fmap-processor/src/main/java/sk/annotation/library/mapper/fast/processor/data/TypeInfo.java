@@ -1,5 +1,6 @@
 package sk.annotation.library.mapper.fast.processor.data;
 
+import lombok.Getter;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.SourceGeneratorContext;
@@ -13,6 +14,7 @@ import java.util.Objects;
 
 public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	public TypeMirror type;
+	@Getter
 	private Class clsType;
 	private String rawName;
 

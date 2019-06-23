@@ -1,7 +1,7 @@
 package sk.annotation.library.mapper.fast.processor.sourcewriter;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import sk.annotation.library.mapper.fast.processor.utils.NameUtils;
 
 public class NameUtilsTest {
@@ -9,12 +9,12 @@ public class NameUtilsTest {
 	public void testPackage() {
 		String packageName = "sk.daco.TestDaco.Nieco";
 		String objName = "Abcd";
-		Assert.assertEquals(packageName, NameUtils.getUpperPackage(packageName + "." + objName));
+		Assertions.assertEquals(packageName, NameUtils.getUpperPackage(packageName + "." + objName));
 	}
 	@Test
 	public void testSimpleName() {
 		String packageName = "sk.daco.TestDaco.Nieco";
 		String objName = "Abcd";
-		Assert.assertEquals(objName, NameUtils.getClassSimpleName(packageName + "." + objName));
+		Assertions.assertEquals(objName, NameUtils.getClassSimpleName(packageName + "." + objName));
 	}
 }
