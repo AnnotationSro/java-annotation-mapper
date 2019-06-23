@@ -4,7 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.mapper.fast.annotations.EnableCDI;
 import sk.annotation.library.mapper.fast.annotations.EnableSpring;
 import sk.annotation.library.mapper.fast.annotations.enums.IocScope;
-import sk.annotation.library.mapper.fast.processor.utils.AnnotationConstants;
+import sk.annotation.library.mapper.fast.processor.Constants;
 
 import javax.lang.model.element.TypeElement;
 
@@ -17,12 +17,12 @@ abstract public class IoCUtils {
 
 		EnableSpring springSupport = element.getAnnotation(EnableSpring.class);
 		if (springSupport !=null) {
-			val.getOrAddAnnotation(AnnotationConstants.annotationFieldSPRING).withStringValue(StringUtils.trimToNull(name));
+			val.getOrAddAnnotation(Constants.annotationFieldSPRING).withStringValue(StringUtils.trimToNull(name));
 		}
 
 		EnableCDI cdiSupport = element.getAnnotation(EnableCDI.class);
 		if (cdiSupport!=null) {
-			val.getOrAddAnnotation(AnnotationConstants.annotationFieldCDI).withStringValue(StringUtils.trimToNull(name));
+			val.getOrAddAnnotation(Constants.annotationFieldCDI).withStringValue(StringUtils.trimToNull(name));
 		}
 
 		return val;
@@ -44,7 +44,7 @@ abstract public class IoCUtils {
 	static private void resolveSpringMapperAnnotation(AnnotationsInfo annotationsInfo, EnableSpring iocConfig) {
 		if (iocConfig == null) return ;
 
-		annotationsInfo.getOrAddAnnotation(AnnotationConstants.springComponent).withStringValue(StringUtils.trimToNull(iocConfig.beanName()));
+		annotationsInfo.getOrAddAnnotation(Constants.springComponent).withStringValue(StringUtils.trimToNull(iocConfig.beanName()));
 
 		IocScope scope = iocConfig.scope();
 		if (scope != null) {
@@ -52,14 +52,14 @@ abstract public class IoCUtils {
 				case DEFAULT:
 					break;
 				case REQUEST:
-					annotationsInfo.getOrAddAnnotation(AnnotationConstants.springContext).withStringValue("request");
+					annotationsInfo.getOrAddAnnotation(Constants.springContext).withStringValue("request");
 					break;
 				case SESSION:
-					annotationsInfo.getOrAddAnnotation(AnnotationConstants.springContext).withStringValue("session");
+					annotationsInfo.getOrAddAnnotation(Constants.springContext).withStringValue("session");
 					break;
 				case SINGLETON:
 				case APPLICATION:
-					annotationsInfo.getOrAddAnnotation(AnnotationConstants.springContext).withStringValue("application");
+					annotationsInfo.getOrAddAnnotation(Constants.springContext).withStringValue("application");
 					break;
 			}
 		}
@@ -68,7 +68,7 @@ abstract public class IoCUtils {
 	static private void resolveCdiMapperAnnotation(AnnotationsInfo annotationsInfo, EnableCDI iocConfig) {
 		if (iocConfig == null) return;
 
-		annotationsInfo.getOrAddAnnotation(AnnotationConstants.cdiComponent).withStringValue(StringUtils.trimToNull(iocConfig.beanName()));
+		annotationsInfo.getOrAddAnnotation(Constants.cdiComponent).withStringValue(StringUtils.trimToNull(iocConfig.beanName()));
 
 		IocScope scope = iocConfig.scope();
 		if (scope != null) {
@@ -76,16 +76,16 @@ abstract public class IoCUtils {
 				case DEFAULT:
 					break;
 				case REQUEST:
-					annotationsInfo.getOrAddAnnotation(AnnotationConstants.cdiContextRequest);
+					annotationsInfo.getOrAddAnnotation(Constants.cdiContextRequest);
 					break;
 				case SESSION:
-					annotationsInfo.getOrAddAnnotation(AnnotationConstants.cdiContextSession);
+					annotationsInfo.getOrAddAnnotation(Constants.cdiContextSession);
 					break;
 				case APPLICATION:
-					annotationsInfo.getOrAddAnnotation(AnnotationConstants.cdiContextApplication);
+					annotationsInfo.getOrAddAnnotation(Constants.cdiContextApplication);
 					break;
 				case SINGLETON:
-					annotationsInfo.getOrAddAnnotation(AnnotationConstants.cdiContextSingleton);
+					annotationsInfo.getOrAddAnnotation(Constants.cdiContextSingleton);
 					break;
 			}
 		}

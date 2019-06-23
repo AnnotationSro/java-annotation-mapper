@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.mapper.fast.annotations.FastMapper;
 import sk.annotation.library.mapper.fast.annotations.MapperFieldConfig;
+import sk.annotation.library.mapper.fast.annotations.enums.MapperFeature;
+import sk.annotation.library.mapper.fast.processor.Constants;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.mapper.fast.processor.data.methodgenerator.AbstractMethodSourceInfo;
@@ -59,9 +61,13 @@ public class MapperClassInfo {
 	final public ImportsTypeDefinitions imports;
 	final private Set<Modifier> mapperModifiers = new LinkedHashSet<>();
 	final public List<FieldInfo> fieldsToImplement = new LinkedList<>();
+	final public ConstantsMethodGeneratorInfo topMethodsRegistrator = new ConstantsMethodGeneratorInfo();
 
 
 	final public AnnotationsInfo generateAnnotations;
+
+	@Getter
+	protected FeatureSourceUtils features;
 
 
 	private MapperClassInfo(ProcessingEnvironment processingEnv, TypeElement element) {
@@ -74,6 +80,8 @@ public class MapperClassInfo {
 			throw new IllegalStateException("Mapper " + ElementUtils.getQualifiedName(element) + " cannot implement!");
 		}
 		this.parentTypeAsAbstractClass = parentElement.getKind() == ElementKind.CLASS;
+
+		this.features = new FeatureSourceUtils(element);
 
 		// Prepare IMPORT SCOPE !!!
 		imports = new ImportsTypeDefinitions(element);
@@ -92,9 +100,9 @@ public class MapperClassInfo {
 
 		// Annotations ...
 		generateAnnotations = new AnnotationsInfo()
-				.withAnnotation(AnnotationConstants.annotationFastMapperGenerated)
+				.withAnnotation(Constants.annotationFastMapperGenerated)
 				.mergeValues(IoCUtils.resolveMapperAnnotation(parentElement))
-				.mergeValues(AnnotationConstants.createAnnotationGenerated());
+				.mergeValues(Constants.createAnnotationGenerated());
 
 
 
@@ -224,7 +232,7 @@ public class MapperClassInfo {
 		}
 		return NameUtils.findBestName(usedNames, sb.toString());
 	}
-	public String findBestNewMethodName(ProcessingEnvironment processingEnv, String newExpectedName, List<MethodParamInfo> nexExpectedParams) {
+	public String findBestNewMethodName(ProcessingEnvironment processingEnv, String newExpectedName, List<TypeWithVariableInfo> nexExpectedParams) {
 		return NameUtils.findBestName(usedNames, newExpectedName);
 	}
 

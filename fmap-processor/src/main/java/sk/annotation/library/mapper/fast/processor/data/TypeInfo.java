@@ -37,7 +37,7 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	public TypeMirror getType(ProcessingEnvironment processingEnv) {
 		if (type == null && processingEnv!=null) {
 			if (clsType == null) return null;
-			type = TypeUtils.convertToType(processingEnv, clsType);
+			type = TypeUtils.convertToTypeMirror(processingEnv, clsType);
 		}
 
 		return type;

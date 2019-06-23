@@ -30,7 +30,7 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 
 
 	public String getName() {
-		return variable.getName();
+		return variable.getVariableName();
 	}
 
 
@@ -50,11 +50,6 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 		return customFieldInstance.orElse(null);
 	}
 
-	protected TypeInfo getFieldType() {
-		return this.variable.getType();
-	}
-
-
 	@Override
 	public void writeSourceCode(SourceGeneratorContext ctx) {
 		variable.writeSourceCode(ctx);
@@ -71,15 +66,15 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 
 		// Setter
 		ctx.pw.print("\npublic void set");
-		ctx.pw.print(StringUtils.capitalize(variable.getName()));
+		ctx.pw.print(StringUtils.capitalize(variable.getVariableName()));
 		ctx.pw.print("(");
 		variable.writeSourceCode(ctx, true, false);
 		ctx.pw.print(") {");
 
 		ctx.pw.print("\n\tthis.");
-		ctx.pw.print(variable.getName());
+		ctx.pw.print(variable.getVariableName());
 		ctx.pw.print(" = ");
-		ctx.pw.print(variable.getName());
+		ctx.pw.print(variable.getVariableName());
 		ctx.pw.print(";\n}");
 	}
 

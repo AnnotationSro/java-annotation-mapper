@@ -13,8 +13,7 @@
 	<modules>
 		<module>fmap-common</module>
 		<module>fmap-processor</module>
-		<module>java-object-mapper-benchmark</module>
-		<!--<module>fmap-examples</module>-->
+		<module>fmap-tests</module>
 	</modules>
 
 	<properties>

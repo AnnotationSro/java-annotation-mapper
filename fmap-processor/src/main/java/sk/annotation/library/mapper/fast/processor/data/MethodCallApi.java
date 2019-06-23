@@ -5,10 +5,7 @@ import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax
 import sk.annotation.library.mapper.fast.processor.data.methodgenerator.AbstractMethodSourceInfo;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.SourceGeneratorContext;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
 public class MethodCallApi {
@@ -33,52 +30,61 @@ public class MethodCallApi {
 	}
 
 
-	public void genSourceForDelegatedCall(SourceGeneratorContext ctx, List<MethodParamInfo> allParams, MethodApiFullSyntax parentMethodsFullSyntax) {
-		List<String> params = new LinkedList<>();
-		Map<String, MethodParamInfo> ctxParam = new HashMap<>();
-
-		for (MethodParamInfo param : allParams) {
-			if (param.getHasContextKey()!=null) {
-				ctxParam.put(param.getHasContextKey(), param);
-				continue;
-			}
-			params.add(param.getVariable().getName());
+	static public TypeWithVariableInfo ctx_findVariable(TypeWithVariableInfo forVariable, List<TypeWithVariableInfo> values) {
+		if (values == null) return null;
+		for (TypeWithVariableInfo value : values) {
+			if (ctx_equals(forVariable, value)) return value;
 		}
+		return null;
+	}
+	static public boolean ctx_equals(TypeWithVariableInfo value1, TypeWithVariableInfo value2) {
+		if (value1 == null || value2 == null) return false;
+		if (value1.getHasContextKey() == null || value2.getHasContextKey() == null) return false;
+		if (!Objects.equals(value1.getHasContextKey(), value2.getHasContextKey())) return false;
+		// should be check type
+		return true;
+	}
 
-		if (parentMethodsFullSyntax!=null && parentMethodsFullSyntax.getParams()!=null) {
-			for (MethodParamInfo param : parentMethodsFullSyntax.getParams()) {
-				if (param.getHasContextKey()!=null) {
-					ctxParam.put(param.getHasContextKey(), param);
+	public void genSourceForCallWithVariableParams(SourceGeneratorContext ctx, List<TypeWithVariableInfo> methodParams, List<TypeWithVariableInfo> otherVariables, AbstractMethodSourceInfo method) {
+		List<String> newMethodParams = new LinkedList<>();
+		List<TypeWithVariableInfo> newOtherVariables = new LinkedList<>();
+		if (otherVariables!=null) newOtherVariables.addAll(otherVariables);
+		if (methodParams!=null) {
+			for (TypeWithVariableInfo methodParam : methodParams) {
+				if (methodParam.getHasContextKey()==null) {
+					newMethodParams.add(methodParam.getVariableName());
+				}
+				else {
+					newOtherVariables.add(methodParam);
 				}
 			}
 		}
-
-		genSourceForCall(ctx, params, ctxParam);
+		genSourceForCallWithStringParam(ctx, newMethodParams, newOtherVariables, method);
 	}
-	public void genSourceForCall(SourceGeneratorContext ctx, List<String> params, Map<String, MethodParamInfo> ctxParam) {
+	public void genSourceForCallWithStringParam(SourceGeneratorContext ctx, List<String> methodParams, List<TypeWithVariableInfo> otherVariables, AbstractMethodSourceInfo method) {
 		ctx.pw.print(pathToSyntax);
 		ctx.pw.print(methodSyntax.getName());
 		ctx.pw.print("(");
 
 		int i=0;
 		boolean addSeparator = false;
-		for (MethodParamInfo param : methodSyntax.getParams()) {
+		for (TypeWithVariableInfo param : methodSyntax.getParams()) {
 			if (addSeparator) ctx.pw.print(", ");
 			addSeparator = true;
 
 			if (param.getHasContextKey()!=null) {
-				MethodParamInfo ctxParamName = ctxParam.get(param.getHasContextKey());
+				TypeWithVariableInfo ctxParamName = ctx_findVariable(param, otherVariables);
 				if (ctxParamName != null) {
-					ctx.pw.print(ctxParamName.getVariable().getName());
+					ctx.pw.print(ctxParamName.getVariableName());
 				}
 				else {
-					param.genSourceForLoadContext(ctx);
+					param.genSourceForLoadContext(ctx, method, param.getVariableType());
 				}
 				continue;
 			}
 
-			if (i < params.size()) {
-				ctx.pw.print(params.get(i++));
+			if (i < methodParams.size()) {
+				ctx.pw.print(methodParams.get(i++));
 			}
 			else {
 				ctx.pw.print("null");
@@ -87,4 +93,63 @@ public class MethodCallApi {
 
 		ctx.pw.print(")");
 	}
+
+//	@Deprecated
+//	public void genSourceForDelegatedCall(SourceGeneratorContext ctx, List<TypeWithVariableInfo> allParams, MethodApiFullSyntax parentMethodsFullSyntax) {
+//		List<String> params = new LinkedList<>();
+//		Map<String, TypeWithVariableInfo> ctxParam = new HashMap<>();
+//
+//		for (TypeWithVariableInfo param : allParams) {
+//			if (param.getHasContextKey()!=null) {
+//				ctxParam.put(param.getHasContextKey(), param);
+//				continue;
+//			}
+//			params.add(param.getVariableName());
+//		}
+//
+//		if (parentMethodsFullSyntax!=null && parentMethodsFullSyntax.getParams()!=null) {
+//			for (TypeWithVariableInfo param : parentMethodsFullSyntax.getParams()) {
+//				if (param.getHasContextKey()!=null) {
+//					ctxParam.put(param.getHasContextKey(), param);
+//				}
+//			}
+//		}
+//
+//		genSourceForCall(ctx, params, ctxParam);
+//	}
+//
+//
+//	@Deprecated
+//	public void genSourceForCall(SourceGeneratorContext ctx, List<String> params, Map<String, TypeWithVariableInfo> ctxParam) {
+//		ctx.pw.print(pathToSyntax);
+//		ctx.pw.print(methodSyntax.getName());
+//		ctx.pw.print("(");
+//
+//		int i=0;
+//		boolean addSeparator = false;
+//		for (TypeWithVariableInfo param : methodSyntax.getParams()) {
+//			if (addSeparator) ctx.pw.print(", ");
+//			addSeparator = true;
+//
+//			if (param.getHasContextKey()!=null) {
+//				TypeWithVariableInfo ctxParamName = ctxParam.get(param.getHasContextKey());
+//				if (ctxParamName != null) {
+//					ctx.pw.print(ctxParamName.getVariableName());
+//				}
+//				else {
+//					param.genSourceForLoadContext(ctx);
+//				}
+//				continue;
+//			}
+//
+//			if (i < params.size()) {
+//				ctx.pw.print(params.get(i++));
+//			}
+//			else {
+//				ctx.pw.print("null");
+//			}
+//		}
+//
+//		ctx.pw.print(")");
+//	}
 }

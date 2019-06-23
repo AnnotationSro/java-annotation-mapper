@@ -83,6 +83,9 @@ public class JavaClassWriter implements SourceGenerator {
 		ctx.pw.levelSpaceUp();
 
 		// Generate Custom Fields
+		mapperClassInfo.topMethodsRegistrator.writeSourceCode(ctx);
+
+		// Generate Custom Fields
 		for (FieldInfo fieldInfo : mapperClassInfo.fieldsToImplement) {
 			fieldInfo.writeSourceCode(ctx);
 			ctx.pw.printNewLine();

@@ -1,10 +1,8 @@
 package sk.annotation.library.mapper.fast.processor.utils;
 
 import org.apache.commons.lang.StringUtils;
-import sk.annotation.library.mapper.fast.processor.data.MethodParamInfo;
+import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.Set;
@@ -40,9 +38,9 @@ abstract public class NameUtils {
 	}
 
 
-	static public String findBestName(List<MethodParamInfo> params, String expectedName) {
+	static public String findBestName(List<TypeWithVariableInfo> params, String expectedName) {
 		if (params == null || params.isEmpty()) return expectedName;
-		Set<String> knownNames = params.stream().map(methodParamInfo -> methodParamInfo.getVariable().getName()).collect(Collectors.toSet());
+		Set<String> knownNames = params.stream().map(methodParamInfo -> methodParamInfo.getVariableName()).collect(Collectors.toSet());
 		return findBestName(knownNames, expectedName);
 	}
 	static public String findBestName(Set<String> knownNames, String expectedName) {
@@ -56,6 +54,11 @@ abstract public class NameUtils {
 		}
 
 		return newName;
+	}
+	static public String findBestNameAndUpdateSet(Set<String> knownNames, String expectedName) {
+		String name = findBestName(knownNames, expectedName);
+		knownNames.add(name);
+		return name;
 	}
 
 

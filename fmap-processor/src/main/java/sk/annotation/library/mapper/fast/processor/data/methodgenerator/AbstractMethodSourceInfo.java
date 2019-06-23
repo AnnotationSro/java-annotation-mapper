@@ -2,6 +2,10 @@ package sk.annotation.library.mapper.fast.processor.data.methodgenerator;
 
 import com.sun.tools.javac.code.Type;
 import lombok.Getter;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import sk.annotation.library.mapper.fast.annotations.enums.MapperFeature;
+import sk.annotation.library.mapper.fast.processor.Constants;
 import sk.annotation.library.mapper.fast.processor.data.*;
 import sk.annotation.library.mapper.fast.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
@@ -18,59 +22,179 @@ import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
 abstract public class AbstractMethodSourceInfo implements SourceGenerator, SourceRegisterImports {
-	@Getter
-	final protected MethodApiFullSyntax methodApiFullSyntax;
-	final protected MapperClassInfo ownerClassInfo;
-	final protected List<SourceRegisterImports> sourcesForImports = new LinkedList<>();
-	final protected Set<String> usedNames = new HashSet<>(); // in method context !!!
+    @Getter
+    final protected MethodApiFullSyntax methodApiFullSyntax;
+    @Getter
+    final protected MapperClassInfo ownerClassInfo;
+    final protected List<SourceRegisterImports> sourcesForImports = new LinkedList<>();
+    final protected Set<String> usedNames = new HashSet<>(); // in method context !!!
 
-	public AbstractMethodSourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiFullSyntax) {
-		this.ownerClassInfo = ownerClassInfo;
-		this.methodApiFullSyntax = methodApiFullSyntax;
-		this.usedNames.addAll(ownerClassInfo.getUsedNames());
-		for (MethodParamInfo param : this.methodApiFullSyntax.getParams()) {
-			this.usedNames.add(param.getVariable().getName());
-		}
-	}
+    public AbstractMethodSourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiFullSyntax) {
+        this.ownerClassInfo = ownerClassInfo;
+        this.methodApiFullSyntax = methodApiFullSyntax;
+        this.usedNames.addAll(ownerClassInfo.getUsedNames());
+        for (TypeWithVariableInfo param : this.methodApiFullSyntax.getParams()) {
+            this.usedNames.add(param.getVariableName());
+        }
+    }
 
-	abstract protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig);
+    abstract protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig);
 
-	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
-		methodApiFullSyntax.writeMethodDeclaration(ctx);
-		ctx.pw.print(" {");
-		ctx.pw.levelSpaceUp();
+    @Getter
+    protected TypeWithVariableInfo varCtxVariable;
+    @Getter
+    protected TypeWithVariableInfo varCtxMethodId;
+    @Getter
+    protected TypeWithVariableInfo varRet;
 
-		List<MethodParamInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
-		if (!requiredParams.isEmpty()) {
-			ctx.pw.print("\n// check null inputs ");
-			ctx.pw.print("\nif (");
-			boolean addAnd = false;
-			for (MethodParamInfo requiredParam : requiredParams) {
-				if (addAnd) ctx.pw.print(" && ");
-				addAnd = true;
-				ctx.pw.print(requiredParam.getVariable().getName());
-				ctx.pw.print("==null");
-			}
-			ctx.pw.print(") return");
-			if (methodApiFullSyntax.getReturnType()!=null) {
-				ctx.pw.print(" null");
-			}
-			ctx.pw.print(";\n");
-		}
+    @Override
+    public void writeSourceCode(SourceGeneratorContext ctx) {
+        methodApiFullSyntax.writeMethodDeclaration(ctx);
+        ctx.pw.print(" {");
+        ctx.pw.levelSpaceUp();
+
+        List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
+        if (!requiredParams.isEmpty()) {
+            ctx.pw.print("\n// check null inputs ");
+            ctx.pw.print("\nif (");
+            boolean addAnd = false;
+            for (TypeWithVariableInfo requiredParam : requiredParams) {
+                if (requiredParam.isMarkedAsReturn()) continue;
+                if (addAnd) ctx.pw.print(" && ");
+                addAnd = true;
+                ctx.pw.print(requiredParam.getVariableName());
+                ctx.pw.print("==null");
+            }
+            ctx.pw.print(") return");
+            if (methodApiFullSyntax.getReturnType() != null) {
+                ctx.pw.print(" null");
+            }
+            ctx.pw.print(";\n");
+        }
 
 
+        this.usedNames.clear();
+        this.usedNames.addAll(ownerClassInfo.getUsedNames());
+        for (TypeWithVariableInfo param : this.methodApiFullSyntax.getParams()) {
+            this.usedNames.add(param.getVariableName());
+        }
+        varCtxMethodId = MethodCallApi.ctx_findVariable(Constants.methodParamInfo_ctxForMethodId, methodApiFullSyntax.getParams());
+        if (varCtxMethodId != null) usedNames.add(varCtxMethodId.getVariableName());
+
+        varCtxVariable = MethodCallApi.ctx_findVariable(Constants.methodParamInfo_ctxForRunData, methodApiFullSyntax.getParams());
+        if (varCtxVariable != null) usedNames.add(varCtxVariable.getVariableName());
+
+        varRet = null;
+        if (methodApiFullSyntax.getReturnType() != null) {
+            for (TypeWithVariableInfo param : methodApiFullSyntax.getParams()) {
+                if (param.isMarkedAsReturn()) {
+                    varRet = param;
+                    break;
+                }
+            }
+            if (varRet == null) {
+                String bestRetName = NameUtils.findBestNameAndUpdateSet(this.usedNames, "ret");
+                varRet = new TypeWithVariableInfo(bestRetName, methodApiFullSyntax.getReturnType(), null, false);
+
+                if (!(this instanceof DeclaredMethodSourceInfo)) {
+                    ctx.pw.printNewLine();
+                    varRet.writeSourceCode(ctx, true, false);
+                    ctx.pw.print(" = null;");
+                }
+            }
+        }
+        if (varRet != null) usedNames.add(varRet.getVariableName());
+
+        //// Tu bude test
+        writeSourceCodeBody(ctx);
+
+        if (!(this instanceof DeclaredMethodSourceInfo)) {
+            if (methodApiFullSyntax.getReturnType() != null) {
+                ctx.pw.print("\nreturn " + varRet.getVariableName() + ";");
+            }
+        }
+
+        ctx.pw.levelSpaceDown();
+        ctx.pw.print("\n}");
+    }
+
+    protected void writeSourceInstanceCacheLoad(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
+        if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) {
+            /*
+            if (ret == null) {
+                Optional<> oRet = instanceCache.get("methodName", in);
+                if (oRet !=null) return oRet.orElse(null);
+            }
+            else if (instanceCache.isRegistered("methodName, in, ret)) return ret;
+            * */
+            ctx.pw.printNewLine();
+            ctx.pw.print("\n// Check cyclic mapping - can disable " + ownerClassInfo.getFeatures().getInfoHowCanBeDisabled(MapperFeature.PREVENT_CYCLIC_MAPPING));
+            ctx.pw.print("\nif (" + varRet.getVariableName() + "==null) {");
+            ctx.pw.print("\n\tjava.util.Optional<");
+            varRet.getVariableType().writeSourceCode(ctx);
+            ctx.pw.print(
+                    "> oRet = "
+                    + varCtxVariable.getVariableName()
+                    + ".getInstanceCache().get(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
+                    +"\", "
+                    + input.getVariableName()
+                    + ");"
+            );
+            ctx.pw.print("\n\tif (oRet != null) return oRet.orElse(null);");
+            ctx.pw.print("\n}");
+            ctx.pw.print("\nelse if (");
+            ctx.pw.print(varCtxVariable.getVariableName()
+                    + ".getInstanceCache().isRegistered(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
+                    +"\", "
+                    + input.getVariableName()
+                    +", "
+                    + varRet.getVariableName()
+                    + ")"
+            );
+            ctx.pw.print(") {\n\treturn " + varRet.getVariableName() + ";\n}\n");
+        }
+    }
+    protected void writeSourceInstanceCacheRegister(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
+        if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) {
+            if (varCtxVariable==null) throw new IllegalStateException("Illegal state work");
+            ctx.pw.print(
+                    "\n"
+                    + varCtxVariable.getVariableName()
+                    + ".getInstanceCache().put(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
+                    + "\", "
+                    + input.getVariableName()
+                    + ", "
+                    + varRet.getVariableName()
+                    + ");"
+            );
+        }
+    }
+
+    protected void writeConstructor(SourceGeneratorContext ctx, TypeWithVariableInfo field) {
+        MethodApiKey constructorApiKey = new MethodApiKey(field.getVariableType(), Collections.emptyList());
+        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(constructorApiKey);
+        if (methodCallApi != null) {
+            if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) {
+                ctx.pw.print(methodCallApi.getPathToSyntax());
+                ctx.pw.print(".");
+                ctx.pw.print(methodCallApi.getMethodSyntax().getName());
+                ctx.pw.print("()");
+                return;
+            }
+
+            ctx.pw.print(ownerClassInfo.getSimpleClassName());
+            ctx.pw.print(".this.");
+            ctx.pw.print(methodCallApi.getMethodSyntax().getName());
+            ctx.pw.print("()");
+            return;
+        }
+
+        // Todo - check Collections & Interfaces & Default Public Constructors !!!
+        new TypeConstructorInfo(varRet.getVariableType(), false).writeSourceCode(ctx);
+    }
 
 
-
-
-
-		writeSourceCodeBody(ctx);
-
-		ctx.pw.levelSpaceDown();
-		ctx.pw.print("\n}");
-	}
-	abstract protected void writeSourceCodeBody(SourceGeneratorContext ctx);
+    abstract protected void writeSourceCodeBody(SourceGeneratorContext ctx);
 //	{
 //		if (!bodyGenerator.isEmpty()) {
 //			boolean advanceModeRequied = bodyGenerator.size() == 1;
@@ -101,69 +225,75 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 //
 //	}
 
-	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		methodApiFullSyntax.registerImports(ctx, imports);
-		for (SourceRegisterImports v : sourcesForImports) {
-			v.registerImports(ctx, imports);
-		}
-	}
+    @Override
+    public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
+        methodApiFullSyntax.registerImports(ctx, imports);
+        for (SourceRegisterImports v : sourcesForImports) {
+            v.registerImports(ctx, imports);
+        }
+    }
 
 
+    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeInfo sourceType, TypeInfo destinationType) {
+        return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType.getType(processingEnv), destinationType.getType(processingEnv));
+    }
 
-	protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeInfo sourceType, TypeInfo destinationType) {
-		return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType.getType(processingEnv), destinationType.getType(processingEnv));
-	}
-	protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
-		// Create transform value
-		TypeInfo retType = new TypeInfo(destinationType);
-		List<MethodParamInfo> subMethodParams = new LinkedList<>();
-		subMethodParams.add(new MethodParamInfo(new TypeWithVariableInfo("in", new TypeInfo(sourceType)), null, false));
-		subMethodParams.add(new MethodParamInfo(new TypeWithVariableInfo("out", retType), null, true));
-		MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
+    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
+        // Create transform value
+        TypeInfo retType = new TypeInfo(destinationType);
+        List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
+        subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
+        if (!ownerClassInfo.getFeatures().isDisabledToUseMapperRunCtxData()) {
+            subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
+        }
+        subMethodParams.add(new TypeWithVariableInfo("in", new TypeInfo(sourceType), null, false));
+        subMethodParams.add(new TypeWithVariableInfo("out", retType, null, true));
+        MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
 
-		// Vyhladame metodu, ale ak neexistuje, vytvorime si svoju vlastnu verziu
-		MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey);
-		if (methodCallApi!=null) return methodCallApi;
-
-
-		// vytvorime vlastny mapper pre metodu ...
-		String subMethodName = ownerClassInfo.findBestNewMethodName_transformFromTo(processingEnv, transformApiKey);
-		MethodApiFullSyntax subMethodApiSyntax = new MethodApiFullSyntax(processingEnv, subMethodName, retType, subMethodParams);
-		methodCallApi = ownerClassInfo.registerNewGeneratedMethod(findBestMethodGenerator(processingEnv, ownerClassInfo, subMethodApiSyntax, sourceType, destinationType));
-
-		if (methodCallApi == null) throw new IllegalStateException("Unexpected situation !!!");
+        // Vyhladame metodu, ale ak neexistuje, vytvorime si svoju vlastnu verziu
+        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey);
+        if (methodCallApi != null) return methodCallApi;
 
 
-		return methodCallApi;
-	}
-	protected static AbstractMethodSourceInfo findBestMethodGenerator(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, MethodApiFullSyntax subMethodApiSyntax, TypeMirror srcType, TypeMirror dstType) {
+        // vytvorime vlastny mapper pre metodu ...
+        String subMethodName = ownerClassInfo.findBestNewMethodName_transformFromTo(processingEnv, transformApiKey);
+        MethodApiFullSyntax subMethodApiSyntax = new MethodApiFullSyntax(processingEnv, subMethodName, retType, subMethodParams);
+        methodCallApi = ownerClassInfo.registerNewGeneratedMethod(findBestMethodGenerator(processingEnv, ownerClassInfo, subMethodApiSyntax, sourceType, destinationType));
 
-		// Zistenie, ci ide o kolekciu na kolekciu
-		if (srcType==null || dstType==null) return new EmptyMethodSourceInfo(ownerClassInfo, subMethodApiSyntax);
-
-		Type[] types = new Type[] {
-				TypeUtils.getBaseTypeWithoutParametrizedFields(srcType),
-				TypeUtils.getBaseTypeWithoutParametrizedFields(dstType)
-		};
-
-		// Implemented List
-		if (isSameType(processingEnv, List.class, types)) {
-			return new ListMethodSourceInfo(ownerClassInfo, subMethodApiSyntax);
-		}
+        if (methodCallApi == null) throw new IllegalStateException("Unexpected situation !!!");
 
 
-		// Defautl generator ...
-		return new CopyFieldMethodSourceInfo(ownerClassInfo, subMethodApiSyntax);
-	}
-	protected static boolean isSameType(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
-		if (types == null || types.length == 0) return false;
+        return methodCallApi;
+    }
 
-		TypeMirror type = processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType();
-		for (Type tp : types) {
-			if (!processingEnv.getTypeUtils().isSameType(type, tp)) return false;
-		}
+    protected static AbstractMethodSourceInfo findBestMethodGenerator(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, MethodApiFullSyntax subMethodApiSyntax, TypeMirror srcType, TypeMirror dstType) {
 
-		return true;
-	}
+        // Zistenie, ci ide o kolekciu na kolekciu
+        if (srcType == null || dstType == null) return new EmptyMethodSourceInfo(ownerClassInfo, subMethodApiSyntax);
+
+        Type[] types = new Type[]{
+                TypeUtils.getBaseTypeWithoutParametrizedFields(srcType),
+                TypeUtils.getBaseTypeWithoutParametrizedFields(dstType)
+        };
+
+        // Implemented List
+        if (isSameType(processingEnv, List.class, types)) {
+            return new SimpleMethodApi_List_SourceInfo(ownerClassInfo, subMethodApiSyntax);
+        }
+
+
+        // Defautl generator ...
+        return new SimpleMethodApi_CopyField_SourceInfo(ownerClassInfo, subMethodApiSyntax);
+    }
+
+    protected static boolean isSameType(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
+        if (types == null || types.length == 0) return false;
+
+        TypeMirror type = processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType();
+        for (Type tp : types) {
+            if (!processingEnv.getTypeUtils().isSameType(type, tp)) return false;
+        }
+
+        return true;
+    }
 }

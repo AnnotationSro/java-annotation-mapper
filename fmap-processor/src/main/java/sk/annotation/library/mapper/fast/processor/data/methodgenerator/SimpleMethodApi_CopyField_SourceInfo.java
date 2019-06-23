@@ -3,6 +3,7 @@ package sk.annotation.library.mapper.fast.processor.data.methodgenerator;
 import com.sun.tools.javac.code.Type;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import sk.annotation.library.mapper.fast.processor.Constants;
 import sk.annotation.library.mapper.fast.processor.data.*;
 import sk.annotation.library.mapper.fast.processor.data.confwrappers.FieldConfigurationResolver;
 import sk.annotation.library.mapper.fast.processor.data.confwrappers.FieldMappingData;
@@ -19,17 +20,10 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.util.*;
 
-public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
+public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo {
 
-	private Type typeFrom = null;
-	private Type typeTo = null;
-
-	public CopyFieldMethodSourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams) {
+	public SimpleMethodApi_CopyField_SourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams) {
 		super(ownerClassInfo, methodApiParams);
-
-		// remember Source / Destination
-		typeFrom = (Type) methodApiFullSyntax.getParams().get(0).getVariable().getType().getType(null);
-		typeTo = (Type) methodApiFullSyntax.getParams().get(1).getVariable().getType().getType(null);
 	}
 
 	//	protected Map<MethodConfigKey, List<FieldMappingData>> analyzedDataMap = new HashMap<>();
@@ -48,6 +42,13 @@ public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
 				if (!methodConfigKey.isWithCustomConfig()) return;
 			}
 		}
+
+
+
+		// remember Source / Destination
+		List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
+		Type typeFrom = (Type) requiredParams.get(0).getVariableType().getType(null);
+		Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
 
 		/////////////////////////
 		// 1) Collect all information ...
@@ -99,65 +100,44 @@ public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
 		path.forEach(sourcesForImports::add);
 	}
 
-	protected void writeInputs(SourceGeneratorContext ctx) {
-		ctx.pw.print("\n\t\"" + StringEscapeUtils.escapeJava(methodApiFullSyntax.getReturnType().getType(ctx.processingEnv).toString()) + "\", ");
-		ctx.pw.print("\n\tnew Object[] {");
-		ctx.pw.print(methodApiFullSyntax.getParams().get(0).getVariable().getName());
-		ctx.pw.print("},");
-	}
-
-	protected void writeConstructor(SourceGeneratorContext ctx) {
-		ctx.pw.print("\n\t");
-
-		MethodApiKey constructorApiKey = new MethodApiKey(methodApiFullSyntax.getReturnType(), Collections.emptyList());
-		MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(constructorApiKey);
-		if (methodCallApi != null) {
-			if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) {
-				ctx.pw.print(methodCallApi.getPathToSyntax());
-				ctx.pw.print("::");
-				ctx.pw.print(methodCallApi.getMethodSyntax().getName());
-				ctx.pw.print(",");
-				return;
-			}
-
-			ctx.pw.print(ownerClassInfo.getSimpleClassName());
-			ctx.pw.print(".this::");
-			ctx.pw.print(methodCallApi.getMethodSyntax().getName());
-			ctx.pw.print(",");
-			return;
-		}
-
-		// Todo - check Collections & Interfaces & Default Public Constructors !!!
-		new TypeConstructorInfo(methodApiFullSyntax.getReturnType(), true).writeSourceCode(ctx);
-		ctx.pw.print(",");
-	}
-
 	@Override
 	protected void writeSourceCodeBody(SourceGeneratorContext ctx) {
-		String inputVarSrcName = methodApiFullSyntax.getParams().get(0).getVariable().getName();
-		String inputVarDstName = NameUtils.findBestName(this.usedNames, "dest");
+		List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
+		TypeWithVariableInfo varSrc = requiredParams.get(0);
+		String inputVarSrcName = varSrc.getVariableName();
+		String inputVarDstName = varRet.getVariableName();
 		this.usedNames.add(inputVarDstName);
+
+		// Instance
+
+		writeSourceInstanceCacheLoad(ctx, varSrc, varRet);
+
+		ctx.pw.print("if (" + varRet.getVariableName()+" == null) { \n\t");
+		ctx.pw.print(varRet.getVariableName());
+		ctx.pw.print(" = ");
+		writeConstructor(ctx, varRet);
+		ctx.pw.print(";\n}");
+
 
 		ctx.pw.print("\n// Copy Fields ");
 
-		ctx.pw.print("\nreturn MapperUtil.doTransform(");
-		//ctx.pw.print("\n\tnew Object[] {DataType2.class, value1},");
-		writeInputs(ctx);
-		ctx.pw.print("\n\t");
-		ctx.pw.print(methodApiFullSyntax.getParams().get(1).getVariable().getName());
-		ctx.pw.print(",");
-		//ctx.pw.print("\n\tDataType2::new,");
-		writeConstructor(ctx);
-		ctx.pw.print("\n\t(" + inputVarDstName + ") -> {");
-
-		ctx.pw.levelSpaceUp();
-		ctx.pw.levelSpaceUp();
+//		ctx.pw.print("\nreturn MapperUtil.doTransform(");
+//		//ctx.pw.print("\n\tnew Object[] {DataType2.class, value1},");
+//		writeInputs(ctx);
+//		ctx.pw.print("\n\t");
+//		ctx.pw.print(requiredParams.get(1).getVariableName());
+//		ctx.pw.print(",");
+//		//ctx.pw.print("\n\tDataType2::new,");
+//		writeConstructor(ctx);
+//		ctx.pw.print("\n\t(" + inputVarDstName + ") -> {");
+//
+//		ctx.pw.levelSpaceUp();
+//		ctx.pw.levelSpaceUp();
 
 
 		String methodContextValue = null;
 		if (analyzedDataAreDifferents()) {
-			methodContextValue = NameUtils.findBestName(this.usedNames, "methodConfig");
-			this.usedNames.add(methodContextValue);
+			methodContextValue = NameUtils.findBestNameAndUpdateSet(this.usedNames, "methodConfig");
 
 			ctx.pw.print("\nint ");
 			ctx.pw.print(methodContextValue);
@@ -209,7 +189,7 @@ public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
 					ctx.pw.print("if (");
 					ctx.pw.print(methodContextValue);
 					ctx.pw.print(" == ");
-					ctx.pw.print(methodConfigKey.getForTopMethod().hashCode() + "");
+					ctx.pw.print(methodConfigKey.getForTopMethod());
 					ctx.pw.print(") ");
 				}
 
@@ -254,7 +234,7 @@ public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
 		}
 
 		// Vyhladanie vsetkych interceptors
-		TypeMirror srcType = methodApiFullSyntax.getParams().get(0).getVariable().getType().getType(ctx.processingEnv);
+		TypeMirror srcType = requiredParams.get(0).getVariableType().getType(ctx.processingEnv);
 		TypeMirror dstType = methodApiFullSyntax.getReturnType().getType(ctx.processingEnv);
 		List<MethodCallApi> interceptors = new LinkedList<>();
 		for (Map.Entry<MethodApiKey, MethodApiFullSyntax> entry : ownerClassInfo.getMyUsableMethods().entrySet()) {
@@ -273,6 +253,8 @@ public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
 		}
 
 		if (!interceptors.isEmpty()) {
+			List<TypeWithVariableInfo> otherVariables = methodApiFullSyntax.getParams();
+
 			List<String> params = new ArrayList<>(2);
 			params.add(inputVarSrcName);
 			params.add(inputVarDstName);
@@ -280,16 +262,18 @@ public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
 			ctx.pw.print("\n// Call Interceptors ... ");
 			for (MethodCallApi methodCallApi : interceptors) {
 				ctx.pw.print("\n");
-				methodCallApi.genSourceForCall(ctx, params, Collections.emptyMap());
+				methodCallApi.genSourceForCallWithStringParam(ctx, params, otherVariables, this);
 				ctx.pw.print(";");
 			}
 		}
 
-		ctx.pw.levelSpaceDown();
-		ctx.pw.levelSpaceDown();
+		writeSourceInstanceCacheRegister(ctx, varSrc, varRet);
 
-		ctx.pw.print("\n\t}");
-		ctx.pw.print("\n);");
+//		ctx.pw.levelSpaceDown();
+//		ctx.pw.levelSpaceDown();
+//
+//		ctx.pw.print("\n\t}");
+//		ctx.pw.print("\n);");
 	}
 
 	protected String createSubPathForNestedObject(SourceGeneratorContext ctx, String originalVariable, List<FieldValueAccessData> pathToVariable, Map<String, String> cacheOfFoundPaths, boolean canCreateObject) {
@@ -339,7 +323,7 @@ public class CopyFieldMethodSourceInfo extends EmptyMethodSourceInfo {
 				ctx.pw.print("\n\t");
 				ctx.pw.print(variable);
 				ctx.pw.print(" = ");
-				new TypeConstructorInfo(variableInfo.getType(), false).writeSourceCode(ctx);
+				new TypeConstructorInfo(variableInfo.getVariableType(), false).writeSourceCode(ctx);
 				ctx.pw.print(";");
 
 				// set value

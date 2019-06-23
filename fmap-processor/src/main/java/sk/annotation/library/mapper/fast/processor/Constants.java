@@ -1,18 +1,20 @@
-package sk.annotation.library.mapper.fast.processor.utils;
+package sk.annotation.library.mapper.fast.processor;
 
 import sk.annotation.library.mapper.fast.annotations.Context;
 import sk.annotation.library.mapper.fast.annotations.FastMapperGenerated;
 import sk.annotation.library.mapper.fast.annotations.Return;
-import sk.annotation.library.mapper.fast.processor.AnnotationFastMapperProcessor;
 import sk.annotation.library.mapper.fast.processor.data.AnnotationsInfo;
+import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.mapper.fast.processor.data.TypeInfo;
+import sk.annotation.library.mapper.fast.utils.MapperRunCtxData;
+import sk.annotation.library.mapper.fast.utils.MapperRunCtxDataHolder;
+import sk.annotation.library.mapper.fast.utils.context.MapperUtil;
 
 import javax.annotation.Generated;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
-abstract public class AnnotationConstants {
+abstract public class Constants {
 	// my annotation types
 	static final public TypeInfo annotationContext = new TypeInfo(Context.class);
 	static final public TypeInfo annotationReturn = new TypeInfo(Return.class);
@@ -44,5 +46,18 @@ abstract public class AnnotationConstants {
 	static final public TypeInfo cdiContextSession = new TypeInfo(javax.enterprise.context.SessionScoped.class);
 	static final public TypeInfo cdiContextApplication = new TypeInfo(javax.enterprise.context.ApplicationScoped.class);
 	static final public TypeInfo cdiContextSingleton = new TypeInfo(javax.inject.Singleton.class);
+
+
+
+
+	static final private String reservedNameForMethodId = "**mapper-conf-id**";
+	static final private String reservedNameForContextData = "**mapper-ctx**";
+
+	static final public TypeInfo typeMapperUtil = new TypeInfo(MapperUtil.class);
+	static final public TypeInfo typeMapperRunCtxData = new TypeInfo(MapperRunCtxData.class);
+	static final public TypeInfo typeMapperRunCtxDataHolder = new TypeInfo(MapperRunCtxDataHolder.class);
+
+	static final public TypeWithVariableInfo methodParamInfo_ctxForMethodId = new TypeWithVariableInfo("confId", new TypeInfo(int.class), Constants.reservedNameForMethodId, false);;
+	static final public TypeWithVariableInfo methodParamInfo_ctxForRunData = new TypeWithVariableInfo("ctx", typeMapperRunCtxData, Constants.reservedNameForContextData, false);;
 
 }

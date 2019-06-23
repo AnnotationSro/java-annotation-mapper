@@ -28,7 +28,7 @@ public class EmptyMethodSourceInfo extends AbstractMethodSourceInfo {
 		if (methodApiFullSyntax.getReturnType()!=null) {
 			if (methodApiFullSyntax.isReturnLastParam()) {
 				ctx.pw.print("\nreturn ");
-				ctx.pw.print(methodApiFullSyntax.getParams().get(methodApiFullSyntax.getParams().size()-1).getVariable().getName());
+				ctx.pw.print(methodApiFullSyntax.getParams().get(methodApiFullSyntax.getParams().size()-1).getVariableName());
 				ctx.pw.print(";");
 			}
 			else {

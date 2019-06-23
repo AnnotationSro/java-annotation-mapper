@@ -4,7 +4,7 @@ import com.sun.tools.javac.code.Type;
 import sk.annotation.library.mapper.fast.processor.data.MapperClassInfo;
 import sk.annotation.library.mapper.fast.processor.data.MethodCallApi;
 import sk.annotation.library.mapper.fast.processor.data.TypeConstructorInfo;
-import sk.annotation.library.mapper.fast.processor.data.confwrappers.FieldMappingData;
+import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.mapper.fast.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.mapper.fast.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.ImportsTypeDefinitions;
@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ListMethodSourceInfo extends AbstractMethodSourceInfo {
-	public ListMethodSourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams) {
+public class SimpleMethodApi_List_SourceInfo extends AbstractMethodSourceInfo {
+	public SimpleMethodApi_List_SourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams) {
 		super(ownerClassInfo, methodApiParams);
 	}
 
@@ -37,7 +37,7 @@ public class ListMethodSourceInfo extends AbstractMethodSourceInfo {
 
 			// Najdeme typy (z akeho na aky)
 			List<Type> dstTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getReturnType().getType(processingEnv));
-			List<Type> srcTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getParams().get(0).getVariable().getType().getType(processingEnv));
+			List<Type> srcTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getRequiredParams().get(0).getVariableType().getType(processingEnv));
 			if (dstTypeList!=null && srcTypeList!=null && dstTypeList.size()==1 && srcTypeList.size()==1) {
 				/*  Mozno tu bude treba zistit context tejto metody */
 				methodCallApi = findOrCreateOwnMethod(processingEnv, null, srcTypeList.get(0), dstTypeList.get(0));
@@ -58,13 +58,14 @@ public class ListMethodSourceInfo extends AbstractMethodSourceInfo {
 
 	@Override
 	protected void writeSourceCodeBody(SourceGeneratorContext ctx) {
-		// return
-		String srcVarName = this.methodApiFullSyntax.getRequiredParams().get(0).getVariable().getName();
-		String dstVarName = this.methodApiFullSyntax.getRequiredParams().get(1).getVariable().getName();
 
-		ctx.pw.print("\nif (");
-		ctx.pw.print(srcVarName);
-		ctx.pw.print(" == null) return out;");
+		// return
+		TypeWithVariableInfo varSrc = this.methodApiFullSyntax.getRequiredParams().get(0);
+		String srcVarName = varSrc.getVariableName();
+		String dstVarName = this.varRet.getVariableName();
+
+
+		writeSourceInstanceCacheLoad(ctx, varSrc, varRet);
 
 		ctx.pw.print("\nif (");
 		ctx.pw.print(dstVarName);
@@ -77,13 +78,15 @@ public class ListMethodSourceInfo extends AbstractMethodSourceInfo {
 		ctx.pw.print("\n}");
 		ctx.pw.print("\nelse {\n\t" + dstVarName  + ".clear();\n}");
 
+		writeSourceInstanceCacheRegister(ctx, varSrc, varRet);
+
 		ctx.pw.print("\n\n// Copy values");
 		if (methodCallApi!=null) {
 			String name = NameUtils.findBestName(this.usedNames, "s");
 			this.usedNames.add(name);
 
 			ctx.pw.print("\nfor (");
-			methodCallApi.getMethodSyntax().getParams().get(0).getVariable().getType().writeSourceCode(ctx);
+			methodCallApi.getMethodSyntax().getRequiredParams().get(0).getVariableType().writeSourceCode(ctx);
 			ctx.pw.print(" ");
 			ctx.pw.print(name);
 			ctx.pw.print(" : ");
@@ -96,7 +99,7 @@ public class ListMethodSourceInfo extends AbstractMethodSourceInfo {
 			List<String> params = new ArrayList<>(2);
 			params.add(name);
 			params.add("null");
-			methodCallApi.genSourceForCall(ctx, params, Collections.emptyMap());
+			methodCallApi.genSourceForCallWithStringParam(ctx, params, methodApiFullSyntax.getParams(), this);
 
 			ctx.pw.print(");");
 
@@ -104,10 +107,6 @@ public class ListMethodSourceInfo extends AbstractMethodSourceInfo {
 			ctx.pw.print("\n}");
 		}
 
-		ctx.pw.print(";");
-
-		ctx.pw.print("\nreturn ");
-		ctx.pw.print(dstVarName);
 		ctx.pw.print(";");
 	}
 

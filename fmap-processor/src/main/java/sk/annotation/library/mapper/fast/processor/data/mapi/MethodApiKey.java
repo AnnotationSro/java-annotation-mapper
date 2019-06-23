@@ -2,8 +2,7 @@ package sk.annotation.library.mapper.fast.processor.data.mapi;
 
 import lombok.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeExclude;
-import sk.annotation.library.mapper.fast.processor.data.MethodParamInfo;
+import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.mapper.fast.processor.data.TypeInfo;
 
 import javax.lang.model.type.TypeMirror;
@@ -27,7 +26,7 @@ public class MethodApiKey {
 	}
 
 
-	public MethodApiKey (TypeInfo returnType, List<MethodParamInfo> inputParams) {
+	public MethodApiKey (TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
 		this(detectApiWithReturnType(returnType, inputParams), merge(returnType, inputParams));
 	}
 
@@ -38,16 +37,16 @@ public class MethodApiKey {
 		}
 		return ret;
 	}
-	private static TypeMirror[] merge(TypeInfo returnType, List<MethodParamInfo> inputParams) {
+	private static TypeMirror[] merge(TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
 		List<TypeMirror> visibleTypes = new ArrayList<>(inputParams.size()+1);
 		visibleTypes.add(unwrapType(returnType));
-		for (MethodParamInfo param : inputParams) {
+		for (TypeWithVariableInfo param : inputParams) {
 			if (StringUtils.isNotEmpty(param.getHasContextKey())) continue;
 			visibleTypes.add(unwrapType(param));
 		}
 		return visibleTypes.toArray(new TypeMirror[visibleTypes.size()]);
 	}
-	private static boolean detectApiWithReturnType(TypeInfo returnType, List<MethodParamInfo> inputParams) {
+	private static boolean detectApiWithReturnType(TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
 		if (returnType == null) return false;
 		if (inputParams.isEmpty()) return false;
 		return inputParams.get(inputParams.size()-1).isMarkedAsReturn();
@@ -58,9 +57,9 @@ public class MethodApiKey {
 		if (type == null) return null;
 		return type.type;
 	}
-	static private TypeMirror unwrapType(MethodParamInfo param) {
+	static private TypeMirror unwrapType(TypeWithVariableInfo param) {
 		if (param == null) return null;
-		return unwrapType(param.getVariable().getType());
+		return unwrapType(param.getVariableType());
 	}
 
 }

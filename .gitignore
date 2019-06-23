@@ -1,6 +1,7 @@
 /*/target
 /*.iml
 /*/*.iml
+/.idea
 
 /java-object-mapper-benchmark/*.zip
 /java-object-mapper-benchmark/*.uml

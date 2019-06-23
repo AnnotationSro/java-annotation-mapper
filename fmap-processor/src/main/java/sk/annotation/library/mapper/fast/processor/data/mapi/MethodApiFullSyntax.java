@@ -3,9 +3,8 @@ package sk.annotation.library.mapper.fast.processor.data.mapi;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import sk.annotation.library.mapper.fast.annotations.Return;
 import sk.annotation.library.mapper.fast.processor.data.AnnotationsInfo;
-import sk.annotation.library.mapper.fast.processor.data.MethodParamInfo;
+import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.mapper.fast.processor.data.TypeInfo;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.SourceGeneratorContext;
@@ -17,7 +16,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.util.*;
 
@@ -28,13 +26,13 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 	final AnnotationsInfo annotations = new AnnotationsInfo();
 
 	// contains full api of Method
-	private List<MethodParamInfo> params;
+	private List<TypeWithVariableInfo> params;
 	private boolean returnLastParam = false;
 	private TypeInfo returnType;
 
 	final private MethodApiKey apiKey;
 
-	public MethodApiFullSyntax(ProcessingEnvironment processingEnv, String methodName, TypeInfo returnType, List<MethodParamInfo> params) {
+	public MethodApiFullSyntax(ProcessingEnvironment processingEnv, String methodName, TypeInfo returnType, List<TypeWithVariableInfo> params) {
 		this.name = methodName;
 		this.returnType = returnType;
 		if (params == null) params = Collections.emptyList();
@@ -45,7 +43,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 			returnLastParam = params.get(paramSize-1).isMarkedAsReturn();
 
 			int i = 0;
-			for (MethodParamInfo param : params) {
+			for (TypeWithVariableInfo param : params) {
 				int paramIndex = i++;
 
 				// Neccessary Validation
@@ -53,7 +51,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 					if (paramIndex < paramSize-1) {
 						throw new IllegalArgumentException(MsgConstants.errorMethodParamWithReturnIsNotLast);
 					}
-					else if (!TypeUtils.isSame(processingEnv, returnType, param.getVariable().getType())) {
+					else if (!TypeUtils.isSame(processingEnv, returnType, param.getVariableType())) {
 						throw new IllegalArgumentException(MsgConstants.errorMethodParamBadType);
 					}
 				}
@@ -63,9 +61,9 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		apiKey = new MethodApiKey(returnType, params);
 	}
 
-	public List<MethodParamInfo> getRequiredParams() {
-		List<MethodParamInfo> _getNeccessaryParams = new ArrayList<>(params.size());
-		for (MethodParamInfo param : params) {
+	public List<TypeWithVariableInfo> getRequiredParams() {
+		List<TypeWithVariableInfo> _getNeccessaryParams = new ArrayList<>(params.size());
+		for (TypeWithVariableInfo param : params) {
 			if (StringUtils.isNotEmpty(param.getHasContextKey())) continue;
 			_getNeccessaryParams.add(param);
 		}
@@ -76,10 +74,10 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		try {
 			String name = method.getSimpleName().toString();
 			TypeInfo returnType = TypeInfo.analyzeReturnType(method.getReturnType());
-			List<MethodParamInfo> params = new LinkedList<>();
+			List<TypeWithVariableInfo> params = new LinkedList<>();
 			if (method.getParameters()!=null) {
 				for (VariableElement variableElement : method.getParameters()) {
-					MethodParamInfo param = MethodParamInfo.analyze(variableElement);
+					TypeWithVariableInfo param = TypeWithVariableInfo.analyze(variableElement);
 					params.add(param);
 				}
 			}
@@ -96,7 +94,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
 		SourceRegisterImports.runIfPresent(returnType, ctx, imports);
 		annotations.registerImports(ctx, imports);
-		params.forEach(param -> SourceRegisterImports.runIfPresent(param.getVariable(), ctx, imports));
+		params.forEach(param -> SourceRegisterImports.runIfPresent(param, ctx, imports));
 	}
 
 	public void writeMethodDeclaration(SourceGeneratorContext ctx) {
@@ -114,10 +112,10 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 
 		ctx.pw.print("(");
 		boolean writeSeparator = false;
-		for (MethodParamInfo param : params) {
+		for (TypeWithVariableInfo param : params) {
 			if (writeSeparator) ctx.pw.print(", ");
 			writeSeparator = true;
-			param.getVariable().writeSourceCode(ctx, true, true);
+			param.writeSourceCode(ctx, true, true);
 		}
 
 		ctx.pw.print(")");

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import sk.annotation.library.mapper.fast.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.mapper.fast.processor.data.MethodCallApi;
+import sk.annotation.library.mapper.fast.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.mapper.fast.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.mapper.fast.processor.data.methodgenerator.AbstractMethodSourceInfo;
 import sk.annotation.library.mapper.fast.processor.sourcewriter.SourceGeneratorContext;
@@ -85,7 +86,7 @@ public class FieldMappingData {
 				return;
 			}
 
-			writeMethod(ctx, this, varSrcName, varDstName);
+			writeMethod(ctx, ownerMethod, this, varSrcName, varDstName, ownerMethod.getMethodApiFullSyntax().getParams());
 
 		} catch (Exception ee) {
 			ee.printStackTrace();
@@ -168,7 +169,7 @@ public class FieldMappingData {
 
 
 
-	protected void writeMethod(SourceGeneratorContext ctx, FieldMappingData mappingData, String varSrcName, String varDestName) {
+	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData, String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
 		ctx.pw.print("\n");
 		String[] eee = mappingData.getDst().getSourceForSetter(varDestName);
 		ctx.pw.print(eee[0]);
@@ -176,7 +177,7 @@ public class FieldMappingData {
 		List<String> params = new ArrayList<>(2);
 		params.add(mappingData.getSrc().getSourceForGetter(varSrcName));
 		params.add(mappingData.getDst().getSourceForGetter(varDestName));
-		mappingData.getMethodCallApi().genSourceForCall(ctx, params, Collections.emptyMap());
+		mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
 		ctx.pw.print(eee[2]);
 		ctx.pw.print(";");
 	}
