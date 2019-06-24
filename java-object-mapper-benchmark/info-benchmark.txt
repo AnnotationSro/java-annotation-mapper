@@ -1,6 +1,0 @@
-Benchmarks:
-  https://github.com/arey/java-object-mapper-benchmark
-  https://www.baeldung.com/java-performance-mapping-frameworks / https://github.com/eugenp/tutorials/tree/master/performance-tests
-      - chyba selma
-
-  

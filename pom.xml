@@ -2,18 +2,18 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>sk.annotation.library.mapper.fast</groupId>
-	<artifactId>fastmaper</artifactId>
+	<groupId>sk.annotation.library.mapper.jam</groupId>
+	<artifactId>jammaper</artifactId>
 	<version>0.1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
-	<name>fastmaper</name>
+	<name>jammaper</name>
 
 	<modules>
-		<module>fmap-common</module>
-		<module>fmap-processor</module>
-		<module>fmap-tests</module>
+		<module>jam-common</module>
+		<module>jam-processor</module>
+		<module>jam-tests</module>
 	</modules>
 
 	<properties>
