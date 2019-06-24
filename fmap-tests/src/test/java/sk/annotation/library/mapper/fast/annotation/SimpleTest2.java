@@ -31,8 +31,8 @@ public abstract class SimpleTest2 {
 
 	@MapperFieldConfig(
 			fieldMapping = {
-					@FieldMapping(d = "sk.annotation.library.mapper.fast.annotation.DataType1a.id", s = "sk.annotation.library.mapper.fast.annotation.DataType1a.id"),
-					@FieldMapping(d = "sk.annotation.library.mapper.fast.annotation.DataType1a.parentId", s = "sk.annotation.library.mapper.fast.annotation.DataType1a.parent.id"),
+					@FieldMapping(d = "DataType1a.id", s = "DataType1a.id"),
+					@FieldMapping(d = "DataType1a.parentId", s = "DataType1a.parent.id"),
 					@FieldMapping(d = "id", s = "id")
 			},
 			fieldIgnore = {

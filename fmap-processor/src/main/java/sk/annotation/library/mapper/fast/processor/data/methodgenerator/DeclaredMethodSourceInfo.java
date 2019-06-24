@@ -199,7 +199,9 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
             bodyVariableNames.add(param);
         }
 
-        bodyVariableNames.add(new TypeWithVariableInfo(methodConfigKey.getForTopMethod(), Constants.methodParamInfo_ctxForMethodId));
+        if (methodConfigKey!=null) {
+            bodyVariableNames.add(new TypeWithVariableInfo(methodConfigKey.getForTopMethod(), Constants.methodParamInfo_ctxForMethodId));
+        }
 
         if (varCtxVariable == null && !ownerClassInfo.getFeatures().isDisabledToUseMapperRunCtxData()) {
             String bestName = NameUtils.findBestNameAndUpdateSet(usedNames, Constants.methodParamInfo_ctxForRunData.getVariableName());

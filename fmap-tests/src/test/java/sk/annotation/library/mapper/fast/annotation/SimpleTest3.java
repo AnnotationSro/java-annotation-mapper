@@ -1,6 +1,8 @@
 package sk.annotation.library.mapper.fast.annotation;
 
-//@FastMapper
+import sk.annotation.library.mapper.fast.annotations.FastMapper;
+
+@FastMapper
 public interface SimpleTest3 {
 
 //	@FastMapper

@@ -13,7 +13,14 @@
 	<dependencies>
 		<dependency>
 			<groupId>sk.annotation.library.mapper.fast</groupId>
+			<artifactId>fmap-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sk.annotation.library.mapper.fast</groupId>
 			<artifactId>fmap-processor</artifactId>
+			<scope>provided</scope>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
