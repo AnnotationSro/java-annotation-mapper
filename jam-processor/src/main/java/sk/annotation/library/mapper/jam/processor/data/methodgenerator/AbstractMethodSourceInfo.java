@@ -106,7 +106,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
         if (varRet != null) usedNames.add(varRet.getVariableName());
 
-        //// Tu bude test
+        // Here will be test
         writeSourceCodeBody(ctx);
 
         if (!(this instanceof DeclaredMethodSourceInfo)) {
@@ -238,12 +238,12 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         subMethodParams.add(new TypeWithVariableInfo("out", retType, null, true));
         MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
 
-        // Vyhladame metodu, ale ak neexistuje, vytvorime si svoju vlastnu verziu
+        // We search for method here, but if it doesnt exist, we create our own version
         MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey);
         if (methodCallApi != null) return methodCallApi;
 
 
-        // vytvorime vlastny mapper pre metodu ...
+        // We create our own mapper for method
         String subMethodName = ownerClassInfo.findBestNewMethodName_transformFromTo(processingEnv, transformApiKey);
         MethodApiFullSyntax subMethodApiSyntax = new MethodApiFullSyntax(processingEnv, subMethodName, retType, subMethodParams);
         methodCallApi = ownerClassInfo.registerNewGeneratedMethod(findBestMethodGenerator(processingEnv, ownerClassInfo, subMethodApiSyntax, sourceType, destinationType));
@@ -256,7 +256,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
     protected static AbstractMethodSourceInfo findBestMethodGenerator(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, MethodApiFullSyntax subMethodApiSyntax, TypeMirror srcType, TypeMirror dstType) {
 
-        // Zistenie, ci ide o kolekciu na kolekciu
+        // Check if its mapping collection onto collection
         if (srcType == null || dstType == null) return new EmptyMethodSourceInfo(ownerClassInfo, subMethodApiSyntax);
 
         Type[] types = new Type[]{

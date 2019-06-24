@@ -13,16 +13,16 @@ abstract public class ApiUtil {
 		if (parentTypeAsAbstractClass) {
 			if (!executableElement.getModifiers().contains(Modifier.ABSTRACT)) return false;
 
-			// Mozno to vygenerujeme, ale nebudeme to asi riesit takto
+			// Maybe it will be generated, but probably some other way
 			if (executableElement.getParameters()==null || executableElement.getParameters().isEmpty()) return false;
-			if (executableElement.getReturnType() == null) return false; // neviem, ci zafunguje
+			if (executableElement.getReturnType() == null) return false; // not sure if works
 			// TODO: Check default constructor !!!
 			return true;
 		}
 
 		// INTERFACE:
 
-		// Default metody nemozeme prepisovat !!!
+		// Default methods cannot be overwritten !!!
 		if (executableElement.getModifiers().contains(Modifier.DEFAULT)) return false;
 		return true;
 	}
@@ -32,10 +32,10 @@ abstract public class ApiUtil {
 
 		if (element.getAnnotation(IgnoredByJamMapper.class) != null) return false;
 
-		// Privatne metody alebo fieldy neviem nic pouzivat
+		// Private methods or fields can not be used
 		if (element.getModifiers().contains(Modifier.PRIVATE)) return false;
 
-		// Ak nie je public, tiez neviem pouzivat
+		// If its not public, it can not be used
 		if (!elementIsMy && element.getModifiers().contains(Modifier.PUBLIC)) return true;
 
 		return false;

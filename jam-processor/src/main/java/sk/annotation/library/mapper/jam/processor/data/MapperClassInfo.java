@@ -158,10 +158,10 @@ public class MapperClassInfo {
 
 		for (Type fieldType : values) {
 			for (Type existFieldValue : allFieldsTypes.values()) {
-				if (processingEnv.getTypeUtils().isSameType(existFieldValue, fieldType)) continue; // uz existuje
+				if (processingEnv.getTypeUtils().isSameType(existFieldValue, fieldType)) continue; // already exists
 			}
 
-			// Skusime nazov
+			// Try name
 			String fieldName = NameUtils.findBestName(usedNames, StringUtils.uncapitalize(NameUtils.getClassSimpleName(fieldType.toString())));
 			usedNames.add(fieldName);
 			allFieldsTypes.put(fieldName, fieldType);
@@ -185,7 +185,7 @@ public class MapperClassInfo {
 	private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, List<ExecutableElement> executableElements) {
 		Map<MethodApiKey, MethodApiFullSyntax> mapApi = extUsableMethods.computeIfAbsent(pathApi, a -> new HashMap<>());
 
-		// treba zistit, na co mozem byt pouzivany dany field
+		// we need to find out, what can be given field used for
 		for (ExecutableElement method : executableElements) {
 			if (ApiUtil.ignoreUsing(false, method)) continue;
 
@@ -276,7 +276,7 @@ public class MapperClassInfo {
 			methodsToImplement.put(methodSyntax, methodSourceInfo);
 			topMethods.add(methodSourceInfo);
 		}
-		// pouzivas sa moze iba neimplementovana metoda (implementovana metoda je wrapnuta d vzdy povolena na pouzitie):
+		// only not implemented method can be used (implemented method is wrapped and always allowed for use)
 		else if (!ApiUtil.ignoreUsing(true, method)) {
 			// register possible using
 			myUsableMethods.put(methodSyntax.getApiKey(), methodSyntax);
@@ -298,7 +298,7 @@ public class MapperClassInfo {
 //				return;
 //			}
 //
-//			// Postupne budeme analyzovat vstupy d podla toho vytvorime odpoved ...
+//			// We will analyze inputs step by step and create response according to it ...
 //			MethodApiKey newMethodApiKey = new MethodApiKey(true, requiredApiKey.getVisibleTypes());
 //			MethodApiFullSyntax method = findMethodApiOrCreate(newMethodApiKey);
 //

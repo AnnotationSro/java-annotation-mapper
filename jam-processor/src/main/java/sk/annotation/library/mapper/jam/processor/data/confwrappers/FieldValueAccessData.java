@@ -23,7 +23,7 @@ public class FieldValueAccessData implements SourceRegisterImports {
 	public void setField(VariableElement field) {
 		this.field = field;
 
-		// TODO. Pridaj sem este kontrolu pre lombok Setter d Getter
+		// TODO: Add check for lombok Getter and Setter
 //		List<? extends AnnotationMirror> annotationMirrors = this.field.getAnnotationMirrors();
 //		for (AnnotationMirror annotationMirror : annotationMirrors) {
 //			if (annotationMirror.getElementValues())

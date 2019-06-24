@@ -30,7 +30,7 @@ public class FieldMappingData {
 	private ConfigErrorReporting dstConfigErrorReportingLevel;
 
 	private String methodNameRequired = null;
-	private MethodCallApi methodCallApi = null;    // ak je NULL, tak sa vola transformacie cez tuto metodu, inak sa pouzivaju priamo SETTRE/GETRE
+	private MethodCallApi methodCallApi = null;    // If it is null, transformation is called via this method, otherwise there are used SETTERS/GETTERS directly
 
 	@Override
 	public String toString() {

@@ -156,7 +156,7 @@ public class FieldConfigurationResolver {
 			if (resolvedCustomFields.contains(key)) continue;
 			resolvedCustomFields.add(key);
 
-			// ak sa to ma ignorovat, je potrebne pozriet to
+			// if it should be ignored, it needs to be checked
 			if (customField.ignoreDirection) continue;
 			if (isIgnoredKey(srcFieldConfigMap, srcPathKey)) continue;
 			if (isIgnoredKey(dstFieldConfigMap, dstPathKey)) continue;
@@ -170,7 +170,6 @@ public class FieldConfigurationResolver {
 				unusedSourceFields.remove(dstName);
 			}
 
-			//
 			ResolvedTransformation group = findResolvedTransformation(retValues, srcFieldPathList, dstFieldPathList);
 
 			FieldMappingData mappingData = new FieldMappingData();
@@ -261,10 +260,10 @@ public class FieldConfigurationResolver {
 				if (fieldPath!=null && !fieldPath.isEmpty()) {
 					if (fieldPath.size()!=1) continue;
 
-					// ClassName or FullCannonicalName sedi
+					// ClassName or FullCannonicalName matches
 					if (fieldPath.get(0) == null) return confGenerator;
 
-					// Ak sedi aj field
+					// If field matches too
 					if (StringUtils.equals(key, fieldPath.get(0).getFieldName())) return confGenerator;
 
 					continue;

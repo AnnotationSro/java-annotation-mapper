@@ -102,7 +102,7 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 	}
 
 	public String resolveType(TypeMirror type) {
-		// Zatial bez optimalizacie
+		// No optimalization so far
 		return resolveType(null, type, false);
 	}
 

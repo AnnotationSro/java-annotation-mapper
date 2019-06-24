@@ -35,7 +35,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			return;
 		}
 
-		// Ak je uz default
+		// If its already default
 		if (!forMethodConfig.isWithCustomConfig()) {
 			for (MethodConfigKey methodConfigKey : this.analyzedDataMap.keySet()) {
 				if (!methodConfigKey.isWithCustomConfig()) return;
@@ -65,7 +65,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 			// Check transformation types
 			for (FieldMappingData fieldMapping : group.fieldMappingData) {
-				// kontrola rovnakeho typu d jednoduchosti
+				// check for same type and if its primitive type
 				if (canDoWithoutTransform(processingEnv, fieldMapping)) {
 					continue;
 				}
@@ -76,7 +76,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 				TypeMirror destinationType = fieldMapping.getDst().getTypeOfSetter();
 
 
-				// TODO: Dokonci toto neskor
+				// TODO: Complete this later
 				if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) {
 					processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "@FieldMapping: methodNameS2D or methodNameD2S are not supported yet (this cofiguration is ignored).");
 				}
@@ -232,7 +232,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			}
 		}
 
-		// Vyhladanie vsetkych interceptors
+		// Find all interceptors
 		TypeMirror srcType = requiredParams.get(0).getVariableType().getType(ctx.processingEnv);
 		TypeMirror dstType = methodApiFullSyntax.getReturnType().getType(ctx.processingEnv);
 		List<MethodCallApi> interceptors = new LinkedList<>();
@@ -278,7 +278,6 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 	protected String createSubPathForNestedObject(SourceGeneratorContext ctx, String originalVariable, List<FieldValueAccessData> pathToVariable, Map<String, String> cacheOfFoundPaths, boolean canCreateObject) {
 		if (pathToVariable == null || pathToVariable.isEmpty()) return originalVariable;
 
-		//
 		StringBuilder sbPathKey = new StringBuilder();
 		sbPathKey.append(originalVariable);
 		for (FieldValueAccessData fieldValueAccessData : pathToVariable) {
@@ -313,7 +312,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			ctx.pw.print(";");
 
 			if (canCreateObject) {
-				// Test na if (variable == null) { variable = new Variable(); ....)
+				// Test if (variable == null) { variable = new Variable(); ....)
 				ctx.pw.print("\nif (");
 				ctx.pw.print(variable);
 				ctx.pw.print(" == null) {");

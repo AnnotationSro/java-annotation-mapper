@@ -29,7 +29,6 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 	final Set<Modifier> modifiers = new LinkedHashSet<>();
 	boolean inlineMode = true;
 
-	//
 	@Getter
 	final private String hasContextKey; // if contains any @Context("name")
 	@Getter
@@ -59,7 +58,7 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 
 
 
-		// ontext values
+		// context values
 		hasContextKey = StringUtils.trimToNull(hasContextKey);
 		if (markedAsReturn && hasContextKey!=null) {
 			throw new IllegalStateException(MsgConstants.errorMethodParamReturnAndContext);

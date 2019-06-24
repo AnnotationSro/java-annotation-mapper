@@ -32,7 +32,7 @@ public class EmptyMethodSourceInfo extends AbstractMethodSourceInfo {
 				ctx.pw.print(";");
 			}
 			else {
-				// todo: mozny problem s primitivnymi typmi
+				// TODO: possible problem with primitive types
 				ctx.pw.print("\nreturn null;");
 			}
 		}

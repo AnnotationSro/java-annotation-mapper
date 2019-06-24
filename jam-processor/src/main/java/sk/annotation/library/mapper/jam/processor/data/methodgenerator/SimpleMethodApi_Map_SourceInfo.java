@@ -35,17 +35,17 @@ public class SimpleMethodApi_Map_SourceInfo extends AbstractMethodSourceInfo {
 
             mapConstructorType = new TypeConstructorInfo(methodApiFullSyntax.getReturnType(), false);
 
-            // Najdeme typy (z akeho na aky)
+            // Find source and destination types
             List<Type> dstTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getReturnType().getType(processingEnv));
             List<Type> srcTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getRequiredParams().get(0).getVariableType().getType(processingEnv));
             if (dstTypeList != null && srcTypeList != null && dstTypeList.size() == 2 && srcTypeList.size() == 2) {
-                /*  Mozno tu bude treba zistit context tejto metody */
+                /* Maybe it will be needed to find out context of this method */
                 methodCallApiKeys = findOrCreateOwnMethod(processingEnv, null, srcTypeList.get(0), dstTypeList.get(0));
                 methodCallApiValues = findOrCreateOwnMethod(processingEnv, null, srcTypeList.get(1), dstTypeList.get(1));
             }
         }
 
-        // volaj referenciu pre typ ...
+        // call reference for type ...
         if (methodCallApiKeys != null && methodCallApiKeys.getOutGeneratedMethod() != null) {
             methodCallApiKeys.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
         }

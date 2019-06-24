@@ -111,7 +111,7 @@ abstract public class ElementUtils {
 		if (typeElementMapper.getAnnotation(JamMapper.class) != null)
 			return fullClassName + MapperInstanceUtil.constPostFixClassName;
 
-		// este treba najst vsetky metody d ich annotacie
+		// Its neccessary to find all methods and their annotations yet
 		List<? extends Element> allElements = typeElementMapper.getEnclosedElements();
 		for (ExecutableElement el : ElementFilter.constructorsIn(allElements)) {
 			if (el.getAnnotation(JamMapper.class) == null) continue;

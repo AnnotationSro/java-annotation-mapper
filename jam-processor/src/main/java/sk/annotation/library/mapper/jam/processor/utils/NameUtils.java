@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 abstract public class NameUtils {
 	static public String getClassSimpleName(TypeMirror type) {
-		//ToDo oprav toto potom
+		//TODO: fix later
 		return type.toString().replaceAll("[^a-zA-Z0-9_]", "");
 	}
 	static public String getClassSimpleName(String fullPath) {
