@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DefaultInstanceCache extends HashMap<Object, InstanceKeyValueMap6> implements InstanceCache {
+public class DefaultInstanceCache extends HashMap<Object, InstanceKeyValueResolver> implements InstanceCache {
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> InstanceCacheValue<T> getCacheValues(int key, Object in) {
-        InstanceKeyValueMap6 v;
+        InstanceKeyValueResolver v;
         if ((v = this.get(in)) == null) {
-            v = new InstanceKeyValueMap6(key, in);
+            v = new InstanceKeyValueResolver(key, in);
             super.put(in, v);
             return v;
         }
@@ -67,8 +67,8 @@ class DefaultInstanceCacheValue<T> implements InstanceCacheValue<T> {
     }
 }
 
-class InstanceKeyValueMap6 extends DefaultInstanceCacheValue {
-    public InstanceKeyValueMap6(int key, Object in) {
+class InstanceKeyValueResolver extends DefaultInstanceCacheValue {
+    public InstanceKeyValueResolver(int key, Object in) {
         super(key, in);
     }
 
