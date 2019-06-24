@@ -121,13 +121,6 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
     protected void writeSourceInstanceCacheLoad(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
         if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) {
-            /*
-            if (ret == null) {
-                Optional<> oRet = instanceCache.get("methodName", in);
-                if (oRet !=null) return oRet.orElse(null);
-            }
-            else if (instanceCache.isRegistered("methodName, in, ret)) return ret;
-            * */
             ctx.pw.printNewLine();
             ctx.pw.print("\n// Check cyclic mapping - can disable " + ownerClassInfo.getFeatures().getInfoHowCanBeDisabled(MapperFeature.PREVENT_CYCLIC_MAPPING));
             ctx.pw.print("\n" + Constants.typeInstanceCacheValue.getClsType().getSimpleName() + "<");
@@ -140,24 +133,12 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
                             + input.getVariableName()
                             + ");"
             );
-//            ctx.pw.print("\nif (" + varRet.getVariableName() + "==null) {");
-//            ctx.pw.print("\n\t");
-//            Constants.typeInstanceCacheValue.writeSourceCode(ctx);
-//            ctx.pw.print("<");
-//            varRet.getVariableType().writeSourceCode(ctx);
-//            ctx.pw.print(
-//                    "> oRet = "
-//                    + varCtxVariable.getVariableName()
-//                    + ".getInstanceCache().getCacheValues(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
-//                    +"\", "
-//                    + input.getVariableName()
-//                    + ");"
-//            );
-            ctx.pw.print("\nif ("+varRet.getVariableName()+"==null) {");
+
+            ctx.pw.print("\nif ("+varRet.getVariableName()+"==null) ");
             ctx.pw.print("\n\tif (cacheValue.isRegisteredAnyValue()) return cacheValue.getValue();");
-            ctx.pw.print("\n}");
+            ctx.pw.print("\n");
             ctx.pw.print("\nelse if (cacheValue.isRegistered(" + varRet.getVariableName() + ")");
-            ctx.pw.print(") {\n\treturn " + varRet.getVariableName() + ";\n}\n");
+            ctx.pw.print(") \n\treturn " + varRet.getVariableName() + ";\n\n");
         }
     }
     protected void writeSourceInstanceCacheRegister(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
