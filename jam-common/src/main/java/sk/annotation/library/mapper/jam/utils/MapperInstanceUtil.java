@@ -9,7 +9,7 @@ abstract public class MapperInstanceUtil {
     }
 
 
-    public static final String constPostFixClassName = "MapperImpl";
+    public static final String constPostFixClassName = "JAMImpl";
 
     static public <T> T getMapper(Class<T> clsMapper) {
         T val = doGetMapper(clsMapper, clsMapper.getClassLoader());
