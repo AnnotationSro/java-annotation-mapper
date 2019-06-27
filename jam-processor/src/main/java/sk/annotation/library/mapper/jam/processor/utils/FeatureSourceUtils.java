@@ -1,5 +1,7 @@
 package sk.annotation.library.mapper.jam.processor.utils;
 
+import lombok.Getter;
+import lombok.Setter;
 import sk.annotation.library.mapper.jam.annotations.DisableMapperFeature;
 import sk.annotation.library.mapper.jam.annotations.enums.MapperFeature;
 
@@ -11,6 +13,9 @@ import java.util.Set;
 public class FeatureSourceUtils {
     final private Set<MapperFeature> disabledFeatures = new HashSet<>();
     final private boolean disabledAllFeatures;
+    @Setter
+    @Getter
+    private boolean enableMethodContext = false;
 
     public FeatureSourceUtils(TypeElement element) {
         DisableMapperFeature features = element.getAnnotation(DisableMapperFeature.class);

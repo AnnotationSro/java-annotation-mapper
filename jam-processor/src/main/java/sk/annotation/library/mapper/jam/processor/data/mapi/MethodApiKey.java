@@ -19,6 +19,11 @@ public class MethodApiKey {
 	@EqualsAndHashCode.Exclude
 	final private TypeMirror[] visibleTypes;
 
+	private MethodApiKey (boolean apiWithReturnType, String[] visibleStrTypes,TypeMirror[] visibleTypes) {
+		this.apiWithReturnType = apiWithReturnType;
+		this.visibleStrTypes = visibleStrTypes;
+		this.visibleTypes = visibleTypes;
+	}
 	private MethodApiKey (boolean apiWithReturnType, TypeMirror... inputParams) {
 		this.apiWithReturnType = apiWithReturnType;
 		this.visibleTypes = inputParams;
@@ -28,6 +33,11 @@ public class MethodApiKey {
 
 	public MethodApiKey (TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
 		this(detectApiWithReturnType(returnType, inputParams), merge(returnType, inputParams));
+	}
+
+	public static MethodApiKey createWithoutReturnTypeInParam(MethodApiKey apiKey) {
+		if (apiKey == null || !apiKey.apiWithReturnType) return null;
+		return new MethodApiKey(false, apiKey.visibleStrTypes, apiKey.visibleTypes);
 	}
 
 	private static String[] transform(TypeMirror[] tp) {
@@ -42,6 +52,7 @@ public class MethodApiKey {
 		visibleTypes.add(unwrapType(returnType));
 		for (TypeWithVariableInfo param : inputParams) {
 			if (StringUtils.isNotEmpty(param.getHasContextKey())) continue;
+			if (param.isMarkedAsReturn()) continue;
 			visibleTypes.add(unwrapType(param));
 		}
 		return visibleTypes.toArray(new TypeMirror[visibleTypes.size()]);

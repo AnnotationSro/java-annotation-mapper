@@ -48,16 +48,11 @@ abstract public class Constants {
     static final public TypeInfo cdiContextSingleton = new TypeInfo(javax.inject.Singleton.class);
 
 
-    static final private String reservedNameForMethodId = "**mapper-conf-id**";
-    static final private String reservedNameForContextData = "**mapper-ctx**";
 
     static final public TypeInfo typeInstanceCacheValue = new TypeInfo(InstanceCacheValue.class);
     static final public TypeInfo typeMapperRunCtxData = new TypeInfo(MapperRunCtxData.class);
     static final public TypeInfo typeMapperRunCtxDataHolder = new TypeInfo(MapperRunCtxDataHolder.class);
 
-    static final public TypeWithVariableInfo methodParamInfo_ctxForMethodId = new TypeWithVariableInfo("confId", new TypeInfo(int.class), Constants.reservedNameForMethodId, false);
-    ;
-    static final public TypeWithVariableInfo methodParamInfo_ctxForRunData = new TypeWithVariableInfo("ctx", typeMapperRunCtxData, Constants.reservedNameForContextData, false);
-    ;
-
+    static final public TypeWithVariableInfo methodParamInfo_ctxForMethodId = new TypeWithVariableInfo("confId", new TypeInfo(int.class), Context.jamConfif, false);
+    static final public TypeWithVariableInfo methodParamInfo_ctxForRunData = new TypeWithVariableInfo("ctx", typeMapperRunCtxData, Context.jamContext, false);
 }

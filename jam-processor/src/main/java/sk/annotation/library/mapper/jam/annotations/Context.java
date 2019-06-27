@@ -9,4 +9,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER})
 public @interface Context {
 	String value() default "ctx";
+
+	public static final String jamConfif = "#JAM#conf";
+	public static final String jamContext = "#JAM#ctx";
 }

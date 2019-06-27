@@ -1,9 +1,11 @@
 package sk.annotation.library.mapper.jam.processor.data;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import sk.annotation.library.mapper.jam.annotations.Context;
 import sk.annotation.library.mapper.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.mapper.jam.processor.sourcewriter.SourceGeneratorContext;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,13 +34,25 @@ public class AnnotationValues implements SourceGenerator {
 		return this;
 	}
 
+
+	private static final Map<String, String> customResolver;
+	static {
+		customResolver = new HashMap<>();
+		customResolver.put("\""+ StringEscapeUtils.escapeJava(Context.jamConfif) +"\"", "Context.jamConfif");
+		customResolver.put("\""+ StringEscapeUtils.escapeJava(Context.jamContext) +"\"", "Context.jamContext");
+
+	}
+	protected String resolveBestValue(String value) {
+		return customResolver.getOrDefault(value, value);
+	}
+
 	@Override
 	public void writeSourceCode(SourceGeneratorContext ctx) {
 		if (values.isEmpty()) return;
 
 		if (values.size()==1 && values.containsKey("value")) {
 			ctx.pw.print("(");
-			ctx.pw.print(values.get("value"));
+			ctx.pw.print(resolveBestValue(values.get("value")));
 			ctx.pw.print(")");
 			return;
 		}
@@ -50,7 +64,7 @@ public class AnnotationValues implements SourceGenerator {
 			writeSeparator = true;
 			ctx.pw.print(e.getKey());
 			ctx.pw.print(" = ");
-			ctx.pw.print(e.getValue());
+			ctx.pw.print(resolveBestValue(e.getValue()));
 		}
 		ctx.pw.print(")");
 	}

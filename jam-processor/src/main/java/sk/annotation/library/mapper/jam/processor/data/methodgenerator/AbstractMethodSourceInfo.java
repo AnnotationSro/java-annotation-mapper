@@ -230,7 +230,9 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         if (TypeUtils.isSame(processingEnv, inType, retType) && TypeUtils.isKnownImmutableType(processingEnv, inType)) return null;
 
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
-        subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
+        if (ownerClassInfo.getFeatures().isEnableMethodContext()) {
+            subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
+        }
         if (!ownerClassInfo.getFeatures().isDisabledToUseMapperRunCtxData()) {
             subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
         }

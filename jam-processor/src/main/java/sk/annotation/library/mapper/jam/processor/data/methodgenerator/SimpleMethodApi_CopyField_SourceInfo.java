@@ -280,15 +280,17 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 		StringBuilder sbPathKey = new StringBuilder();
 		sbPathKey.append(originalVariable);
+		boolean canBeNull = false;
 		for (FieldValueAccessData fieldValueAccessData : pathToVariable) {
 			sbPathKey.append(".");
 			sbPathKey.append(fieldValueAccessData.getFieldName());
-			originalVariable = _createSubPathForNestedObject(ctx, originalVariable, sbPathKey.toString(), fieldValueAccessData, cacheOfFoundPaths, canCreateObject);
+			originalVariable = _createSubPathForNestedObject(ctx, originalVariable, sbPathKey.toString(), fieldValueAccessData, cacheOfFoundPaths, canCreateObject, canBeNull);
+			canBeNull = true;
 		}
 		return originalVariable;
 	}
 
-	private String _createSubPathForNestedObject(SourceGeneratorContext ctx, String parentVariable, String pathKey, FieldValueAccessData pathToVariable, Map<String, String> cacheOfFoundPaths, boolean canCreateObject) {
+	private String _createSubPathForNestedObject(SourceGeneratorContext ctx, String parentVariable, String pathKey, FieldValueAccessData pathToVariable, Map<String, String> cacheOfFoundPaths, boolean canCreateObject, boolean canBeNull) {
 		if (pathToVariable == null || StringUtils.isEmpty(pathToVariable.getFieldName())) return parentVariable;
 
 		String variable = cacheOfFoundPaths.get(pathKey);
@@ -305,7 +307,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			ctx.pw.print("\n");
 			variableInfo.writeSourceCode(ctx);
 			ctx.pw.print(" = ");
-			if (!canCreateObject) {
+			if (!canCreateObject && canBeNull) {
 				ctx.pw.print("(" + parentVariable + "==null) ? null : ");
 			}
 			ctx.pw.print(sourceForGetter);

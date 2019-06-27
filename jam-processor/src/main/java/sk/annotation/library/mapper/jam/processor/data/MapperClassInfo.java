@@ -60,7 +60,7 @@ public class MapperClassInfo {
 	final public ImportsTypeDefinitions imports;
 	final private Set<Modifier> mapperModifiers = new LinkedHashSet<>();
 	final public List<FieldInfo> fieldsToImplement = new LinkedList<>();
-	final public ConstantsMethodGeneratorInfo topMethodsRegistrator = new ConstantsMethodGeneratorInfo();
+	public ConstantsMethodGeneratorInfo topMethodsRegistrator = new ConstantsMethodGeneratorInfo();
 
 
 	final public AnnotationsInfo generateAnnotations;
@@ -134,10 +134,16 @@ public class MapperClassInfo {
 			registerMethod(processingEnv, method);
 		}
 
-
 		// analyze classes to uses
 		for (DeclaredMethodSourceInfo analyzedMethodSourceInfo : topMethods) {
 			analyzedMethodSourceInfo.analyzeAndGenerateDependMethods(processingEnv);
+		}
+
+		if (topMethods.size() < 2) {
+			getFeatures().setEnableMethodContext(false);
+		}
+		if (!getFeatures().isEnableMethodContext()) {
+			topMethodsRegistrator = new ConstantsMethodGeneratorInfo();
 		}
 
 
@@ -175,7 +181,7 @@ public class MapperClassInfo {
 	Map<String, Type> allFieldsTypes = new LinkedHashMap<>();
 
 	private void registerField(ProcessingEnvironment processingEnv, VariableElement field) {
-		if (ApiUtil.ignoreUsing(false, field)) return;
+		if (ApiUtil.ignoreUsing(true, field)) return;
 		Type type = TypeUtils.findType(field);
 		allFieldsTypes.put(field.getSimpleName().toString(), type);
 		List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, type);
@@ -240,11 +246,19 @@ public class MapperClassInfo {
 	public MethodCallApi findMethodApiToCall(MethodApiKey apiKey) {
 		// only visible method can by called !!!
 
+		MethodApiKey altApiKey = MethodApiKey.createWithoutReturnTypeInParam(apiKey);
+
 		String path = "";
 		MethodApiFullSyntax myMethod = myUsableMethods.get(apiKey);
+		if (myMethod == null && altApiKey!=null) {
+			myMethod = myUsableMethods.get(altApiKey);
+		}
 		if (myMethod == null) {
 			for (Map.Entry<String, Map<MethodApiKey, MethodApiFullSyntax>> e : extUsableMethods.entrySet()) {
 				myMethod = e.getValue().get(apiKey);
+				if (myMethod == null && altApiKey!=null) {
+					myMethod = e.getValue().get(altApiKey);
+				}
 				if (myMethod != null) {
 					path = e.getKey() + ".";
 					usedField.add(e.getKey());

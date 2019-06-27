@@ -28,15 +28,15 @@ abstract public class ApiUtil {
 	}
 
 	static public boolean ignoreUsing(boolean elementIsMy, Element element) {
-		if (element == null) return false;
+		if (element == null) return true;
 
-		if (element.getAnnotation(IgnoredByJamMapper.class) != null) return false;
+		if (element.getAnnotation(IgnoredByJamMapper.class) != null) return true;
 
 		// Private methods or fields can not be used
-		if (element.getModifiers().contains(Modifier.PRIVATE)) return false;
+		if (element.getModifiers().contains(Modifier.PRIVATE)) return true;
 
 		// If its not public, it can not be used
-		if (!elementIsMy && element.getModifiers().contains(Modifier.PUBLIC)) return true;
+		if (!elementIsMy && !element.getModifiers().contains(Modifier.PUBLIC)) return true;
 
 		return false;
 	}

@@ -60,11 +60,12 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
         ////////////////////////////////////////////////////////
         // 1)  Create MethodConfigKey
-        methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method));
+        methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method,ownerClassInfo));
         MapperFieldConfig methodConfig = method.getAnnotation(MapperFieldConfig.class);
         if (methodConfig != null) {
             methodConfigKey.getConfigurations().add(methodConfig);
             methodConfigKey.setWithCustomConfig(true);
+            ownerClassInfo.getFeatures().setEnableMethodContext(true);
         }
         if (!ownerClassInfo.getClassAndPackageConfigurations().isEmpty()) {
             methodConfigKey.getConfigurations().addAll(ownerClassInfo.getClassAndPackageConfigurations());
@@ -197,7 +198,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
             bodyVariableNames.add(param);
         }
 
-        if (methodConfigKey!=null) {
+        if (methodConfigKey!=null && ownerClassInfo.getFeatures().isEnableMethodContext()) {
             bodyVariableNames.add(new TypeWithVariableInfo(methodConfigKey.getForTopMethod(), Constants.methodParamInfo_ctxForMethodId));
         }
 
