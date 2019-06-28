@@ -272,8 +272,8 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git://github.com/AnnotationSro/java-annotation-mapper.git</connection>
-        <developerConnection>scm:git:ssh://github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
+        <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
+        <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
         <url>http://github.com/AnnotationSro/java-annotation-mapper/tree/master</url>
     </scm>
 </project>
