@@ -186,9 +186,8 @@
     </build>
 
     <scm>
-        <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
-        <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
-        <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
-        <tag>HEAD</tag>
+        <connection>scm:git:git://github.com/AnnotationSro/java-annotation-mapper.git</connection>
+        <developerConnection>scm:git:ssh://github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
+        <url>http://github.com/AnnotationSro/java-annotation-mapper/tree/master</url>
     </scm>
 </project>
