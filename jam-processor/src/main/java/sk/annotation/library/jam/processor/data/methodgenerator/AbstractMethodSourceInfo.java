@@ -11,7 +11,6 @@ import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.annotations.enums.MapperFeature;
-import sk.annotation.library.mapper.jam.processor.data.*;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;

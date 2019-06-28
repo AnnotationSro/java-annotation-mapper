@@ -13,9 +13,8 @@ import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
-import sk.annotation.library.jam.processor.utils.NameUtils;
-import sk.annotation.library.mapper.jam.processor.data.*;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
