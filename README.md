@@ -69,7 +69,6 @@ public interface SimpleMapper {
 
 Getting mapper instance directly:
 ```java
-@Component
 public class UsingMapper {
 
     public void main(String[] args) {
@@ -77,11 +76,6 @@ public class UsingMapper {
 
         // example with immutable mapping
         OutBean res = mapper.map(in);
-    
-        // example with updating
-        OutBean dest = dao.getById(42);
-        OutBean res = mapper.update(in, dest);
-        // res is the updated bean dest with in values
     }
 }
 ```
