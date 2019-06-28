@@ -31,7 +31,7 @@ Result of this process is:
 JAM library significantly reduces developer's time.
 
 
-# How does it work ?
+## How does it add to project ?
 
 First add library jam-processor as a provided dependency and jam-common as a compile dependency to your build.
 ```xml
@@ -49,8 +49,8 @@ First add library jam-processor as a provided dependency and jam-common as a com
 </dependency>
 ```
 
-# Simple example with spring support
-Then, define a Mapper interface (or abstract class) describing the mapping you want:
+## How does it create mapper?
+Define Mapper interface (or abstract class) describing the mapping you want. Follow example is with Spring support:
 
 ```java
 @JamMapper
@@ -65,15 +65,19 @@ public interface SimpleMapper {
 }
 ```
 
+## How does it use?
 
+Getting mapper instance directly:
+```java
+    SimpleMapper mapper = MapperInstanceUtil.getMapper(SimpleMapper.class);
+```
 
-Mapper using in other spring bean:
-
+Using mapper in spring bean:
 ```java
 @Component
 public class AnySpringService {
     @Autowired
-    private SimpleMapper mapper;  // direct clear java alternative: SimpleMapper mapper = MapperInstanceUtil.getMapper(SimpleMapper.class);
+    private SimpleMapper mapper;
 
     public void example() {
         // example with immutable mapping
@@ -87,7 +91,5 @@ public class AnySpringService {
 }
 ```
 
-
-Visit our site: (https://www.java-annotation-mapper.org - is in progress)
-
+**Warning**: WEB, documentations, examples and new features are in progress.
 
