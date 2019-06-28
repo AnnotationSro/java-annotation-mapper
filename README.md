@@ -36,13 +36,13 @@ JAM library significantly reduces developer's time.
 First add library jam-processor as a provided dependency and jam-common as a compile dependency to your build.
 ```xml
 <dependency>
-    <groupId>sk.annotation.library.mapper.jam</groupId>
+    <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-common</artifactId>
     <version>${jam.version}</version>
 </dependency>
 
 <dependency>
-    <groupId>sk.annotation.library.mapper.jam</groupId>
+    <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-processor</artifactId>
     <scope>provided</scope>
     <version>${jam.version}</version>
