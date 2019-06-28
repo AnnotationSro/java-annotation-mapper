@@ -2,7 +2,6 @@ package sk.annotation.library.jam.annotation;
 
 
 import sk.annotation.library.jam.annotations.*;
-import sk.annotation.library.mapper.jam.annotations.*;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.annotations.enums.IocScope;
 
