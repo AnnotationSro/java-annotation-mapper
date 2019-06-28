@@ -47,7 +47,7 @@
         <!-- - - - - - - - - - - - - - - - - - - - - - -->
         <!-- Disable deploy every module               -->
         <!--<maven.deploy.skip>true</maven.deploy.skip>-->
-        <maven.deploy.skip>false</maven.deploy.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <source.skip>true</source.skip>
 
@@ -104,6 +104,19 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <version>1.3</version>
@@ -128,10 +141,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
+                    <localCheckout>true</localCheckout>
                     <tagNameFormat>release-@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>release</releaseProfiles>
-                    <arguments>-Prelease -Dmaven.javadoc.skip=true -Dmaven.test.skip=false</arguments>
+                    <arguments>-Prelease,sign-gpg</arguments>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -234,6 +248,28 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <source.skip>false</source.skip>
+            </properties>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <scm>
         <connection>scm:git:git://github.com/AnnotationSro/java-annotation-mapper.git</connection>

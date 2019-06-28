@@ -69,7 +69,21 @@ public interface SimpleMapper {
 
 Getting mapper instance directly:
 ```java
-    SimpleMapper mapper = MapperInstanceUtil.getMapper(SimpleMapper.class);
+@Component
+public class UsingMapper {
+
+    public void main(String[] args) {
+        SimpleMapper mapper = MapperInstanceUtil.getMapper(SimpleMapper.class);
+
+        // example with immutable mapping
+        OutBean res = mapper.map(in);
+    
+        // example with updating
+        OutBean dest = dao.getById(42);
+        OutBean res = mapper.update(in, dest);
+        // res is the updated bean dest with in values
+    }
+}
 ```
 
 Using mapper in spring bean:
