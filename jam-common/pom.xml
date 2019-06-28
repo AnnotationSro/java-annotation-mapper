@@ -3,7 +3,7 @@
 
 	<parent>
 		<groupId>sk.annotation.library.mapper.jam</groupId>
-		<artifactId>jammaper</artifactId>
+		<artifactId>jam-root</artifactId>
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 
