@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.example.ex2;
 
 import org.junit.Test;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.*;
 
@@ -17,7 +17,7 @@ public class IgnoreFieldMapperTest {
         input.setName(name);
         input.setSurname(surname);
 
-        IgnoreFieldMapper mapper = MapperInstanceUtil.getMapper(IgnoreFieldMapper.class);
+        IgnoreFieldMapper mapper = MapperUtil.getMapper(IgnoreFieldMapper.class);
 
         UserOutput output = mapper.toOutput(input);
 

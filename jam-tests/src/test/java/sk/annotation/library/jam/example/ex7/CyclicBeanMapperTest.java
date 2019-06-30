@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.example.ex7;
 
 import org.junit.Test;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.*;
 
@@ -18,7 +18,7 @@ public class CyclicBeanMapperTest {
                                 null),
                         null));
 
-        CyclicBeanMapper mapper = MapperInstanceUtil.getMapper(CyclicBeanMapper.class);
+        CyclicBeanMapper mapper = MapperUtil.getMapper(CyclicBeanMapper.class);
 
         TreeNodeOutput outputTree = mapper.toOutput(inputTree);
 

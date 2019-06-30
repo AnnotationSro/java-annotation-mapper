@@ -2,7 +2,7 @@ package sk.annotation.library.jam.example.ex5;
 
 import org.junit.Test;
 import sk.annotation.library.jam.example.ex4.AddressInput;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ public class NestedClassListMapperTest {
         a.setZipCode(zip);
         input.getAddresses().add(a);
 
-        NestedClassListMapper mapper = MapperInstanceUtil.getMapper(NestedClassListMapper.class);
+        NestedClassListMapper mapper = MapperUtil.getMapper(NestedClassListMapper.class);
 
         UserWithAddressOutput output = mapper.toOutput(input);
 

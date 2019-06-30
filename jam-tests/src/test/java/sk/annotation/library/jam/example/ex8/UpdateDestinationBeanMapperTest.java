@@ -3,7 +3,7 @@ package sk.annotation.library.jam.example.ex8;
 import org.junit.Test;
 import sk.annotation.library.jam.example.ex1.UserInput;
 import sk.annotation.library.jam.example.ex1.UserOutput;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,7 +18,7 @@ public class UpdateDestinationBeanMapperTest {
         input.setName(name);
         input.setSurname(surname);
 
-        UpdateDestinationBeanMapper mapper = MapperInstanceUtil.getMapper(UpdateDestinationBeanMapper.class);
+        UpdateDestinationBeanMapper mapper = MapperUtil.getMapper(UpdateDestinationBeanMapper.class);
 
         UserOutput output = new UserOutput();
 

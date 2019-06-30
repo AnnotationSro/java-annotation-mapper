@@ -72,7 +72,7 @@ Getting mapper instance directly:
 public class UsingMapper {
 
     public void main(String[] args) {
-        SimpleMapper mapper = MapperInstanceUtil.getMapper(SimpleMapper.class);
+        SimpleMapper mapper = MapperUtil.getMapper(SimpleMapper.class);
 
         // example with immutable mapping
         OutBean res = mapper.map(in);

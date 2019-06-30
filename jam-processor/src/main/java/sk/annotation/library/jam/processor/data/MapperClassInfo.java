@@ -13,7 +13,7 @@ import sk.annotation.library.jam.processor.data.methodgenerator.AbstractMethodSo
 import sk.annotation.library.jam.processor.data.methodgenerator.DeclaredMethodSourceInfo;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.utils.*;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
@@ -72,7 +72,7 @@ public class MapperClassInfo {
     private MapperClassInfo(ProcessingEnvironment processingEnv, TypeElement element) {
         this.parentElement = element;
         this.jamMapperConfig = element.getAnnotation(JamMapper.class);
-        this.fullClassName = ElementUtils.getQualifiedName(this.parentElement) + MapperInstanceUtil.constPostFixClassName;
+        this.fullClassName = ElementUtils.getQualifiedName(this.parentElement) + MapperUtil.constPostFixClassName;
         this.simpleClassName = NameUtils.getClassSimpleName(this.fullClassName);
 
         if (!ApiUtil.canImplementMapper(element)) {

@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.example.ex4;
 
 import org.junit.Test;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.*;
 
@@ -24,7 +24,7 @@ public class NestedClassMapperTest {
         input.getAddress().setCity(city);
         input.getAddress().setZipCode(zip);
 
-        NestedClassMapper mapper = MapperInstanceUtil.getMapper(NestedClassMapper.class);
+        NestedClassMapper mapper = MapperUtil.getMapper(NestedClassMapper.class);
 
         UserWithAddressOutput output = mapper.toOutput(input);
 
@@ -55,7 +55,7 @@ public class NestedClassMapperTest {
         input.getAddress().setCity(city);
         input.getAddress().setZipCode(zip);
 
-        NestedClassMapper mapper = MapperInstanceUtil.getMapper(NestedClassMapper.class);
+        NestedClassMapper mapper = MapperUtil.getMapper(NestedClassMapper.class);
 
         UserWithFlatAddressOutput output = mapper.toOutputFlatten(input);
 

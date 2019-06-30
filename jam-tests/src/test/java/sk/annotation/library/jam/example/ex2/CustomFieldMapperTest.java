@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.example.ex2;
 
 import org.junit.Test;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,7 +18,7 @@ public class CustomFieldMapperTest {
         input.setName(name);
         input.setSurname(surname);
 
-        CustomFieldMapper mapper = MapperInstanceUtil.getMapper(CustomFieldMapper.class);
+        CustomFieldMapper mapper = MapperUtil.getMapper(CustomFieldMapper.class);
 
         UserOutput output = mapper.toOutput(input);
 

@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.example.ex3;
 
 import org.junit.Test;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.*;
 
@@ -15,7 +15,7 @@ public class CopyMapperTest {
         input.setId(id);
         input.setMessage(message);
 
-        CopyMapper mapper = MapperInstanceUtil.getMapper(CopyMapper.class);
+        CopyMapper mapper = MapperUtil.getMapper(CopyMapper.class);
 
         BeanToCopy output = mapper.toOutput(input);
 

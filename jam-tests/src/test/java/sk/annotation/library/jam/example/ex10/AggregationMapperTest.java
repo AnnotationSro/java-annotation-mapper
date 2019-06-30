@@ -4,7 +4,7 @@ import org.junit.Test;
 import sk.annotation.library.jam.example.ex1.UserInput;
 import sk.annotation.library.jam.example.ex4.AddressInput;
 import sk.annotation.library.jam.example.ex4.UserWithFlatAddressOutput;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,7 +28,7 @@ public class AggregationMapperTest {
         addressInput.setCity(city);
         addressInput.setZipCode(zip);
 
-        AggregationMapper mapper = MapperInstanceUtil.getMapper(AggregationMapper.class);
+        AggregationMapper mapper = MapperUtil.getMapper(AggregationMapper.class);
 
         UserWithFlatAddressOutput output = mapper.toOutput(userInput, addressInput);
 

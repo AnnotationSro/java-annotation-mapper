@@ -17,7 +17,7 @@ public class BeanWithEnumMapperTest {
 //        input.setSurname(surname);
 //        input.setRole(role);
 //
-//        BeanWithEnumMapper mapper = MapperInstanceUtil.getMapper(BeanWithEnumMapper.class);
+//        BeanWithEnumMapper mapper = MapperUtil.getMapper(BeanWithEnumMapper.class);
 //
 //        UserWithRoleOutput output = mapper.toOutput(input);
 //

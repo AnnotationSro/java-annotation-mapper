@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.example.ex1;
 
 import org.junit.Test;
-import sk.annotation.library.jam.utils.MapperInstanceUtil;
+import sk.annotation.library.jam.utils.MapperUtil;
 
 import static org.junit.Assert.*;
 
@@ -15,7 +15,7 @@ public class SimpleMapperTest {
         input.setName(name);
         input.setSurname(surname);
 
-        SimpleMapper mapper = MapperInstanceUtil.getMapper(SimpleMapper.class);
+        SimpleMapper mapper = MapperUtil.getMapper(SimpleMapper.class);
 
         UserOutput output = mapper.toOutput(input);
 
@@ -34,7 +34,7 @@ public class SimpleMapperTest {
         input.setName(name);
         input.setSurname(surname);
 
-        SimpleMapper mapper = MapperInstanceUtil.getMapper(SimpleMapper.class);
+        SimpleMapper mapper = MapperUtil.getMapper(SimpleMapper.class);
 
         UserOutput output = mapper.toOutput(input);
         UserInput backToInput = mapper.toInput(output);

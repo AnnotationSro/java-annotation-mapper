@@ -4,7 +4,7 @@
 
     <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-root</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jam-root</name>
@@ -274,6 +274,6 @@
     <scm>
         <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
         <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
-        <url>http://github.com/AnnotationSro/java-annotation-mapper/tree/master</url>
+        <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
     </scm>
 </project>

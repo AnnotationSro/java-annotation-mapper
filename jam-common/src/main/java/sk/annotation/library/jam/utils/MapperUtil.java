@@ -3,8 +3,8 @@ package sk.annotation.library.jam.utils;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-abstract public class MapperInstanceUtil {
-    private MapperInstanceUtil() {
+abstract public class MapperUtil {
+    private MapperUtil() {
         throw new IllegalStateException("abstract method");
     }
 
@@ -17,7 +17,7 @@ abstract public class MapperInstanceUtil {
             val = doGetMapper(clsMapper, Thread.currentThread().getContextClassLoader());
         }
         if (val == null) {
-            val = doGetMapper(clsMapper, MapperInstanceUtil.class.getClassLoader());
+            val = doGetMapper(clsMapper, MapperUtil.class.getClassLoader());
         }
 
         return val;
