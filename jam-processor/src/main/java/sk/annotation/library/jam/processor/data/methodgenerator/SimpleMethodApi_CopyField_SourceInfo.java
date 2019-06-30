@@ -113,12 +113,20 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		// Instance
 
 		writeSourceInstanceCacheLoad(ctx, varSrc, varRet);
-
-		ctx.pw.print("if (" + varRet.getVariableName()+" == null) { \n\t");
-		ctx.pw.print(varRet.getVariableName());
+		if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+			ctx.pw.print("\nif (" + varRet.getVariableName() + " == null) { \n\t");
+			ctx.pw.print(varRet.getVariableName());
+		}
+		else {
+			// Declare variable ...
+			ctx.pw.print("\n");
+			varRet.writeSourceCode(ctx, true, false);
+			ctx.pw.print(" ");
+		}
 		ctx.pw.print(" = ");
 		writeConstructor(ctx, varRet);
-		ctx.pw.print(";\n}");
+		ctx.pw.print(";\n");
+		if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) ctx.pw.print("}");
 
 
 		ctx.pw.print("\n// Copy Fields ");
@@ -197,9 +205,10 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 				ctx.pw.print("{");
 				ctx.pw.levelSpaceUp();
-			} else {
-				ctx.pw.print("\n// Copy Fields - without custom configuration");
 			}
+//			else {
+//				ctx.pw.print("\n// Copy Fields - without custom configuration");
+//			}
 
 			for (FieldConfigurationResolver.ResolvedTransformation group : groups) {
 				//ctx.pw.printNewLine();

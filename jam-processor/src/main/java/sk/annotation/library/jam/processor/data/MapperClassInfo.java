@@ -142,8 +142,15 @@ public class MapperClassInfo {
             getFeatures().setEnableMethodContext(false);
         }
         if (!getFeatures().isEnableMethodContext()) {
-            topMethodsRegistrator = new ConstantsMethodGeneratorInfo();
+//            topMethodsRegistrator = new ConstantsMethodGeneratorInfo();
+            topMethodsRegistrator.constanctsForTopMethods.clear();
         }
+
+        // analyze 2 - check delegatedTopMethods
+        for (DeclaredMethodSourceInfo analyzedMethodSourceInfo : topMethods) {
+            analyzedMethodSourceInfo.tryUnwrapMethods();
+        }
+
 
 
 //		//////////////////////////////

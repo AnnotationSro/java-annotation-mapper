@@ -69,6 +69,11 @@ public class MethodCallApi {
 		int i=0;
 		boolean addSeparator = false;
 		for (TypeWithVariableInfo param : methodSyntax.getParams()) {
+			if (param.isMarkedAsReturn() && !methodSyntax.isGenerateReturnParamRequired()) {
+				// kedze moze bezat bez returnType na vstupe, generujeme po svojom
+				continue;
+			}
+
 			if (addSeparator) ctx.pw.print(", ");
 			addSeparator = true;
 

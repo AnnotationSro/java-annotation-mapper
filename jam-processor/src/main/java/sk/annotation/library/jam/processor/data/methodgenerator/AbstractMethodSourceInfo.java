@@ -99,12 +99,12 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             if (varRet == null) {
                 String bestRetName = NameUtils.findBestNameAndUpdateSet(this.usedNames, "ret");
                 varRet = new TypeWithVariableInfo(bestRetName, methodApiFullSyntax.getReturnType(), null, false);
-
-                if (!(this instanceof DeclaredMethodSourceInfo)) {
-                    ctx.pw.printNewLine();
-                    varRet.writeSourceCode(ctx, true, false);
-                    ctx.pw.print(" = null;");
-                }
+//
+//                if (!(this instanceof DeclaredMethodSourceInfo)) {
+//                    ctx.pw.printNewLine();
+//                    varRet.writeSourceCode(ctx, true, false);
+//                    ctx.pw.print(" = null;\n");
+//                }
             }
         }
         if (varRet != null) usedNames.add(varRet.getVariableName());
@@ -137,11 +137,16 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
                             + ");"
             );
 
-            ctx.pw.print("\nif ("+varRet.getVariableName()+"==null) ");
-            ctx.pw.print("\n\tif (cacheValue.isRegisteredAnyValue()) return cacheValue.getValue();");
+
             ctx.pw.print("\n");
-            ctx.pw.print("\nelse if (cacheValue.isRegistered(" + varRet.getVariableName() + ")");
-            ctx.pw.print(") \n\treturn " + varRet.getVariableName() + ";\n\n");
+            if (this.methodApiFullSyntax.isGenerateReturnParamRequired())
+                ctx.pw.print("if ("+varRet.getVariableName()+"==null) \n\t");
+            ctx.pw.print("if (cacheValue.isRegisteredAnyValue()) return cacheValue.getValue();");
+            ctx.pw.print("\n");
+            if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+                ctx.pw.print("\nelse if (cacheValue.isRegistered(" + varRet.getVariableName() + ")");
+                ctx.pw.print(") \n\treturn " + varRet.getVariableName() + ";\n\n");
+            }
         }
     }
     protected void writeSourceInstanceCacheRegister(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
@@ -219,11 +224,14 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
     }
 
 
-    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeInfo sourceType, TypeInfo destinationType) {
-        return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType.getType(processingEnv), destinationType.getType(processingEnv));
+    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
+        return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType, destinationType, this.methodApiFullSyntax.isReturnLastParamRequired());
+    }
+    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeInfo sourceType, TypeInfo destinationType, boolean returnLastParamRequired) {
+        return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType.getType(processingEnv), destinationType.getType(processingEnv), returnLastParamRequired);
     }
 
-    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
+    private MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType, boolean returnLastParamRequired) {
 
         // Create transform value
         TypeInfo inType = new TypeInfo(sourceType);
@@ -245,12 +253,18 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
         // We search for method here, but if it doesnt exist, we create our own version
         MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey);
-        if (methodCallApi != null) return methodCallApi;
+        if (methodCallApi != null) {
+            if (returnLastParamRequired && methodCallApi.getMethodSyntax()!=null) {
+                methodCallApi.getMethodSyntax().setReturnLastParamRequired(true);
+            }
+
+            return methodCallApi;
+        }
 
 
         // We create our own mapper for method
         String subMethodName = ownerClassInfo.findBestNewMethodName_transformFromTo(processingEnv, transformApiKey);
-        MethodApiFullSyntax subMethodApiSyntax = new MethodApiFullSyntax(processingEnv, subMethodName, retType, subMethodParams);
+        MethodApiFullSyntax subMethodApiSyntax = new MethodApiFullSyntax(processingEnv, subMethodName, retType, subMethodParams, returnLastParamRequired);
         methodCallApi = ownerClassInfo.registerNewGeneratedMethod(findBestMethodGenerator(processingEnv, ownerClassInfo, subMethodApiSyntax, sourceType, destinationType));
 
         if (methodCallApi == null) throw new IllegalStateException("Unexpected situation !!!");

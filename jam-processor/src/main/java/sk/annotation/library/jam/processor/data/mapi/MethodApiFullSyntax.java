@@ -1,6 +1,7 @@
 package sk.annotation.library.jam.processor.data.mapi;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.processor.data.AnnotationsInfo;
@@ -21,18 +22,28 @@ import java.util.*;
 
 @Getter
 public class MethodApiFullSyntax implements SourceRegisterImports {
+	@Setter
 	private String name;
 	private final Set<Modifier> modifiers = new HashSet<>();
 	final AnnotationsInfo annotations = new AnnotationsInfo();
 
 	// contains full api of Method
 	private List<TypeWithVariableInfo> params;
+	@Setter
 	private boolean returnLastParam = false;
+	@Setter
+	private boolean returnLastParamRequired = false;			//
 	private TypeInfo returnType;
 
 	final private MethodApiKey apiKey;
 
-	public MethodApiFullSyntax(ProcessingEnvironment processingEnv, String methodName, TypeInfo returnType, List<TypeWithVariableInfo> params) {
+	public boolean isGenerateReturnParamRequired() {
+		return isReturnLastParam() && isReturnLastParamRequired();
+	}
+
+
+
+	public MethodApiFullSyntax(ProcessingEnvironment processingEnv, String methodName, TypeInfo returnType, List<TypeWithVariableInfo> params, boolean returnLastParamRequired) {
 		this.name = methodName;
 		this.returnType = returnType;
 		if (params == null) params = Collections.emptyList();
@@ -58,6 +69,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 			}
 		}
 
+		this.returnLastParamRequired = returnLastParamRequired && returnLastParam;
 		apiKey = new MethodApiKey(returnType, params);
 	}
 
@@ -81,7 +93,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 					params.add(param);
 				}
 			}
-			return new MethodApiFullSyntax(processingEnv, name, returnType, params);
+			return new MethodApiFullSyntax(processingEnv, name, returnType, params, true);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -113,9 +125,17 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		ctx.pw.print("(");
 		boolean writeSeparator = false;
 		for (TypeWithVariableInfo param : params) {
+            if (param.isMarkedAsReturn() && !returnLastParamRequired) {
+                continue;
+            }
+
 			if (writeSeparator) ctx.pw.print(", ");
 			writeSeparator = true;
 			param.writeSourceCode(ctx, true, true);
+
+			if (param.isMarkedAsReturn()) {
+				ctx.pw.print( " /* returnLastParamRequired="+returnLastParamRequired+" */ ");
+			}
 		}
 
 		ctx.pw.print(")");

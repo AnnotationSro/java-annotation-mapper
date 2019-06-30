@@ -68,19 +68,28 @@ public class SimpleMethodApi_Map_SourceInfo extends AbstractMethodSourceInfo {
         String srcVarName = varSrc.getVariableName();
         String dstVarName = this.varRet.getVariableName();
 
-
         writeSourceInstanceCacheLoad(ctx, varSrc, varRet);
 
-        ctx.pw.print("\nif (");
-        ctx.pw.print(dstVarName);
-        ctx.pw.print(" == null) {");
-        ctx.pw.print("\n\t");
-        ctx.pw.print(dstVarName);
+        if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+            ctx.pw.print("\nif (");
+            ctx.pw.print(dstVarName);
+            ctx.pw.print(" == null) {");
+            ctx.pw.print("\n\t");
+            ctx.pw.print(dstVarName);
+        }
+        else {
+            // Declare variable ...
+            ctx.pw.print("\n");
+            varRet.writeSourceCode(ctx, true, false);
+            ctx.pw.print(" ");
+        }
         ctx.pw.print(" = ");
         mapConstructorType.writeSourceCodeWithParams(ctx);
         ctx.pw.print(";");
-        ctx.pw.print("\n}");
-        ctx.pw.print("\nelse {\n\t" + dstVarName + ".clear();\n}");
+        if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+            ctx.pw.print("\n}");
+            ctx.pw.print("\nelse {\n\t" + dstVarName + ".clear();\n}");
+        }
 
         writeSourceInstanceCacheRegister(ctx, varSrc, varRet);
 

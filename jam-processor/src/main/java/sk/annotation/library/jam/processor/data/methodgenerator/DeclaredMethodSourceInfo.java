@@ -1,21 +1,22 @@
 package sk.annotation.library.jam.processor.data.methodgenerator;
 
 import org.apache.commons.lang3.StringUtils;
+import sk.annotation.library.jam.annotations.MapperFieldConfig;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.jam.processor.utils.NameUtils;
-import sk.annotation.library.jam.annotations.MapperFieldConfig;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.utils.MapperRunCtxData;
 import sk.annotation.library.jam.utils.MapperRunCtxDataHolder;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
         ////////////////////////////////////////////////////////
         // 1)  Create MethodConfigKey
-        methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method,ownerClassInfo));
+        methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method, ownerClassInfo));
         MapperFieldConfig methodConfig = method.getAnnotation(MapperFieldConfig.class);
         if (methodConfig != null) {
             methodConfigKey.getConfigurations().add(methodConfig);
@@ -90,7 +91,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
         for (int i = 0; i < numInputParams; i++) {
 
             // 3a) Create methodApiKey
-            MethodCallApi methodCallApi = findOrCreateOwnMethod(processingEnv, null, inputParams.get(i).getVariableType(), varRet.getVariableType());
+            MethodCallApi methodCallApi = findOrCreateOwnMethod(processingEnv, null, inputParams.get(i).getVariableType(), varRet.getVariableType(), this.methodApiFullSyntax.isReturnLastParamRequired() || i>0);
 
             // If method still doesnt exist, its wrong !!
             requiredMethods.add(methodCallApi);
@@ -110,86 +111,15 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
     protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
         // nothing :)
     }
-    //	@Override
-//	protected void generateBody(ProcessingEnvironment processingEnv, MethodConfigKey methodConfigKey, BodyGenerator body) {
-//		/*
-//		* ObjRet transf(Obj1 o1, Obj2 o2, Obj3 o3)  =>
-//			BODY:
-//
-//			// Wrap methods and collect informations
-//			return doTransform(
-//					null,
-//					// Init context
-//					ctxData -> {
-//						ctxData.putContextValue("ctx", ctx);
-//						ctxData.putContextValue("newValue", ctx2);
-//					},
-//					() -> methodSimpleO1_implemented_bypass(i1, o1)
-//			);
-//		* */
-//
-//		body.add("\n// Wrap methods and collect informations");
-//		body.add("\nreturn " + MapperUtil.class.getSimpleName() + ".doTransform(");
-//
-//		// register method context
-//		body.add("\n\t\"" + StringEscapeUtils.escapeJava(methodConfigKey.getForTopMethod()) + "\",");
-//
-//		// register requiredContextValues
-//		List<MethodParamInfo> subMethodParams = new LinkedList<>();
-//		for (MethodParamInfo ctxParam : methodApiFullSyntax.getParams()) {
-//			if (ctxParam.getHasContextKey()!=null) {
-//				subMethodParams.add(ctxParam);
-//			}
-//		}
-//		if (subMethodParams.isEmpty()) {
-//			body.add("\n\tnull,");
-//		}
-//		else {
-//			body.add("\n\t() -> {");
-//			for (MethodParamInfo subMethodParam : subMethodParams) {
-//				body.add("\n\t\t", subMethodParam.genSourceForPutContext(subMethodParam.getFieldName()), ");");
-//			}
-//			body.add("\t},");
-//		}
-//
-//
-//		// callMethods
-//		MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(subMethodApiSyntax.getApiKey());
-//		body.add("\n\t() -> ");
-//		body.add(methodCallApi.genSourceForDelegatedCall("ctx", methodApiFullSyntax, "null"));
-//		body.add(");");
-//	}
+
+    @Override
+    public void writeSourceCode(SourceGeneratorContext ctx) {
+        if (this.unwrapModeEnabled) return;
+        super.writeSourceCode(ctx);
+    }
 
     @Override
     protected void writeSourceCodeBody(SourceGeneratorContext ctx) {
-		/*
-		* ObjRet transf(Obj1 i1, Obj2 i2, ..., @Ret Obj3 ret)  =>
-			BODY:
-
-			* // Null values (checked in parent !!!)
-			* if (i1 == null && i2 == null) return ret;
-			*
-			* // Is context ready
-			* CtxData ctx = CtxUtil.data.get();
-			* boolean manageCtx = ctx == null;
-			* try {
-			* 	if (manageCtx) {
-			* 		ctx = new CtxData();
-			* 		CtxUtil.data.save(ctx);
-			* 	}
-			*
-			* 	if (ret == null) ret = new Obj3();
-			* 	ret = methodSimpleO1_implemented_bypass(i1, ret);
-			* 	ret = methodSimpleO1_implemented_bypass(i2, ret);
-			* 	...
-			*
-			* 	return ret;
-			* }
-			* finish {
-			* 	if (manageCtx) CtxUtil.data.remove();
-			* }
-		* */
-
 
         // Init context ...
         List<TypeWithVariableInfo> bodyVariableNames = new LinkedList<>();
@@ -198,7 +128,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
             bodyVariableNames.add(param);
         }
 
-        if (methodConfigKey!=null && ownerClassInfo.getFeatures().isEnableMethodContext()) {
+        if (methodConfigKey != null && ownerClassInfo.getFeatures().isEnableMethodContext()) {
             bodyVariableNames.add(new TypeWithVariableInfo(methodConfigKey.getForTopMethod(), Constants.methodParamInfo_ctxForMethodId));
         }
 
@@ -229,7 +159,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
             ctx.pw.print(varCtxVariable.getVariableName());
             ctx.pw.print(" = ");
             ctx.pw.print("new " + MapperRunCtxData.class.getSimpleName() + "();");
-            ctx.pw.print("\n\t" + MapperRunCtxDataHolder.class.getSimpleName() + ".data.set("+varCtxVariable.getVariableName()+");");
+            ctx.pw.print("\n\t" + MapperRunCtxDataHolder.class.getSimpleName() + ".data.set(" + varCtxVariable.getVariableName() + ");");
             ctx.pw.print("\n}");
         }
 
@@ -280,79 +210,41 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
             ctx.pw.print("\n\tif (" + mngCtx + ") " + MapperRunCtxDataHolder.class.getSimpleName() + ".data.remove();");
             ctx.pw.print("\n}\n");
         }
-
-
-//
-//		/*
-//		* ObjRet transf(Obj1 o1, Obj2 o2, Obj3 o3)  =>
-//			BODY:
-//
-//			// Wrap methods and collect informations
-//			return doTransform(
-//					null,
-//					// Init context
-//					ctxData -> {
-//						ctxData.putContextValue("ctx", ctx);
-//						ctxData.putContextValue("newValue", ctx2);
-//					},
-//					() -> methodSimpleO1_implemented_bypass(i1, o1)
-//			);
-//		* */
-//
-//		ctx.pw.print("\nreturn " + MapperUtil.class.getSimpleName() + ".doTransform(");
-//
-//		// register method context
-//		ctx.pw.print("\n\t" + methodConfigKey.getForTopMethod() + "  /* method configuration id */,");
-//
-//		// register requiredContextValues
-//		List<TypeWithVariableInfo> ctxParams = new LinkedList<>();
-//		for (TypeWithVariableInfo ctxParam : methodApiFullSyntax.getParams()) {
-//			if (ctxParam.getHasContextKey()!=null) {
-//				ctxParams.add(ctxParam);
-//			}
-//		}
-//		if (ctxParams.isEmpty()) {
-//			ctx.pw.print("\n\tnull,");
-//		}
-//		else {
-//			ctx.pw.print("\n\t() -> {");
-//			for (TypeWithVariableInfo subMethodParam : ctxParams) {
-//				ctx.pw.print("\n\t\t");
-//				subMethodParam.genSourceForPutContext(ctx, subMethodParam.getVariableName());
-//				ctx.pw.print(");");
-//			}
-//			ctx.pw.print("\t},");
-//		}
-//
-//
-//		// callMethods
-//		ctx.pw.print("\n\t() -> {");
-//		ctx.pw.levelSpaceUp();
-//		ctx.pw.levelSpaceUp();
-//		if (!methodApiFullSyntax.isReturnLastParam()) {
-//			ctx.pw.print("\n");
-//			varRet.writeSourceCode(ctx, true, false);
-//			ctx.pw.print(" = null;");
-//		}
-//
-//		int i=0;
-//		List<TypeWithVariableInfo> inputParams = methodApiFullSyntax.getRequiredParams();
-//		for (MethodCallApi methodCallApi : requiredMethods) {
-//			// 3a) Create methodApiKey
-//			List<TypeWithVariableInfo> paramsForApi = new LinkedList<>();
-//			paramsForApi.add(inputParams.get(i++));
-//			paramsForApi.add(varRet);
-//			ctx.pw.print("\n");
-//			methodCallApi.genSourceForCallWithVariableParams(ctx, paramsForApi, methodApiFullSyntax.getParams());
-//			ctx.pw.print(";");
-//		}
-//
-//		ctx.pw.print("\nreturn ");
-//		ctx.pw.print(varRet.getVariableName());
-//		ctx.pw.print(";");
-//		ctx.pw.levelSpaceDown();
-//		ctx.pw.print("\n}");
-//		ctx.pw.levelSpaceDown();
-//		ctx.pw.print("\n);");
     }//*/
+
+
+    private boolean unwrapModeEnabled = false;
+    public void tryUnwrapMethods() {
+        if (!ownerClassInfo.getFeatures().isDisabled_SHARED_THREAD_CONTEXT()) return;
+        if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) return;
+        if (!ownerClassInfo.getFeatures().isDisabled_CONTEXT_VALUES()) return;
+        if (requiredMethods.size() != 1) return;
+
+        MethodCallApi methodCallApi = requiredMethods.get(0);
+        if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) return;
+
+//        if (!Objects.equals(methodCallApi.getMethodSyntax().getApiKey(), this.methodApiFullSyntax.getApiKey()))
+//            return;//ApiKey is the same
+
+        if (this.methodApiFullSyntax.isReturnLastParamRequired() != methodCallApi.getMethodSyntax().isReturnLastParamRequired())
+            return;
+
+        // unwrap =>
+        this.unwrapModeEnabled = true;
+        methodCallApi.getMethodSyntax().setName(methodApiFullSyntax.getName());
+        methodCallApi.getMethodSyntax().getAnnotations().mergeValues(methodApiFullSyntax.getAnnotations());
+        methodCallApi.getMethodSyntax().getModifiers().clear();
+        methodCallApi.getMethodSyntax().getModifiers().addAll(methodApiFullSyntax.getModifiers());
+        if (methodCallApi.getMethodSyntax().isReturnLastParam()) {
+            Iterator<TypeWithVariableInfo> iterator = methodCallApi.getMethodSyntax().getParams().iterator();
+            while (iterator.hasNext()) {
+                TypeWithVariableInfo next = iterator.next();
+                if (next.isMarkedAsReturn()) {
+                    iterator.remove();
+                    methodCallApi.getMethodSyntax().setReturnLastParam(false);
+                    break;
+                }
+            }
+        }
+    }
 }
