@@ -235,14 +235,16 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
         methodCallApi.getMethodSyntax().getAnnotations().mergeValues(methodApiFullSyntax.getAnnotations());
         methodCallApi.getMethodSyntax().getModifiers().clear();
         methodCallApi.getMethodSyntax().getModifiers().addAll(methodApiFullSyntax.getModifiers());
-        if (methodCallApi.getMethodSyntax().isReturnLastParam()) {
-            Iterator<TypeWithVariableInfo> iterator = methodCallApi.getMethodSyntax().getParams().iterator();
-            while (iterator.hasNext()) {
-                TypeWithVariableInfo next = iterator.next();
-                if (next.isMarkedAsReturn()) {
-                    iterator.remove();
-                    methodCallApi.getMethodSyntax().setReturnLastParam(false);
-                    break;
+        if (methodCallApi.getMethodSyntax().isReturnLastParamRequired() != methodApiFullSyntax.isReturnLastParamRequired()) {
+            if (!methodCallApi.getMethodSyntax().isReturnLastParamRequired()) {
+                Iterator<TypeWithVariableInfo> iterator = methodCallApi.getMethodSyntax().getParams().iterator();
+                while (iterator.hasNext()) {
+                    TypeWithVariableInfo next = iterator.next();
+                    if (next.isMarkedAsReturn()) {
+                        iterator.remove();
+                        methodCallApi.getMethodSyntax().setReturnLastParam(false);
+                        break;
+                    }
                 }
             }
         }
