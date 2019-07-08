@@ -3,7 +3,7 @@ package sk.annotation.library.jam.processor;
 import com.google.auto.service.AutoService;
 import com.sun.tools.javac.code.Symbol;
 import sk.annotation.library.jam.annotations.Mapper;
-import sk.annotation.library.jam.annotations.JamMapperGenerated;
+import sk.annotation.library.jam.annotations.JamGenerated;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.sourcewriter.JavaClassWriter;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
@@ -30,7 +30,7 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
 		if (supportedAnnotationTypes == null) {
 			Set<String> set = new LinkedHashSet<>();
 			set.add(Mapper.class.getCanonicalName());
-			set.add(JamMapperGenerated.class.getCanonicalName());
+			set.add(JamGenerated.class.getCanonicalName());
 			supportedAnnotationTypes = Collections.unmodifiableSet(set);
 		}
 		return supportedAnnotationTypes;

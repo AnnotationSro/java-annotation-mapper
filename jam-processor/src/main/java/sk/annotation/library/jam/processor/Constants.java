@@ -1,16 +1,15 @@
 package sk.annotation.library.jam.processor;
 
-import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.annotations.Context;
-import sk.annotation.library.jam.annotations.JamMapperGenerated;
+import sk.annotation.library.jam.annotations.JamGenerated;
 import sk.annotation.library.jam.annotations.Return;
 import sk.annotation.library.jam.processor.data.AnnotationsInfo;
 import sk.annotation.library.jam.processor.data.TypeInfo;
+import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.utils.MapperRunCtxData;
 import sk.annotation.library.jam.utils.MapperRunCtxDataHolder;
 import sk.annotation.library.jam.utils.cache.InstanceCacheValue;
 
-import javax.annotation.Generated;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -18,15 +17,15 @@ abstract public class Constants {
     // my annotation types
     static final public TypeInfo annotationContext = new TypeInfo(Context.class);
     static final public TypeInfo annotationReturn = new TypeInfo(Return.class);
-    static final public TypeInfo annotationJamMapperGenerated = new TypeInfo(JamMapperGenerated.class);
+    static final public TypeInfo annotationJamMapperGenerated = new TypeInfo(JamGenerated.class);
 
     // java annotations
     static final public TypeInfo annotationOverride = new TypeInfo(Override.class);
-    static final public TypeInfo annotationGenerated = new TypeInfo(Generated.class);
+//    static final public TypeInfo annotationGenerated = new TypeInfo(javax.annotation.Generated.class);
 
     static final public AnnotationsInfo createAnnotationGenerated() {
         AnnotationsInfo val = new AnnotationsInfo();
-        val.getOrAddAnnotation(annotationGenerated)
+        val.getOrAddAnnotation(annotationJamMapperGenerated)
                 .withStringValue(AnnotationJamMapperProcessor.class.getCanonicalName())
                 .withKeyAndStringValue("date", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
         ;

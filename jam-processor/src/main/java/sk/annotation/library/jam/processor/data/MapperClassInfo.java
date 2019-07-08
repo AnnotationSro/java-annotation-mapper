@@ -99,7 +99,7 @@ public class MapperClassInfo {
 
         // Annotations ...
         generateAnnotations = new AnnotationsInfo()
-                .withAnnotation(Constants.annotationJamMapperGenerated)
+                //.withAnnotation(Constants.annotationJamMapperGenerated)
                 .mergeValues(IoCUtils.resolveMapperAnnotation(parentElement))
                 .mergeValues(Constants.createAnnotationGenerated());
 
