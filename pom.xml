@@ -145,7 +145,8 @@
                     <tagNameFormat>release-@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>release</releaseProfiles>
-                    <arguments>-Prelease,sign-gpg</arguments>
+<!--                    <arguments>-Prelease,sign-gpg -Dscm.url.http=${scm.url.http} -Dscm.url.git=${scm.url.git}</arguments>-->
+                    <arguments>-Prelease</arguments>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -194,15 +195,12 @@
                 <artifactId>maven-gpg-plugin</artifactId>
                 <executions>
                     <execution>
-
+                        <!-- Note - check: -Dgpg.passphrase=... -->
                         <id>sign-artifacts</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
