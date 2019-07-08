@@ -1,8 +1,5 @@
 package sk.annotation.library.jam.processor.utils;
 
-import com.google.common.base.Functions;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -22,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 abstract public class TypeUtils {
     static private String resolveConstructorName(String intName) {
@@ -159,7 +156,8 @@ abstract public class TypeUtils {
         if (type instanceof NoType) return null;
         if (!type.getKind().isPrimitive()) return "null";
         switch (type.getKind()) {
-            case BOOLEAN: return "false";
+            case BOOLEAN:
+                return "false";
             case INT:
             case LONG:
                 return "0";
@@ -175,18 +173,18 @@ abstract public class TypeUtils {
         Type type = convertToType(processingEnv, cls.getCanonicalName());
         if (type != null) return type;
 
-		if (cls.isPrimitive()) {
-		    if (boolean.class.equals(cls))
+        if (cls.isPrimitive()) {
+            if (boolean.class.equals(cls))
                 return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.BOOLEAN);
-		    if (int.class.equals(cls))
+            if (int.class.equals(cls))
                 return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.INT);
-		    if (long.class.equals(cls))
+            if (long.class.equals(cls))
                 return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.LONG);
-		    if (float.class.equals(cls))
+            if (float.class.equals(cls))
                 return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.FLOAT);
-		    if (double.class.equals(cls))
+            if (double.class.equals(cls))
                 return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.DOUBLE);
-            }
+        }
 
         throw new IllegalStateException("Nemapovany typ " + cls);
     }
@@ -276,9 +274,11 @@ abstract public class TypeUtils {
         if (isEnunType(processingEnv, inType)) return true;
         return false;
     }
+
     public static boolean isEnunType(ProcessingEnvironment processingEnv, TypeInfo inType) {
         return isEnunType(processingEnv, inType.getType(processingEnv));
     }
+
     public static boolean isEnunType(ProcessingEnvironment processingEnv, TypeMirror inType) {
         return processingEnv.getTypeUtils().asElement(inType).getKind() == ElementKind.ENUM;
     }
@@ -286,9 +286,8 @@ abstract public class TypeUtils {
     public static List<String> getEnumValues(ProcessingEnvironment processingEnv, TypeInfo inType) {
         Element typeSymbol = processingEnv.getTypeUtils().asElement(inType.getType(processingEnv));
         //Preconditions.checkArgument(typeSymbol.getKind() == ElementKind.ENUM);
-        return FluentIterable.from(typeSymbol.getEnclosedElements())
+        return typeSymbol.getEnclosedElements().stream()
                 .filter(a -> a.getKind() == ElementKind.ENUM_CONSTANT)
-                .transform(Functions.toStringFunction())
-                .toSortedList(String::compareTo);
+                .map(Element::toString).collect(Collectors.toList());
     }
 }
