@@ -55,45 +55,4 @@
 		</dependency>
 	</dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<executions>
-					<!--<execution>
-						<id>default-compile</id>
-						<configuration>
-							<proc>none</proc>
-						</configuration>
-					</execution>-->
-				</executions>
-			</plugin>
-			<!--<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						&lt;!&ndash; here the phase you need &ndash;&gt;
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/src/main/java</directory>
-									<filtering>false</filtering>
-									<includes>
-										<include>/sk/annotation/library/mapper/jam/processor/utils/**</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>-->
-		</plugins>
-	</build>
-
 </project>

@@ -1,35 +1,47 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>sk.annotation.library.jam</groupId>
-		<artifactId>jam-root</artifactId>
-		<version>0.9-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>sk.annotation.library.jam</groupId>
+        <artifactId>jam-root</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>jam-tests</artifactId>
+    <artifactId>jam-tests</artifactId>
 
-	<dependencies>
-		<dependency>
-			<groupId>sk.annotation.library.jam</groupId>
-			<artifactId>jam-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>sk.annotation.library.jam</groupId>
+            <artifactId>jam-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>sk.annotation.library.jam</groupId>
-			<artifactId>jam-processor</artifactId>
-			<scope>provided</scope>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>sk.annotation.library.jam</groupId>
+            <artifactId>jam-processor</artifactId>
+            <scope>provided</scope>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Never deploy this module -->
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
