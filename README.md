@@ -21,19 +21,19 @@
 JAM stands for ***Java Annotation Mapper*** is inspired by 
 project **SELMA** (visit: http://www.selma-java.org/).
 
-JAM library contains an Annotation Processor that generate effective Java code 
+JAM library contains an Annotation Processor that generates effective Java code 
 to handle the mapping from one object (or objects) to other at compile time. 
 Result of this process is:
-  * effective generated java class 
-  * code is very fast in runtime 
+  * efficiently generated Java class 
+  * very fast code in runtime 
   * without other additional dependencies at runtime (only jam-common.jar ~ 9.5 KB) 
 
 JAM library significantly reduces developer's time.
 
 
-## How does it add to project ?
+## How to add it into project ?
 
-First add library jam-processor as a provided dependency and jam-common as a compile dependency to your build.
+First add library *jam-processor* as a *provided* dependency and *jam-common* as a *compile* dependency to your build.
 ```xml
 <dependency>
     <groupId>sk.annotation.library.jam</groupId>
@@ -49,8 +49,8 @@ First add library jam-processor as a provided dependency and jam-common as a com
 </dependency>
 ```
 
-## How does it create mapper?
-Define Mapper interface (or abstract class) describing the mapping you want. Follow example is with Spring support:
+## How to create a mapper?
+Define *Mapper* interface (or abstract class) describing the mapping you want. Follow example is with Spring support:
 
 ```java
 @JamMapper
@@ -65,7 +65,7 @@ public interface SimpleMapper {
 }
 ```
 
-## How does it use?
+## How to use it?
 
 Getting mapper instance directly:
 ```java
@@ -80,7 +80,7 @@ public class UsingMapper {
 }
 ```
 
-Using mapper in spring bean:
+Using mapper in Spring bean:
 ```java
 @Component
 public class AnySpringService {
@@ -99,5 +99,5 @@ public class AnySpringService {
 }
 ```
 
-**Warning**: WEB, documentations, examples and new features are in progress.
+**Warning**: WEB, documentation, examples and new features are in progress.
 
