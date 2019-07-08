@@ -4,7 +4,7 @@
 
     <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-root</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jam-root</name>
@@ -194,11 +194,15 @@
                 <artifactId>maven-gpg-plugin</artifactId>
                 <executions>
                     <execution>
+
                         <id>sign-artifacts</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
