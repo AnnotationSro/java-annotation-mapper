@@ -112,7 +112,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         // Here will be test
         writeSourceCodeBody(ctx);
 
-        if (!(this instanceof DeclaredMethodSourceInfo)) {
+        if (!(this instanceof DeclaredMethodSourceInfo) && !(this instanceof SimpleMethodApi_Enum_SourceInfo)) {
             if (methodApiFullSyntax.getReturnType() != null) {
                 ctx.pw.print("\nreturn " + varRet.getVariableName() + ";");
             }
@@ -289,9 +289,14 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
 
 
-        // Implemented List
+        // Implemented Map
         if (isSameType(processingEnv, Map.class, types)) {
             return new SimpleMethodApi_Map_SourceInfo(ownerClassInfo, subMethodApiSyntax);
+        }
+
+        //
+        if (areEnums(processingEnv, types)) {
+            return new SimpleMethodApi_Enum_SourceInfo(ownerClassInfo, subMethodApiSyntax);
         }
 
 
@@ -299,6 +304,12 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         return new SimpleMethodApi_CopyField_SourceInfo(ownerClassInfo, subMethodApiSyntax);
     }
 
+    protected static boolean areEnums(ProcessingEnvironment processingEnv, Type... types) {
+        for (Type tp : types) {
+            if (!TypeUtils.isEnunType(processingEnv, tp)) return false;
+        }
+        return true;
+    }
     protected static boolean isSameType(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
         if (types == null || types.length == 0) return false;
 

@@ -2,7 +2,7 @@ package sk.annotation.library.jam.processor;
 
 import com.google.auto.service.AutoService;
 import com.sun.tools.javac.code.Symbol;
-import sk.annotation.library.jam.annotations.JamMapper;
+import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.JamMapperGenerated;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.sourcewriter.JavaClassWriter;
@@ -29,7 +29,7 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
 	public Set<String> getSupportedAnnotationTypes() {
 		if (supportedAnnotationTypes == null) {
 			Set<String> set = new LinkedHashSet<>();
-			set.add(JamMapper.class.getCanonicalName());
+			set.add(Mapper.class.getCanonicalName());
 			set.add(JamMapperGenerated.class.getCanonicalName());
 			supportedAnnotationTypes = Collections.unmodifiableSet(set);
 		}
@@ -41,7 +41,7 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		// 1) Find All Mappers
-		for (Element element : roundEnv.getElementsAnnotatedWith(JamMapper.class)) {
+		for (Element element : roundEnv.getElementsAnnotatedWith(Mapper.class)) {
 			if (element instanceof TypeElement) {
 				this.foundMappersPerGeneratedState.putIfAbsent(ElementUtils.getQualifiedName(element), false);
 				continue;

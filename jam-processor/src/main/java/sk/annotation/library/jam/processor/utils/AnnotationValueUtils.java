@@ -2,7 +2,7 @@ package sk.annotation.library.jam.processor.utils;
 
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
-import sk.annotation.library.jam.annotations.JamMapper;
+import sk.annotation.library.jam.annotations.Mapper;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -18,7 +18,7 @@ abstract public class AnnotationValueUtils {
 
 
 	public static List<Type> findWithCustomClasses(ProcessingEnvironment processingEnv, Element element) {
-		return findAnotationTypeValues(processingEnv, element, JamMapper.class, "withCustom()");
+		return findAnotationTypeValues(processingEnv, element, Mapper.class, "withCustom()");
 	}
 	public static List<Type> findAnotationTypeValues(ProcessingEnvironment processingEnv, Element element, Class<?> annotationClass, String valueMethodName) {
 		List<Type> values = new LinkedList<>();

@@ -46,9 +46,9 @@ public class FieldConfigurationResolver {
 
     final private List<FieldMapperWrapper> customFieldMapping = new LinkedList<>();
     final private List<MapperFieldConfig> configurations;
-    final private JamMapper jamMapper;
+    final private Mapper jamMapper;
 
-    public FieldConfigurationResolver(JamMapper jamMapper, List<MapperFieldConfig> configurations) {
+    public FieldConfigurationResolver(Mapper jamMapper, List<MapperFieldConfig> configurations) {
         if (configurations == null) configurations = Collections.emptyList();
 
         this.jamMapper = jamMapper;

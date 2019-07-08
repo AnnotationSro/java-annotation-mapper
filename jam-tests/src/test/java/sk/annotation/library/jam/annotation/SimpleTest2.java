@@ -7,7 +7,7 @@ import sk.annotation.library.jam.annotations.enums.IocScope;
 
 import java.util.List;
 
-@JamMapper(withCustom = {SimpleTest.class, SimpleTest3.class}, defaultErrorConfig = ConfigErrorReporting.WARNINGS_ONLY)
+@Mapper(withCustom = {SimpleTest.class, SimpleTest3.class}, defaultErrorConfig = ConfigErrorReporting.WARNINGS_ONLY)
 @MapperFieldConfig(
 		fieldMapping = {
 				@FieldMapping(d = "name", s = "name")

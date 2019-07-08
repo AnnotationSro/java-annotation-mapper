@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.TYPE})
-public @interface JamMapper {
+public @interface Mapper {
 	Class[] withCustom() default {};
 
 	// Default Compilation Configuration

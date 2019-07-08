@@ -5,7 +5,7 @@ import com.sun.tools.javac.code.Type;
 import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.jam.annotations.JamMapper;
+import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -108,13 +108,13 @@ abstract public class ElementUtils {
 		TypeElement typeElementMapper = processingEnv.getElementUtils().getTypeElement(fullClassName);
 		if (typeElementMapper == null) return null;
 
-		if (typeElementMapper.getAnnotation(JamMapper.class) != null)
+		if (typeElementMapper.getAnnotation(Mapper.class) != null)
 			return fullClassName + MapperUtil.constPostFixClassName;
 
 		// Its neccessary to find all methods and their annotations yet
 		List<? extends Element> allElements = typeElementMapper.getEnclosedElements();
 		for (ExecutableElement el : ElementFilter.constructorsIn(allElements)) {
-			if (el.getAnnotation(JamMapper.class) == null) continue;
+			if (el.getAnnotation(Mapper.class) == null) continue;
 
 			return fullClassName + MapperUtil.constPostFixClassName;
 		}

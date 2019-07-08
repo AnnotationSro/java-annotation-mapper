@@ -4,7 +4,7 @@ import com.sun.tools.javac.code.Type;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import sk.annotation.library.jam.annotations.JamMapper;
+import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
@@ -52,7 +52,7 @@ public class MapperClassInfo {
 
 
     final public TypeElement parentElement;
-    final public JamMapper jamMapperConfig;
+    final public Mapper jamMapperConfig;
     final public boolean parentTypeAsAbstractClass;
 
     final public List<Element> canUseInCustomer = new LinkedList<>();
@@ -71,7 +71,7 @@ public class MapperClassInfo {
 
     private MapperClassInfo(ProcessingEnvironment processingEnv, TypeElement element) {
         this.parentElement = element;
-        this.jamMapperConfig = element.getAnnotation(JamMapper.class);
+        this.jamMapperConfig = element.getAnnotation(Mapper.class);
         this.fullClassName = ElementUtils.getQualifiedName(this.parentElement) + MapperUtil.constPostFixClassName;
         this.simpleClassName = NameUtils.getClassSimpleName(this.fullClassName);
 

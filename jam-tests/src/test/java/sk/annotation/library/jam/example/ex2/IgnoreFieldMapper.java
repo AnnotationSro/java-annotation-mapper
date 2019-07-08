@@ -2,10 +2,10 @@ package sk.annotation.library.jam.example.ex2;
 
 import sk.annotation.library.jam.annotations.FieldIgnore;
 import sk.annotation.library.jam.annotations.FieldMapping;
-import sk.annotation.library.jam.annotations.JamMapper;
+import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
 
-@JamMapper
+@Mapper
 @MapperFieldConfig(
     fieldMapping = {
         @FieldMapping(s="name", d="firstName"),

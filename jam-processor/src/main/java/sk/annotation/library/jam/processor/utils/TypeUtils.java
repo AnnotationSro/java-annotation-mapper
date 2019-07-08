@@ -1,5 +1,8 @@
 package sk.annotation.library.jam.processor.utils;
 
+import com.google.common.base.Functions;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -7,6 +10,8 @@ import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
@@ -17,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Predicate;
 
 abstract public class TypeUtils {
     static private String resolveConstructorName(String intName) {
@@ -265,6 +271,24 @@ abstract public class TypeUtils {
 
     public static boolean isKnownImmutableType(ProcessingEnvironment processingEnv, TypeInfo inType) {
         if (inType == null) return true;
-        return isBaseOrPrimitiveType(processingEnv, inType.getType(processingEnv));
+        if (isBaseOrPrimitiveType(processingEnv, inType.getType(processingEnv))) return true;
+
+        if (isEnunType(processingEnv, inType)) return true;
+        return false;
+    }
+    public static boolean isEnunType(ProcessingEnvironment processingEnv, TypeInfo inType) {
+        return isEnunType(processingEnv, inType.getType(processingEnv));
+    }
+    public static boolean isEnunType(ProcessingEnvironment processingEnv, TypeMirror inType) {
+        return processingEnv.getTypeUtils().asElement(inType).getKind() == ElementKind.ENUM;
+    }
+
+    public static List<String> getEnumValues(ProcessingEnvironment processingEnv, TypeInfo inType) {
+        Element typeSymbol = processingEnv.getTypeUtils().asElement(inType.getType(processingEnv));
+        //Preconditions.checkArgument(typeSymbol.getKind() == ElementKind.ENUM);
+        return FluentIterable.from(typeSymbol.getEnclosedElements())
+                .filter(a -> a.getKind() == ElementKind.ENUM_CONSTANT)
+                .transform(Functions.toStringFunction())
+                .toSortedList(String::compareTo);
     }
 }

@@ -1,8 +1,8 @@
 package sk.annotation.library.jam.annotation;
 
-import sk.annotation.library.jam.annotations.JamMapper;
+import sk.annotation.library.jam.annotations.Mapper;
 
-@JamMapper
+@Mapper
 public interface SimpleTest3 {
 
 //	@JamMapper
