@@ -8,6 +8,7 @@
 	</parent>
 
 	<artifactId>jam-common</artifactId>
+	<packaging>jar</packaging>
 
 
 </project>

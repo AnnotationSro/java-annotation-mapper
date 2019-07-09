@@ -14,14 +14,14 @@
         <dependency>
             <groupId>sk.annotation.library.jam</groupId>
             <artifactId>jam-common</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>sk.annotation.library.jam</groupId>
             <artifactId>jam-processor</artifactId>
             <scope>provided</scope>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>

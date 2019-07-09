@@ -9,12 +9,13 @@
 	</parent>
 
 	<artifactId>jam-processor</artifactId>
+	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>sk.annotation.library.jam</groupId>
 			<artifactId>jam-common</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun</groupId>
