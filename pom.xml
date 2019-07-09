@@ -145,7 +145,6 @@
                     <tagNameFormat>release-@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>release</releaseProfiles>
-<!--                    <arguments>-Prelease,sign-gpg -Dscm.url.http=${scm.url.http} -Dscm.url.git=${scm.url.git}</arguments>-->
                     <arguments>-Prelease</arguments>
                 </configuration>
                 <dependencies>
@@ -259,6 +258,40 @@
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
             </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release-annotation</id>
+            <properties>
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <source.skip>false</source.skip>
+            </properties>
+            <distributionManagement>
+                <repository>
+                    <id>annotation-releases</id>
+                    <url>https://nexus.annotation.sk/content/repositories/annotation-releases</url>
+                </repository>
+                <snapshotRepository>
+                    <id>annotation-snapshots</id>
+                    <url>https://nexus.annotation.sk/content/repositories/annotation-snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
         </profile>
     </profiles>
 
@@ -268,8 +301,8 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh-release</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
