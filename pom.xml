@@ -256,6 +256,14 @@
 
     <profiles>
         <profile>
+        <id>release-snapshot</id>
+            <properties>
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <source.skip>false</source.skip>
+            </properties>
+        </profile>
+        <profile>
             <id>release</id>
             <properties>
                 <maven.deploy.skip>false</maven.deploy.skip>
