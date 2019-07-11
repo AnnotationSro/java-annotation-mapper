@@ -4,14 +4,15 @@ import com.sun.tools.javac.code.Type;
 import lombok.Getter;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import sk.annotation.library.jam.annotations.enums.MapperFeature;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
-import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
-import sk.annotation.library.jam.annotations.enums.MapperFeature;
+import sk.annotation.library.jam.processor.data.confwrappers.MapperConfigurationResolver;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
+import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
@@ -131,8 +132,8 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             ctx.pw.print(
                     "> cacheValue = "
                             + varCtxVariable.getVariableName()
-                            + ".getInstanceCache().getCacheValues(\""+ StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
-                            +"\", "
+                            + ".getInstanceCache().getCacheValues(\"" + StringEscapeUtils.escapeJava(methodApiFullSyntax.getName())
+                            + "\", "
                             + input.getVariableName()
                             + ");"
             );
@@ -140,7 +141,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
             ctx.pw.print("\n");
             if (this.methodApiFullSyntax.isGenerateReturnParamRequired())
-                ctx.pw.print("if ("+varRet.getVariableName()+"==null) \n\t");
+                ctx.pw.print("if (" + varRet.getVariableName() + "==null) \n\t");
             ctx.pw.print("if (cacheValue.isRegisteredAnyValue()) return cacheValue.getValue();");
             ctx.pw.print("\n");
             if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
@@ -149,10 +150,11 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             }
         }
     }
+
     protected void writeSourceInstanceCacheRegister(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
         if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) {
-            if (varCtxVariable==null) throw new IllegalStateException("Illegal state work");
-                ctx.pw.print("\ncacheValue.registerValue("+ varRet.getVariableName()+ ");"
+            if (varCtxVariable == null) throw new IllegalStateException("Illegal state work");
+            ctx.pw.print("\ncacheValue.registerValue(" + varRet.getVariableName() + ");"
             );
         }
     }
@@ -227,6 +229,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
     protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
         return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType, destinationType, this.methodApiFullSyntax.isReturnLastParamRequired());
     }
+
     protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeInfo sourceType, TypeInfo destinationType, boolean returnLastParamRequired) {
         return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType.getType(processingEnv), destinationType.getType(processingEnv), returnLastParamRequired);
     }
@@ -238,7 +241,10 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         TypeInfo retType = new TypeInfo(destinationType);
 
         // Complete same types +
-        if (TypeUtils.isSame(processingEnv, inType, retType) && TypeUtils.isKnownImmutableType(processingEnv, inType)) return null;
+        if (TypeUtils.isSame(processingEnv, inType, retType)
+                && (TypeUtils.isKnownImmutableType(processingEnv, sourceType)
+                || MapperConfigurationResolver.isConfiguredAsImmutableType(processingEnv, ownerClassInfo, destinationType))
+        ) return null;
 
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
         if (ownerClassInfo.getFeatures().isEnableMethodContext()) {
@@ -254,7 +260,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         // We search for method here, but if it doesnt exist, we create our own version
         MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey);
         if (methodCallApi != null) {
-            if (returnLastParamRequired && methodCallApi.getMethodSyntax()!=null) {
+            if (returnLastParamRequired && methodCallApi.getMethodSyntax() != null) {
                 methodCallApi.getMethodSyntax().setReturnLastParamRequired(true);
             }
 
@@ -310,6 +316,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
         return true;
     }
+
     protected static boolean isSameType(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
         if (types == null || types.length == 0) return false;
 

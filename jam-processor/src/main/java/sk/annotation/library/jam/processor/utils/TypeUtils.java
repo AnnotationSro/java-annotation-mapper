@@ -14,6 +14,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -125,7 +126,12 @@ abstract public class TypeUtils {
     static public boolean isSame(ProcessingEnvironment processingEnv, TypeInfo type1, TypeInfo type2) {
         if (type1 == null && type2 == null) return true;
         if (type1 == null || type2 == null) return false;
-        return processingEnv.getTypeUtils().isSameType(type1.getType(processingEnv), type2.getType(processingEnv));
+        return isSame(processingEnv, type1.getType(processingEnv), type2.getType(processingEnv));
+    }
+    static public boolean isSame(ProcessingEnvironment processingEnv, TypeMirror type1, TypeMirror type2) {
+        if (type1 == null && type2 == null) return true;
+        if (type1 == null || type2 == null) return false;
+        return processingEnv.getTypeUtils().isSameType(type1, type2);
     }
 
     //@return {@code true} if and only if the first type is assignable to the second
@@ -232,15 +238,22 @@ abstract public class TypeUtils {
     }
 
 
-    private static Class[] cls1 = {java.lang.Enum.class};
-    private static Class[] cls2 = {java.lang.String.class, java.lang.Boolean.class, java.lang.Character.class,
+    private static Class[] cls1 = {
+            java.lang.Enum.class
+    };
+    private static Class[] cls2 = {
+            java.lang.Boolean.class,
+            java.lang.Byte.class, java.lang.Short.class,
             java.lang.Integer.class, java.lang.Long.class,
-            java.lang.Float.class, java.lang.Double.class
+            java.lang.Float.class, java.lang.Double.class,
+            java.lang.String.class, java.lang.Character.class,
+            LocalDate.class, LocalDateTime.class, LocalTime.class,
+            ZonedDateTime.class, Instant.class
     };
     private static List<TypeMirror> _cls1 = null;
     private static List<TypeMirror> _cls2 = null;
 
-    static public boolean isBaseOrPrimitiveType(ProcessingEnvironment processingEnv, TypeMirror source) {
+    static private boolean isBaseOrPrimitiveType(ProcessingEnvironment processingEnv, TypeMirror source) {
         if (source.getKind().isPrimitive()) return true;
 
         if (_cls1 == null) {
@@ -267,11 +280,10 @@ abstract public class TypeUtils {
         return false;
     }
 
-    public static boolean isKnownImmutableType(ProcessingEnvironment processingEnv, TypeInfo inType) {
+    public static boolean isKnownImmutableType(ProcessingEnvironment processingEnv, TypeMirror inType) {
         if (inType == null) return true;
-        if (isBaseOrPrimitiveType(processingEnv, inType.getType(processingEnv))) return true;
-
-        if (isEnunType(processingEnv, inType)) return true;
+        if (isBaseOrPrimitiveType(processingEnv, inType)) return true;
+        if (isEnunType(processingEnv, new TypeInfo(inType))) return true;
         return false;
     }
 

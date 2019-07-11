@@ -9,15 +9,17 @@ import java.util.List;
 
 @Mapper(withCustom = {SimpleTest.class, SimpleTest3.class}, defaultErrorConfig = ConfigErrorReporting.WARNINGS_ONLY)
 @MapperFieldConfig(
-		fieldMapping = {
-				@FieldMapping(d = "name", s = "name")
-		},
-		fieldIgnore = {
-				@FieldIgnore(value = "id", ignored = true)
-		},
-		config = {
-				@ConfigGenerator(beanOrField = "", missingAsDestination = ConfigErrorReporting.WARNINGS_ONLY, missingAsSource = ConfigErrorReporting.WARNINGS_ONLY)
-		}
+        fieldMapping = {
+                @FieldMapping(d = "name", s = "name")
+        },
+        fieldIgnore = {
+                @FieldIgnore(value = "id", ignored = true)
+        }
+)
+@MapperConfig(
+        config = {
+                @ConfigGenerator(beanOrField = "", missingAsDestination = ConfigErrorReporting.WARNINGS_ONLY, missingAsSource = ConfigErrorReporting.WARNINGS_ONLY)
+        }
 )
 @EnableSpring(beanName = "daco", scope = IocScope.REQUEST)
 @EnableCDI(beanName = "daco", scope = IocScope.DEFAULT)
@@ -29,21 +31,22 @@ public abstract class SimpleTest2 {
 //	@JamMapper(withCustom = {SimpleTest.class, SimpleTest3.class})
 //	abstract public DataType2 toDataType(DataType1a value1, DataType1b dataType2, @Return DataType2 ret);
 
-	@MapperFieldConfig(
-			fieldMapping = {
-					@FieldMapping(d = "DataType1a.id", s = "DataType1a.id"),
-					@FieldMapping(d = "DataType1a.parentId", s = "DataType1a.parent.id"),
-					@FieldMapping(d = "id", s = "id")
-			},
-			fieldIgnore = {
-					@FieldIgnore(value = "name", ignored = false)
-			}
-	)
-	abstract public DataType1a copy1(DataType1a value1);
+    @MapperFieldConfig(
+            fieldMapping = {
+                    @FieldMapping(d = "DataType1a.id", s = "DataType1a.id"),
+                    @FieldMapping(d = "DataType1a.parentId", s = "DataType1a.parent.id"),
+                    @FieldMapping(d = "id", s = "id")
+            },
+            fieldIgnore = {
+                    @FieldIgnore(value = "name", ignored = false)
+            }
+    )
+    abstract public DataType1a copy1(DataType1a value1);
 
 
-	abstract public List<DataType1b> copy(List<DataType1a> value1);
-	abstract public List<DataType1b> merge(List<DataType1a> source, @Return List<DataType1b> ret);
+    abstract public List<DataType1b> copy(List<DataType1a> value1);
+
+    abstract public List<DataType1b> merge(List<DataType1a> source, @Return List<DataType1b> ret);
 //
 //	@Override
 //	public String toString() {

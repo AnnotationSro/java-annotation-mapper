@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import sk.annotation.library.jam.annotations.*;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
+import sk.annotation.library.jam.processor.data.MapperClassInfo;
+import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
@@ -44,18 +46,18 @@ public class FieldConfigurationResolver {
         }
     }
 
+    final private MapperClassInfo ownerClassInfo;
+    final private MethodConfigKey forMethodConfig;
     final private List<FieldMapperWrapper> customFieldMapping = new LinkedList<>();
-    final private List<MapperFieldConfig> configurations;
     final private Mapper jamMapper;
 
-    public FieldConfigurationResolver(Mapper jamMapper, List<MapperFieldConfig> configurations) {
-        if (configurations == null) configurations = Collections.emptyList();
+    public FieldConfigurationResolver(MapperClassInfo ownerClassInfo, MethodConfigKey forMethodConfig) {
+        if (ownerClassInfo == null || forMethodConfig == null) throw new IllegalStateException();
+        this.forMethodConfig = forMethodConfig;
+        this.ownerClassInfo = ownerClassInfo;
+        this.jamMapper = ownerClassInfo.getJamMapperConfig();
 
-        this.jamMapper = jamMapper;
-        this.configurations = configurations;
-        if (configurations.isEmpty()) return;
-
-        for (MapperFieldConfig mapperConf : configurations) {
+        for (MapperFieldConfig mapperConf : getMapperFieldConfigList()) {
             if (mapperConf == null) continue;
 
             // 1) Custom Fields !!!
@@ -67,27 +69,13 @@ public class FieldConfigurationResolver {
                     registerFieldMapperWrapper(mapperConfWrapper.directionFromDToS);
                 }
             }
-
-//			// 2) Ignored Fields !!!
-//			FieldIgnore[] fieldIgnores = mapperConf.fieldIgnore();
-//			if (fieldIgnores !=null) {
-//				for (FieldIgnore fieldIgnore : fieldIgnores) {
-//					if (fieldIgnore ==null) continue;
-//					customFieldIgnores.add(fieldIgnore);
-//				}
-//			}
-//
-//			// 3) Generator config !!!
-//			ConfigGenerator[] configs = mapperConf.config();
-//			if (configs!=null) {
-//				for (ConfigGenerator conf: configs) {
-//					if (conf ==null) continue;
-//					customConfigGenerator.add(conf);
-//				}
-//			}
-//
-
         }
+    }
+
+    protected List<MapperFieldConfig> getMapperFieldConfigList() {
+        List<MapperFieldConfig> configurations = forMethodConfig.getConfigurations();
+        if (configurations == null) return Collections.emptyList();
+        return configurations;
     }
 
     protected void registerFieldMapperWrapper(FieldMapperWrapper field) {
@@ -252,7 +240,8 @@ public class FieldConfigurationResolver {
         Map<String, FieldValueAccessData> fields = ElementUtils.findAllAccesableFields(processingEnv, type);
 
         // 1) Try find Fields or ClassName
-        for (MapperFieldConfig mapperConf : configurations) {
+        List<MapperConfig> mapperConfigs = MapperConfigurationResolver.getMapperConfig(processingEnv, this.ownerClassInfo);
+        for (MapperConfig mapperConf : mapperConfigs) {
             if (mapperConf == null) continue;
 
             for (ConfigGenerator confGenerator : mapperConf.config()) {
@@ -278,7 +267,7 @@ public class FieldConfigurationResolver {
         // 1) Try starts with package
         String fullName = ElementUtils.getQualifiedName(type.asElement());
         ConfigGenerator bestMatch = null;
-        for (MapperFieldConfig mapperConf : configurations) {
+        for (MapperConfig mapperConf : mapperConfigs) {
             if (mapperConf == null) continue;
 
             for (ConfigGenerator confGenerator : mapperConf.config()) {
@@ -327,7 +316,7 @@ public class FieldConfigurationResolver {
         Map<String, FieldIgnore> ret = new HashMap<>();
 
         // Resolve Ignored Fields
-        for (MapperFieldConfig mapperConf : configurations) {
+        for (MapperFieldConfig mapperConf : getMapperFieldConfigList()) {
             if (mapperConf == null) continue;
             if (mapperConf.fieldIgnore() == null) continue;
 

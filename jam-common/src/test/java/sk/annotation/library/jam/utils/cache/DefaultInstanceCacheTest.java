@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@SuppressWarnings({"NumberEquality", "UnnecessaryBoxing"})
+@SuppressWarnings({"NumberEquality", "UnnecessaryBoxing", "deprecation"})
 public class DefaultInstanceCacheTest {
 
     private DynamicTest createDynamicTest_checkValueInObject(Optional expectedValue, DefaultInstanceCache cache, Object key1, String expectedType) {

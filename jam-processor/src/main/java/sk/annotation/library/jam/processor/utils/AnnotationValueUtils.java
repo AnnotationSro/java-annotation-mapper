@@ -21,9 +21,11 @@ abstract public class AnnotationValueUtils {
 		return findAnotationTypeValues(processingEnv, element, Mapper.class, "withCustom()");
 	}
 	public static List<Type> findAnotationTypeValues(ProcessingEnvironment processingEnv, Element element, Class<?> annotationClass, String valueMethodName) {
-		List<Type> values = new LinkedList<>();
-
 		Type typeJamMapperAnnotation = TypeUtils.convertToType(processingEnv, annotationClass);
+		return findAnotationTypeValues(processingEnv, element, typeJamMapperAnnotation, valueMethodName);
+	}
+	public static List<Type> findAnotationTypeValues(ProcessingEnvironment processingEnv, Element element, Type typeJamMapperAnnotation, String valueMethodName) {
+		List<Type> values = new LinkedList<>();
 
 		List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
 		if (annotationMirrors!=null) {

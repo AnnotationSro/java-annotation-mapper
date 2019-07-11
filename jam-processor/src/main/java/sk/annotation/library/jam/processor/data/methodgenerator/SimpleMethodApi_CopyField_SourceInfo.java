@@ -55,7 +55,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		/////////////////////////
 		// 1) Collect all information ...
 
-		FieldConfigurationResolver resolver = new FieldConfigurationResolver(ownerClassInfo.getJamMapperConfig(), forMethodConfig.getConfigurations());
+		FieldConfigurationResolver resolver = new FieldConfigurationResolver(ownerClassInfo, forMethodConfig);
 		List<FieldConfigurationResolver.ResolvedTransformation> transformGroups = resolver.findTransformationGroups(processingEnv, typeFrom, typeTo);
 		this.analyzedDataMap.put(forMethodConfig, transformGroups);
 
@@ -373,7 +373,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 		if (!processingEnv.getTypeUtils().isSameType(source, destination)) return false;
 
-		if (TypeUtils.isBaseOrPrimitiveType(processingEnv, source)) return true;
+		if (TypeUtils.isKnownImmutableType(processingEnv, source)) return true;
 
 		return false;
 	}

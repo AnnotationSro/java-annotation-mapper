@@ -15,6 +15,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.stream.Collectors;
 
 abstract public class ElementUtils {
 
@@ -60,10 +61,10 @@ abstract public class ElementUtils {
 		return findPackageElementType(processingEnv, element.getEnclosingElement());
 	}
 
-	static public <T extends Annotation> List<T> findAllAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
-		List<T> ret = new LinkedList<>();
+	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
+		List<Element> ret = new LinkedList<>();
 		T conf = element.getAnnotation(annotationType);
-		if (conf != null) ret.add(conf);
+		if (conf != null) ret.add(element);
 
 
 		// Scan packages ...
@@ -73,10 +74,13 @@ abstract public class ElementUtils {
 				pckType = (Symbol.PackageSymbol) pckType.owner
 		) {
 			conf = pckType.getAnnotation(annotationType);
-			if (conf != null) ret.add(conf);
+			if (conf != null) ret.add(pckType);
 		}
 
 		return ret;
+	}
+	static public <T extends Annotation> List<T> findAllAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
+		return findAllElementsWithAnnotationsInStructure(processingEnv, element, annotationType).stream().map(e -> e.getAnnotation(annotationType)).collect(Collectors.toList());
 	}
 
 // Working, but not important now

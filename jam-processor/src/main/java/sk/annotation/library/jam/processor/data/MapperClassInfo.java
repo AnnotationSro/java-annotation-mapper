@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.annotations.Mapper;
+import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
@@ -33,7 +34,7 @@ public class MapperClassInfo {
 
     private String fullClassName;
     private String simpleClassName;
-    final List<MapperFieldConfig> classAndPackageConfigurations;
+    final List<MapperConfig> classAndPackageConfigurations;
 
     static public MapperClassInfo getOrCreate(ProcessingEnvironment processingEnv, TypeElement element) {
         String fullNamePath = ElementUtils.getQualifiedName(element);
@@ -94,7 +95,7 @@ public class MapperClassInfo {
 
         // Configuration ...
 
-        classAndPackageConfigurations = ElementUtils.findAllAnnotationsInStructure(processingEnv, element, MapperFieldConfig.class);
+        classAndPackageConfigurations = ElementUtils.findAllAnnotationsInStructure(processingEnv, element, MapperConfig.class);
 
 
         // Annotations ...

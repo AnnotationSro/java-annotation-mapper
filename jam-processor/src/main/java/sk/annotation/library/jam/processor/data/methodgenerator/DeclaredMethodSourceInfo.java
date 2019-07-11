@@ -10,6 +10,7 @@ import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.utils.MapperRunCtxData;
 import sk.annotation.library.jam.utils.MapperRunCtxDataHolder;
@@ -68,9 +69,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
             methodConfigKey.setWithCustomConfig(true);
             ownerClassInfo.getFeatures().setEnableMethodContext(true);
         }
-        if (!ownerClassInfo.getClassAndPackageConfigurations().isEmpty()) {
-            methodConfigKey.getConfigurations().addAll(ownerClassInfo.getClassAndPackageConfigurations());
-        }
+        methodConfigKey.getConfigurations().addAll(ElementUtils.findAllAnnotationsInStructure(processingEnv, ownerClassInfo.getParentElement(), MapperFieldConfig.class));
 
         ////////////////////////////////////////////////////////
         // 2)  analyze neccessary fields + return Type
