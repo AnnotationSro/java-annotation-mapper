@@ -100,27 +100,22 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             if (varRet == null) {
                 String bestRetName = NameUtils.findBestNameAndUpdateSet(this.usedNames, "ret");
                 varRet = new TypeWithVariableInfo(bestRetName, methodApiFullSyntax.getReturnType(), null, false);
-//
-//                if (!(this instanceof DeclaredMethodSourceInfo)) {
-//                    ctx.pw.printNewLine();
-//                    varRet.writeSourceCode(ctx, true, false);
-//                    ctx.pw.print(" = null;\n");
-//                }
             }
         }
         if (varRet != null) usedNames.add(varRet.getVariableName());
 
         // Here will be test
         writeSourceCodeBody(ctx);
-
-        if (!(this instanceof DeclaredMethodSourceInfo) && !(this instanceof SimpleMethodApi_Enum_SourceInfo)) {
-            if (methodApiFullSyntax.getReturnType() != null) {
-                ctx.pw.print("\nreturn " + varRet.getVariableName() + ";");
-            }
-        }
+        writeSourceCodeBodyReturn(ctx);
 
         ctx.pw.levelSpaceDown();
         ctx.pw.print("\n}");
+    }
+
+    protected void writeSourceCodeBodyReturn(SourceGeneratorContext ctx) {
+        if (methodApiFullSyntax.getReturnType() != null) {
+            ctx.pw.print("\nreturn " + varRet.getVariableName() + ";");
+        }
     }
 
     protected void writeSourceInstanceCacheLoad(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {

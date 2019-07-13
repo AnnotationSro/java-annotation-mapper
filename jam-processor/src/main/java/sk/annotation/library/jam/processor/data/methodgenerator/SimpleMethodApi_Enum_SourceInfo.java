@@ -23,6 +23,10 @@ public class SimpleMethodApi_Enum_SourceInfo extends EmptyMethodSourceInfo {
     protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
     }
 
+    protected void writeSourceCodeBodyReturn(SourceGeneratorContext ctx) {
+        // nothing :)
+    }
+
     @Override
     protected void writeSourceCodeBody(SourceGeneratorContext ctx) {
         List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();

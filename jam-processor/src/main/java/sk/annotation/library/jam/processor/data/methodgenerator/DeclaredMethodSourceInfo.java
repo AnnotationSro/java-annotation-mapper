@@ -110,6 +110,9 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
     protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
         // nothing :)
     }
+    protected void writeSourceCodeBodyReturn(SourceGeneratorContext ctx) {
+        // nothing :)
+    }
 
     @Override
     public void writeSourceCode(SourceGeneratorContext ctx) {
