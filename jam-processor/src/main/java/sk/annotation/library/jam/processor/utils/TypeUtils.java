@@ -14,6 +14,8 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -247,6 +249,7 @@ abstract public class TypeUtils {
             java.lang.Integer.class, java.lang.Long.class,
             java.lang.Float.class, java.lang.Double.class,
             java.lang.String.class, java.lang.Character.class,
+            BigDecimal.class, BigInteger.class,
             LocalDate.class, LocalDateTime.class, LocalTime.class,
             ZonedDateTime.class, Instant.class
     };
@@ -288,11 +291,15 @@ abstract public class TypeUtils {
     }
 
     public static boolean isEnunType(ProcessingEnvironment processingEnv, TypeInfo inType) {
+        if (inType == null) return false;
         return isEnunType(processingEnv, inType.getType(processingEnv));
     }
 
     public static boolean isEnunType(ProcessingEnvironment processingEnv, TypeMirror inType) {
-        return processingEnv.getTypeUtils().asElement(inType).getKind() == ElementKind.ENUM;
+        if (inType == null) return false;
+        Element element = processingEnv.getTypeUtils().asElement(inType);
+        if (element == null) return false;
+        return element.getKind() == ElementKind.ENUM;
     }
 
     public static List<String> getEnumValues(ProcessingEnvironment processingEnv, TypeInfo inType) {
