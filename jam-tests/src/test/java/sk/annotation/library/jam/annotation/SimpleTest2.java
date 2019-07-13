@@ -28,7 +28,7 @@ public abstract class SimpleTest2 {
 //		SimpleTest.class.getPackage();
 //	}
 
-//	@JamMapper(withCustom = {SimpleTest.class, SimpleTest3.class})
+//	@Mapper(withCustom = {SimpleTest.class, SimpleTest3.class})
 //	abstract public DataType2 toDataType(DataType1a value1, DataType1b dataType2, @Return DataType2 ret);
 
     @MapperFieldConfig(

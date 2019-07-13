@@ -53,7 +53,7 @@ First add library *jam-processor* as a *provided* dependency and *jam-common* as
 Define *Mapper* interface (or abstract class) describing the mapping you want. Follow example is with Spring support:
 
 ```java
-@JamMapper
+@Mapper
 @EnableSpring
 public interface SimpleMapper {
     

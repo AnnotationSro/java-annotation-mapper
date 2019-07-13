@@ -2,7 +2,7 @@ package sk.annotation.library.jam.annotation;
 
 import java.lang.annotation.Annotation;
 
-//@JamMapper - find problem
+//@Mapper - find problem
 public interface SimpleTest {
  	public DataType1b toDataType(DataType2 val);
 

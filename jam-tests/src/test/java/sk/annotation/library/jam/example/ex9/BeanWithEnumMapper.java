@@ -1,6 +1,8 @@
 package sk.annotation.library.jam.example.ex9;
 
-//@JamMapper TODO: compile errors in generated Impl class (problem with enum instantiation)
+import sk.annotation.library.jam.annotations.Mapper;
+
+@Mapper
 public interface BeanWithEnumMapper {
     UserWithRoleOutput toOutput(UserWithRoleInput input);
 }
