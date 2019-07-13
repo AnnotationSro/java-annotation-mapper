@@ -157,6 +157,7 @@ abstract public class ElementUtils {
 
 			for (Element member : allMembers) {
 				String name = member.getSimpleName().toString();
+				if (member.getModifiers().contains(Modifier.STATIC)) continue;
 
 				if (member instanceof VariableElement) {
 					ret.computeIfAbsent(name, FieldValueAccessData::new).setField((VariableElement) member);

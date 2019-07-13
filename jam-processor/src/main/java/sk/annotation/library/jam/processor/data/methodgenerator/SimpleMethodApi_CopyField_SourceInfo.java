@@ -54,7 +54,6 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 		/////////////////////////
 		// 1) Collect all information ...
-
 		FieldConfigurationResolver resolver = new FieldConfigurationResolver(ownerClassInfo, forMethodConfig);
 		List<FieldConfigurationResolver.ResolvedTransformation> transformGroups = resolver.findTransformationGroups(processingEnv, typeFrom, typeTo);
 		this.analyzedDataMap.put(forMethodConfig, transformGroups);

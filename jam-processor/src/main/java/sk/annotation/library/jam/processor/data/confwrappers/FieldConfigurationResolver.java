@@ -180,6 +180,7 @@ public class FieldConfigurationResolver {
         if (!orderedUnusedKeys.isEmpty()) {
             ResolvedTransformation group = findResolvedTransformation(retValues, Collections.singletonList(null), Collections.singletonList(null));
             for (String orderedUnusedKey : orderedUnusedKeys) {
+                // add to fieldMappingData
                 FieldMappingData mappingData = new FieldMappingData();
                 mappingData.setSrcIgnored(isIgnoredKey(srcFieldConfigMap, orderedUnusedKey));
                 mappingData.setDstIgnored(isIgnoredKey(dstFieldConfigMap, orderedUnusedKey));
