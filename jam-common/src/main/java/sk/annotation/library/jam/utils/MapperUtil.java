@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
@@ -28,7 +29,7 @@ abstract public class MapperUtil {
         if (clazz == null) return null;
 
         try {
-            return (T) classLoader.loadClass(clazz.getName() + constPostFixClassName).newInstance();
+            return (T) classLoader.loadClass(clazz.getName() + constPostFixClassName).getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException var6) {
             ServiceLoader<T> loader = ServiceLoader.load(clazz, classLoader);
             if (loader != null) {
@@ -43,7 +44,7 @@ abstract public class MapperUtil {
             }
 
             return null;
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }

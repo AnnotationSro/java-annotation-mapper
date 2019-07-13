@@ -1,4 +1,4 @@
-package sk.annotation.library.jam.processor.data.methodgenerator;
+package sk.annotation.library.jam.processor.data.generator.method;
 
 import com.sun.tools.javac.code.Type;
 import org.apache.commons.lang.StringUtils;
@@ -10,12 +10,12 @@ import sk.annotation.library.jam.processor.data.confwrappers.FieldConfigurationR
 import sk.annotation.library.jam.processor.data.confwrappers.FieldMappingData;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
+import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.NameUtils;
-import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.TypeMirror;
@@ -67,15 +67,26 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 			// Check transformation types
 			for (FieldMappingData fieldMapping : group.fieldMappingData) {
+				if (fieldMapping == null) continue;
+				if (fieldMapping.getSrc() == null) continue;
+				if (fieldMapping.getDst() == null) continue;
+
+				TypeMirror sourceType = fieldMapping.getSrc().getTypeOfGetter();
+				TypeMirror destinationType = fieldMapping.getDst().getTypeOfSetter();
+				if (sourceType == null) continue;
+				if (destinationType == null) continue;
+
 				// check for same type and if its primitive type
-				if (canDoWithoutTransform(processingEnv, fieldMapping)) {
-					continue;
+				if (!fieldMapping.isWithoutProblemOrNotIgnored()) {
+					AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, sourceType, destinationType);
+					if (rowFieldGenerator != null) {
+						fieldMapping.setRowValueTransformator(rowFieldGenerator);
+						continue;
+					}
 				}
 
 				if (!fieldMapping.isWithoutProblemOrNotIgnored()) continue;
 
-				TypeMirror sourceType = fieldMapping.getSrc().getTypeOfGetter();
-				TypeMirror destinationType = fieldMapping.getDst().getTypeOfSetter();
 
 
 				// TODO: Complete this later
@@ -358,24 +369,24 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		return true;
 	}
 
-	protected boolean canDoWithoutTransform(ProcessingEnvironment processingEnv, FieldMappingData fieldMapping) {
-		if (fieldMapping == null) return true;
-		if (fieldMapping.getSrc() == null) return true;
-		if (fieldMapping.getDst() == null) return true;
-		TypeMirror source = fieldMapping.getSrc().getTypeOfGetter();
-		TypeMirror destination = fieldMapping.getDst().getTypeOfSetter();
-
-		if (source == null) return true;
-		if (destination == null) return true;
-
-		if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) return false;
-
-		if (!processingEnv.getTypeUtils().isSameType(source, destination)) return false;
-
-		if (TypeUtils.isKnownImmutableType(processingEnv, source)) return true;
-
-		return false;
-	}
+//	protected boolean canDoWithoutTransform(ProcessingEnvironment processingEnv, FieldMappingData fieldMapping) {
+//		if (fieldMapping == null) return true;
+//		if (fieldMapping.getSrc() == null) return true;
+//		if (fieldMapping.getDst() == null) return true;
+//		TypeMirror source = fieldMapping.getSrc().getTypeOfGetter();
+//		TypeMirror destination = fieldMapping.getDst().getTypeOfSetter();
+//
+//		if (source == null) return true;
+//		if (destination == null) return true;
+//
+//		if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) return false;
+//
+//		if (!processingEnv.getTypeUtils().isSameType(source, destination)) return false;
+//
+//		if (TypeUtils.isKnownImmutableType(processingEnv, source)) return true;
+//
+//		return false;
+//	}
 
 	protected boolean canAccept(FieldMappingData fieldMapping, MethodConfigKey forMethodConfig) {
 		if (fieldMapping==null) return false;

@@ -51,7 +51,7 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		variable.writeSourceCode(ctx);
 
 		// If this is generated mapper - we can create instance of this
@@ -76,6 +76,7 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 		ctx.pw.print(" = ");
 		ctx.pw.print(variable.getVariableName());
 		ctx.pw.print(";\n}");
+		return true;
 	}
 
 	@Override

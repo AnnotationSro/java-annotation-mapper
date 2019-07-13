@@ -18,7 +18,10 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 	protected final String destPackage;
 
 	public ImportsTypeDefinitions(TypeElement forClass) {
-		destPackage = TypeUtils.findPackageName(forClass.asType());
+		this(TypeUtils.findPackageName(forClass.asType()));
+	}
+	protected ImportsTypeDefinitions(String destPackage) {
+		this.destPackage = destPackage;
 	}
 
 
@@ -34,7 +37,9 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 			return type.toString();
 		}
 
-		String rawValue = type.toString();
+		return resolveType(processingEnv, type.toString(), create);
+	}
+	protected String resolveType(ProcessingEnvironment processingEnv, String rawValue, boolean create) {
 
 		Matcher matcher = classNamePattern.matcher(rawValue);
 		StringBuilder sbOut = new StringBuilder();
@@ -51,7 +56,7 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 			String shortenClassName = realNames.get(oneClassName);
 			if (shortenClassName == null && create) {
 				ResolveImportStatus ris = resolveImportStatus(processingEnv, oneClassName);
-				if (ris!=null && ris.printName!=null) {
+				if (ris!=null && ris.printName!=null && !realNames.containsValue(ris.printName)) {
 					shortenClassName = ris.printName;
 					realNames.put(oneClassName, shortenClassName);
 					if (ris.importPath != null) imports.add(ris.importPath);
@@ -68,7 +73,7 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 		return sbOut.toString();
 	}
 
-	private static class ResolveImportStatus {
+	protected static class ResolveImportStatus {
 		String importPath;
 		String printName;
 
@@ -78,7 +83,7 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 		}
 	}
 
-	private ResolveImportStatus resolveImportStatus(ProcessingEnvironment processingEnv, String simpleName) {
+	protected ResolveImportStatus resolveImportStatus(ProcessingEnvironment processingEnv, String simpleName) {
 		TypeMirror type = TypeUtils.convertToType(processingEnv, simpleName);
 		if (type == null) return null;
 
@@ -190,10 +195,11 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 	}*/
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		if (!imports.isEmpty()) {
 			imports.forEach(imp -> ctx.pw.print("\nimport " + imp + ";"));
 			ctx.pw.printNewLine();
 		}
+		return true;
 	}
 }

@@ -2,7 +2,7 @@ package sk.annotation.library.jam.processor.data;
 
 import lombok.Data;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.jam.processor.data.methodgenerator.AbstractMethodSourceInfo;
+import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 
 import java.util.*;

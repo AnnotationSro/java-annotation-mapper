@@ -3,7 +3,7 @@ package sk.annotation.library.jam.processor.sourcewriter;
 import sk.annotation.library.jam.processor.data.FieldInfo;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.TypeInfo;
-import sk.annotation.library.jam.processor.data.methodgenerator.AbstractMethodSourceInfo;
+import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.utils.NameUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -43,7 +43,7 @@ public class JavaClassWriter implements SourceGenerator {
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 
 		// addMissingImports ...
 		TypeInfo parentType = new TypeInfo(mapperClassInfo.parentElement.asType());
@@ -87,14 +87,16 @@ public class JavaClassWriter implements SourceGenerator {
 
 		// Generate Custom Fields
 		for (FieldInfo fieldInfo : mapperClassInfo.fieldsToImplement) {
-			fieldInfo.writeSourceCode(ctx);
-			ctx.pw.printNewLine();
+			if (fieldInfo.writeSourceCode(ctx)) {
+				ctx.pw.printNewLine();
+			}
 		}
 
 		// Generate Methods
 		for (AbstractMethodSourceInfo m : mapperClassInfo.getMethodsToImplement().values()) {
-			m.writeSourceCode(ctx);
-			ctx.pw.printNewLine();
+			if (m.writeSourceCode(ctx)) {
+				ctx.pw.printNewLine();
+			}
 		}
 
 		// Class Ends
@@ -102,6 +104,7 @@ public class JavaClassWriter implements SourceGenerator {
 		ctx.pw.print("\n}");
 
 		ctx.pw.flush();
+		return true;
 	}
 
 }

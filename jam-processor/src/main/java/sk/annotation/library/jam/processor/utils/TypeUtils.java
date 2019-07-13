@@ -142,6 +142,11 @@ abstract public class TypeUtils {
         if (type1 == null || type2 == null) return false;
         return processingEnv.getTypeUtils().isAssignable(type1.getType(processingEnv), type2.getType(processingEnv));
     }
+    static public boolean isAssignable(ProcessingEnvironment processingEnv, TypeMirror type1, TypeMirror type2) {
+        if (type1 == null && type2 == null) return true;
+        if (type1 == null || type2 == null) return false;
+        return processingEnv.getTypeUtils().isAssignable(type1, type2);
+    }
 
     static public Type findType(VariableElement element) {
         if (element == null) return null;

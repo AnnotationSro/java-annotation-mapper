@@ -1,4 +1,4 @@
-package sk.annotation.library.jam.processor.data.methodgenerator;
+package sk.annotation.library.jam.processor.data.generator.method;
 
 import org.apache.commons.lang3.StringUtils;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
@@ -6,6 +6,7 @@ import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
+import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
@@ -115,9 +116,9 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
     }
 
     @Override
-    public void writeSourceCode(SourceGeneratorContext ctx) {
-        if (this.unwrapModeEnabled) return;
-        super.writeSourceCode(ctx);
+    public boolean writeSourceCode(SourceGeneratorContext ctx) {
+        if (this.unwrapModeEnabled) return false;
+        return super.writeSourceCode(ctx);
     }
 
     @Override
@@ -216,27 +217,44 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
 
     private boolean unwrapModeEnabled = false;
-    public void tryUnwrapMethods() {
-        if (!ownerClassInfo.getFeatures().isDisabled_SHARED_THREAD_CONTEXT()) return;
-        if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) return;
-        if (!ownerClassInfo.getFeatures().isDisabled_CONTEXT_VALUES()) return;
-        if (requiredMethods.size() != 1) return;
+
+    private boolean canUnwrapMethod(ProcessingEnvironment processingEnv) {
+        if (requiredMethods.size() != 1) return false;
 
         MethodCallApi methodCallApi = requiredMethods.get(0);
-        if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) return;
+        if (methodCallApi.getOutGeneratedMethod() instanceof SimpleMethodApi_RowTransform_SourceInfo) {
+            return true;
+        }
+
+        if (!ownerClassInfo.getFeatures().isDisabled_SHARED_THREAD_CONTEXT()) return false;
+        if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) return false;
+        if (!ownerClassInfo.getFeatures().isDisabled_CONTEXT_VALUES()) return false;
+
+        if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) return false;
 
 //        if (!Objects.equals(methodCallApi.getMethodSyntax().getApiKey(), this.methodApiFullSyntax.getApiKey()))
 //            return;//ApiKey is the same
 
         if (this.methodApiFullSyntax.isReturnLastParamRequired() != methodCallApi.getMethodSyntax().isReturnLastParamRequired())
-            return;
+            return false;
 
         // unwrap =>
+        return true;
+    }
+
+    public void tryUnwrapMethods(ProcessingEnvironment processingEnv) {
+        if (!canUnwrapMethod(processingEnv)) return;
+
         this.unwrapModeEnabled = true;
+        MethodCallApi methodCallApi = requiredMethods.get(0);
+        // unwrap =>
         methodCallApi.getMethodSyntax().setName(methodApiFullSyntax.getName());
         methodCallApi.getMethodSyntax().getAnnotations().mergeValues(methodApiFullSyntax.getAnnotations());
         methodCallApi.getMethodSyntax().getModifiers().clear();
         methodCallApi.getMethodSyntax().getModifiers().addAll(methodApiFullSyntax.getModifiers());
+        methodCallApi.getMethodSyntax().getParams().clear();
+        methodCallApi.getMethodSyntax().getParams().addAll(methodApiFullSyntax.getParams());
+//        methodCallApi.getMethodSyntax().getParams().addAll(methodCallApi.getOutGeneratedMethod().getMethodApiFullSyntax().getParams());
         if (methodCallApi.getMethodSyntax().isReturnLastParamRequired() != methodApiFullSyntax.isReturnLastParamRequired()) {
             if (!methodCallApi.getMethodSyntax().isReturnLastParamRequired()) {
                 Iterator<TypeWithVariableInfo> iterator = methodCallApi.getMethodSyntax().getParams().iterator();

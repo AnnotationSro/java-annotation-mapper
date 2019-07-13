@@ -37,8 +37,8 @@ public class AnnotationsInfo implements SourceGenerator, SourceRegisterImports {
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
-		if (annotationData.isEmpty()) return;
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
+		if (annotationData.isEmpty()) return false;
 		boolean addSpace = false;
 		for (Map.Entry<TypeInfo, AnnotationValues> e : annotationData.entrySet()) {
 			if (!inline) ctx.pw.print("\n");
@@ -53,6 +53,8 @@ public class AnnotationsInfo implements SourceGenerator, SourceRegisterImports {
 			e.getValue().writeSourceCode(ctx);
 			if (inline) ctx.pw.print(" ");
 		}
+
+		return true;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package sk.annotation.library.jam.processor.data.methodgenerator;
+package sk.annotation.library.jam.processor.data.generator.method;
 
 import com.sun.tools.javac.code.Type;
 import lombok.Getter;
@@ -12,6 +12,7 @@ import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.confwrappers.MapperConfigurationResolver;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
+import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
@@ -53,7 +54,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
     protected TypeWithVariableInfo varRet;
 
     @Override
-    public void writeSourceCode(SourceGeneratorContext ctx) {
+    public boolean writeSourceCode(SourceGeneratorContext ctx) {
         methodApiFullSyntax.writeMethodDeclaration(ctx);
         ctx.pw.print(" {");
         ctx.pw.levelSpaceUp();
@@ -110,6 +111,8 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
         ctx.pw.levelSpaceDown();
         ctx.pw.print("\n}");
+
+        return true;
     }
 
     protected void writeSourceCodeBodyReturn(SourceGeneratorContext ctx) {
@@ -300,6 +303,11 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             return new SimpleMethodApi_Enum_SourceInfo(ownerClassInfo, subMethodApiSyntax);
         }
 
+
+        AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, types[0], types[1]);
+        if (rowFieldGenerator!=null) {
+            return  new SimpleMethodApi_RowTransform_SourceInfo(ownerClassInfo,subMethodApiSyntax, rowFieldGenerator);
+        }
 
         // Defautl generator ...
         return new SimpleMethodApi_CopyField_SourceInfo(ownerClassInfo, subMethodApiSyntax);

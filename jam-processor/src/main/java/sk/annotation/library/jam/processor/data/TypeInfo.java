@@ -51,10 +51,11 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		TypeMirror type = getType(ctx.processingEnv);
 		String resolvedType = ctx.javaClassWriter.imports.resolveType(type);
 		ctx.pw.print(resolvedType);
+		return true;
 	}
 
 	@Override

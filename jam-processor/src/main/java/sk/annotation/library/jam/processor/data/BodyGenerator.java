@@ -21,7 +21,7 @@ public class BodyGenerator implements SourceRegisterImports, SourceGenerator {
 
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		for (Object obj : objs) {
 			if (obj instanceof SourceGenerator) {
 				((SourceGenerator) obj).writeSourceCode(ctx);
@@ -29,6 +29,7 @@ public class BodyGenerator implements SourceRegisterImports, SourceGenerator {
 			}
 			ctx.pw.print(obj.toString());
 		}
+		return true;
 	}
 
 	@Override

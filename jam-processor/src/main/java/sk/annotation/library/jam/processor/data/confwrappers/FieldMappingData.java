@@ -7,8 +7,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
+import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
-import sk.annotation.library.jam.processor.data.methodgenerator.AbstractMethodSourceInfo;
+import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 
@@ -30,6 +31,7 @@ public class FieldMappingData {
 	private ConfigErrorReporting dstConfigErrorReportingLevel;
 
 	private String methodNameRequired = null;
+	private AbstractRowValueTransformator rowValueTransformator = null;
 	private MethodCallApi methodCallApi = null;    // If it is null, transformation is called via this method, otherwise there are used SETTERS/GETTERS directly
 
 	@Override
@@ -39,7 +41,7 @@ public class FieldMappingData {
 				", dst=" + dst + '}';
 	}
 
-	public String resolveFieldNameForNote(SourceGeneratorContext ctx, String varSrcName, boolean writable) {
+	protected String getCodeNoteWithDetectedProblem(boolean writable) {
 		FieldValueAccessData field = writable ? dst : this.src;
 
 		List<String> tags = new ArrayList<>(2);
@@ -74,18 +76,25 @@ public class FieldMappingData {
 		try {
 			if (writeProblemIfExists(ctx, ownerMethod, methodConfigKey, varSrcName, varDstName)) return;
 
-			if (getMethodCallApi() == null) {
+			// rowValueTransformator
+			if (rowValueTransformator != null) {
 				ctx.pw.print("\n");
 				String[] eee = getDst().getSourceForSetter(varDstName);
 				ctx.pw.print(eee[0]);
 				ctx.pw.print(eee[1]);
-				ctx.pw.print(getSrc().getSourceForGetter(varSrcName));
+
+				String varValue = getSrc().getSourceForGetter(varSrcName);
+				varValue = rowValueTransformator.generateRowTransform(ctx, src.getTypeOfGetter(), dst.getTypeOfSetter(), varValue);
+				ctx.pw.print(varValue);
+
 				ctx.pw.print(eee[2]);
 				ctx.pw.print(";");
 				return;
 			}
 
-			writeMethod(ctx, ownerMethod, this, varSrcName, varDstName, ownerMethod.getMethodApiFullSyntax().getParams());
+			if (getMethodCallApi() != null) {
+				writeMethod(ctx, ownerMethod, this, varSrcName, varDstName, ownerMethod.getMethodApiFullSyntax().getParams());
+			}
 
 		} catch (Exception ee) {
 			ee.printStackTrace();
@@ -109,6 +118,9 @@ public class FieldMappingData {
 
 
 */
+//		if (rowValueTransformator == null) return false;
+
+
 		boolean srcProblem = src==null || !src.isReadable();
 		boolean dstProblem = dst==null || !dst.isWritable();
 
@@ -144,14 +156,20 @@ public class FieldMappingData {
 
 		ctx.pw.printNewLine();
 
+
 		StringBuilder sb = new StringBuilder();
 		sb.append(rowPrefix);
 		String[] eee = ObjectUtils.firstNonNull(dst, src).getSourceForSetter(varDstName);
 		sb.append(eee[0]);
-		sb.append(resolveFieldNameForNote(ctx, varDstName, true));
+		sb.append(getCodeNoteWithDetectedProblem(true));
 		sb.append(eee[1]);
-		sb.append(ObjectUtils.firstNonNull(src, dst).getSourceForGetter(varSrcName));
-		sb.append(resolveFieldNameForNote(ctx, varSrcName, false));
+
+		String varValue = ObjectUtils.firstNonNull(src, dst).getSourceForGetter(varSrcName);
+		if (rowValueTransformator !=null) varValue = rowValueTransformator.generateRowTransform(ctx, src.getTypeOfGetter(), dst.getTypeOfSetter(), varValue);
+		sb.append(varValue);
+
+
+		sb.append(getCodeNoteWithDetectedProblem(false));
 		sb.append(eee[2]);
 		sb.append(";");
 

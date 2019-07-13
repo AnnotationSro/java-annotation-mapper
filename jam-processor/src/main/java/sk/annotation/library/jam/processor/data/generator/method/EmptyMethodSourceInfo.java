@@ -1,4 +1,4 @@
-package sk.annotation.library.jam.processor.data.methodgenerator;
+package sk.annotation.library.jam.processor.data.generator.method;
 
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
@@ -15,11 +15,6 @@ public class EmptyMethodSourceInfo extends AbstractMethodSourceInfo {
 	@Override
 	protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
 		//nothing todo
-	}
-
-	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
-		super.writeSourceCode(ctx);
 	}
 
 	@Override

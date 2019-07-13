@@ -22,7 +22,7 @@ public class ConstantsMethodGeneratorInfo implements SourceGenerator, SourceRegi
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 
 		// static fields !!!
 		for (Map.Entry<String, String> entry : constanctsForTopMethods.entrySet()) {
@@ -35,6 +35,8 @@ public class ConstantsMethodGeneratorInfo implements SourceGenerator, SourceRegi
 		}
 
 		if (!constanctsForTopMethods.isEmpty())	ctx.pw.print("\n");
+
+		return true;
 	}
 
 	@Override

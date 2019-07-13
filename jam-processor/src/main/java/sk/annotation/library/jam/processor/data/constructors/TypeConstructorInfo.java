@@ -28,8 +28,9 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		writeSourceCodeWithParams(ctx);
+		return true;
 	}
 	public void writeSourceCodeWithParams(SourceGeneratorContext ctx, String... sourceAsParams) {
 		boolean withParams = sourceAsParams!=null && sourceAsParams.length>0;

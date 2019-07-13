@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.annotations.Context;
 import sk.annotation.library.jam.annotations.Return;
 import sk.annotation.library.jam.processor.Constants;
-import sk.annotation.library.jam.processor.data.methodgenerator.AbstractMethodSourceInfo;
+import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
@@ -109,8 +109,9 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		writeSourceCode(ctx, this.inlineMode, true);
+		return true;
 	}
 	public void writeSourceCode(SourceGeneratorContext ctx, boolean inlineMode, boolean writeAnnotation) {
 		if (writeAnnotation) {

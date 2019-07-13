@@ -47,14 +47,14 @@ public class AnnotationValues implements SourceGenerator {
 	}
 
 	@Override
-	public void writeSourceCode(SourceGeneratorContext ctx) {
-		if (values.isEmpty()) return;
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
+		if (values.isEmpty()) return false;
 
 		if (values.size()==1 && values.containsKey("value")) {
 			ctx.pw.print("(");
 			ctx.pw.print(resolveBestValue(values.get("value")));
 			ctx.pw.print(")");
-			return;
+			return true;
 		}
 
 		ctx.pw.print("(");
@@ -67,5 +67,6 @@ public class AnnotationValues implements SourceGenerator {
 			ctx.pw.print(resolveBestValue(e.getValue()));
 		}
 		ctx.pw.print(")");
+		return true;
 	}
 }

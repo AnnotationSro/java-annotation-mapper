@@ -1,4 +1,4 @@
-package sk.annotation.library.jam.processor.data.methodgenerator;
+package sk.annotation.library.jam.processor.data.generator.method;
 
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -31,7 +31,7 @@ public class SimpleMethodApi_Enum_SourceInfo extends EmptyMethodSourceInfo {
     protected void writeSourceCodeBody(SourceGeneratorContext ctx) {
         List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
         TypeWithVariableInfo varSrc = requiredParams.get(0);
-        TypeWithVariableInfo varDst = requiredParams.get(1);
+//        TypeWithVariableInfo varDst = requiredParams.get(1);
         String inputVarSrcName = varSrc.getVariableName();
         String inputVarDstName = varRet.getVariableName();
         this.usedNames.add(inputVarDstName);
