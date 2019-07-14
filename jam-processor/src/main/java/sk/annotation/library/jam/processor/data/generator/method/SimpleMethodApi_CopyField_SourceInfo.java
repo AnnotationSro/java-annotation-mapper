@@ -77,13 +77,13 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 				if (destinationType == null) continue;
 
 				// check for same type and if its primitive type
-				if (!fieldMapping.isWithoutProblemOrNotIgnored()) {
-					AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, sourceType, destinationType);
+//				if (!fieldMapping.isWithoutProblemOrNotIgnored()) {
+					AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType);
 					if (rowFieldGenerator != null) {
 						fieldMapping.setRowValueTransformator(rowFieldGenerator);
 						continue;
 					}
-				}
+//				}
 
 				if (!fieldMapping.isWithoutProblemOrNotIgnored()) continue;
 

@@ -238,11 +238,10 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         TypeInfo inType = new TypeInfo(sourceType);
         TypeInfo retType = new TypeInfo(destinationType);
 
-        // Complete same types +
-        if (TypeUtils.isSame(processingEnv, inType, retType)
-                && (TypeUtils.isKnownImmutableType(processingEnv, sourceType)
-                || MapperConfigurationResolver.isConfiguredAsImmutableType(processingEnv, ownerClassInfo, destinationType))
-        ) return null;
+        // If is required row transformation
+        if (AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType)!=null) {
+            return null;
+        }
 
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
         if (ownerClassInfo.getFeatures().isEnableMethodContext()) {
@@ -304,7 +303,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
 
 
-        AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, types[0], types[1]);
+        AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, types[0], types[1]);
         if (rowFieldGenerator!=null) {
             return  new SimpleMethodApi_RowTransform_SourceInfo(ownerClassInfo,subMethodApiSyntax, rowFieldGenerator);
         }

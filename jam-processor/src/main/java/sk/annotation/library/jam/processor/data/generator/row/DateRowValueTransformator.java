@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.processor.data.generator.row;
 
+import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
@@ -26,7 +27,7 @@ public class DateRowValueTransformator extends AbstractRowValueTransformator {
     }
 
     @Override
-    boolean accept(ProcessingEnvironment processingEnv, TypeMirror source, TypeMirror destination) {
+    boolean accept(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, TypeMirror source, TypeMirror destination) {
         return isOneOfAcceptedType(processingEnv, source) && isOneOfAcceptedType(processingEnv, destination);
     }
 

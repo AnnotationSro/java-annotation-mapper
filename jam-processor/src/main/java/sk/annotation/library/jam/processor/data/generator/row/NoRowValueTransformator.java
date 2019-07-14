@@ -1,5 +1,7 @@
 package sk.annotation.library.jam.processor.data.generator.row;
 
+import sk.annotation.library.jam.processor.data.MapperClassInfo;
+import sk.annotation.library.jam.processor.data.confwrappers.MapperConfigurationResolver;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
@@ -11,10 +13,15 @@ public class NoRowValueTransformator extends AbstractRowValueTransformator {
 
 
 	@Override
-	boolean accept(ProcessingEnvironment processingEnv, TypeMirror source, TypeMirror destination) {
+	boolean accept(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, TypeMirror source, TypeMirror destination) {
 		if (!processingEnv.getTypeUtils().isSameType(source, destination)) return false;
 
-		return TypeUtils.isKnownImmutableType(processingEnv, source);
+		if (TypeUtils.isKnownImmutableType(processingEnv, source)) return true;
+
+		// Check configuration immutable type
+		if (MapperConfigurationResolver.isConfiguredAsImmutableType(processingEnv, ownerClassInfo, destination)) return true;
+
+		return false;
 	}
 
 	@Override
