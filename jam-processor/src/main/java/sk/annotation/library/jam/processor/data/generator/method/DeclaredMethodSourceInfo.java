@@ -93,6 +93,10 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
             // 3a) Create methodApiKey
             MethodCallApi methodCallApi = findOrCreateOwnMethod(processingEnv, null, inputParams.get(i).getVariableType(), varRet.getVariableType(), this.methodApiFullSyntax.isReturnLastParamRequired() || i>0);
 
+            if (methodCallApi == null) {
+                throw new IllegalStateException("test");
+            }
+
             // If method still doesnt exist, its wrong !!
             requiredMethods.add(methodCallApi);
 

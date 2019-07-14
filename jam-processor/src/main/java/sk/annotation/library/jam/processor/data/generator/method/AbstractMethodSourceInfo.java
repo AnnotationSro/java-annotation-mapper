@@ -238,10 +238,10 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         TypeInfo inType = new TypeInfo(sourceType);
         TypeInfo retType = new TypeInfo(destinationType);
 
-        // If is required row transformation
-        if (AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType)!=null) {
-            return null;
-        }
+//        // If is required row transformation
+//        if (AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType)!=null) {
+//            return null;
+//        }
 
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
         if (ownerClassInfo.getFeatures().isEnableMethodContext()) {
