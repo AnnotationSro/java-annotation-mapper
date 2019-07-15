@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>sk.annotation.library.jam</groupId>
@@ -191,6 +192,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
+                <configuration>
+                    <gpgArguments>
+                        <!-- for older PGP this not working -->
+                        <arg>--pinentry-mode</arg>
+                        <arg>loopback</arg>
+                    </gpgArguments>
+                </configuration>
                 <executions>
                     <execution>
                         <!-- Note - check: -Dgpg.passphrase=... -->
@@ -256,7 +264,7 @@
 
     <profiles>
         <profile>
-        <id>release-snapshot</id>
+            <id>release-snapshot</id>
             <properties>
                 <maven.deploy.skip>false</maven.deploy.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
@@ -303,6 +311,6 @@
         <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
         <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
         <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 </project>
