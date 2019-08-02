@@ -10,7 +10,8 @@ abstract public class AbstractRowValueTransformator {
 
 	static AbstractRowValueTransformator[] rowFieldGenerators = new AbstractRowValueTransformator[] {
 		NoRowValueTransformator.instance,
-		DateRowValueTransformator.instance
+		DateRowValueTransformator.instance,
+		SimpleRowValueTransformator.instance
 	};
 
 	abstract boolean accept(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, TypeMirror source, TypeMirror destination);

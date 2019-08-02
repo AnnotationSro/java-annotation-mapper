@@ -194,11 +194,18 @@ abstract public class TypeUtils {
                 return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.FLOAT);
             if (double.class.getCanonicalName().equals(className))
                 return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.DOUBLE);
+            if (byte.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.BYTE);
+            if (short.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.SHORT);
+            if (char.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.CHAR);
+            if (void.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.VOID);
 
         try {
             return processingEnv.getElementUtils().getTypeElement(className).asType();
         } catch (Exception e) {
-            new IllegalStateException("Nemapovany typ " + className, e).printStackTrace();
             return null;
         }
     }
