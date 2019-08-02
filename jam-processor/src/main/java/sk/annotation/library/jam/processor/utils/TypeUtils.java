@@ -155,15 +155,6 @@ abstract public class TypeUtils {
         throw new IllegalStateException("Not Implemented yet!!!");
     }
 
-    static public Type convertToType(ProcessingEnvironment processingEnv, String className) {
-        if (className == null) return null;
-        try {
-            return (Type) processingEnv.getElementUtils().getTypeElement(className).asType();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     static public String createNullValue(TypeMirror type) {
         if (type == null) return null;
         if (type instanceof NoType) return null;
@@ -183,34 +174,42 @@ abstract public class TypeUtils {
     }
 
     static public TypeMirror convertToTypeMirror(ProcessingEnvironment processingEnv, Class cls) {
-        Type type = convertToType(processingEnv, cls.getCanonicalName());
-        if (type != null) return type;
+        if (cls == null) return null;
+        return convertToTypeMirror(processingEnv, cls.getCanonicalName());
+    }
+    static public TypeMirror convertToTypeMirror(ProcessingEnvironment processingEnv, String className) {
+        if (className == null) return null;
 
-        if (cls.isPrimitive()) {
-            if (boolean.class.equals(cls))
-                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.BOOLEAN);
-            if (int.class.equals(cls))
-                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.INT);
-            if (long.class.equals(cls))
-                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.LONG);
-            if (float.class.equals(cls))
-                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.FLOAT);
-            if (double.class.equals(cls))
-                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.DOUBLE);
+        if (int.class.getCanonicalName().equals(className)) {
+            return (Type) processingEnv.getTypeUtils().getPrimitiveType(TypeKind.INT);
         }
 
-        throw new IllegalStateException("Nemapovany typ " + cls);
+           if (boolean.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.BOOLEAN);
+            if (int.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.INT);
+            if (long.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.LONG);
+            if (float.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.FLOAT);
+            if (double.class.getCanonicalName().equals(className))
+                return processingEnv.getTypeUtils().getPrimitiveType(TypeKind.DOUBLE);
+
+        try {
+            return processingEnv.getElementUtils().getTypeElement(className).asType();
+        } catch (Exception e) {
+            new IllegalStateException("Nemapovany typ " + className, e).printStackTrace();
+            return null;
+        }
     }
 
     static public Type convertToType(ProcessingEnvironment processingEnv, Class cls) {
-        return convertToType(processingEnv, cls.getCanonicalName());
+        return (Type) convertToTypeMirror(processingEnv, cls);
+    }
+    static public Type convertToType(ProcessingEnvironment processingEnv, String className) {
+        return (Type) convertToTypeMirror(processingEnv, className);
     }
 
-    static public TypeInfo convertToDefinitionType(ProcessingEnvironment processingEnv, Class cls) {
-        TypeMirror typeMirror = convertToType(processingEnv, cls);
-        if (typeMirror == null) return null;
-        return new TypeInfo(typeMirror);
-    }
 
     static public String findPackageName(TypeMirror typeMirror) {
         Type.PackageType pck = findPackageType(typeMirror);
