@@ -1,4 +1,4 @@
-package sk.annotation.library.jam.processor.ex14;
+package sk.annotation.library.jam.example.ex14;
 
 import sk.annotation.library.jam.annotations.Mapper;
 
@@ -151,44 +151,88 @@ public interface SimpleTypesMapper {
 	BigInteger t129(Short obj);
 	BigInteger t130(int obj);
 	BigInteger t131(Integer obj);
-	BigInteger t130(long obj);
-	BigInteger t131(Long obj);
-	BigInteger t132(String obj);
+	BigInteger t132(long obj);
+	BigInteger t133(Long obj);
+	BigInteger t134(String obj);
 
-	byte t133(BigInteger obj);
-	Byte t134(BigInteger obj);
-	short t135(BigInteger obj);
-	Short t136(BigInteger obj);
-	int t137(BigInteger obj);
-	Integer t138(BigInteger obj);
-	float t139(BigInteger obj);
-	Float t140(BigInteger obj);
-	double t141(BigInteger obj);
-	Double t142(BigInteger obj);
-	String t143(BigInteger obj);
+	byte t135(BigInteger obj);
+	Byte t136(BigInteger obj);
+	short t137(BigInteger obj);
+	Short t138(BigInteger obj);
+	int t139(BigInteger obj);
+	Integer t140(BigInteger obj);
+	float t141(BigInteger obj);
+	Float t142(BigInteger obj);
+	double t143(BigInteger obj);
+	Double t144(BigInteger obj);
+	String t145(BigInteger obj);
 
 
-	BigDecimal t144(byte obj);
-	BigDecimal t145(Byte obj);
-	BigDecimal t146(short obj);
-	BigDecimal t147(Short obj);
-	BigDecimal t148(int obj);
-	BigDecimal t149(Integer obj);
-	BigDecimal t150(float obj);
-	BigDecimal t151(Float obj);
-	BigDecimal t152(double obj);
-	BigDecimal t153(Double obj);
-	BigDecimal t154(String obj);
+	BigDecimal t146(byte obj);
+	BigDecimal t147(Byte obj);
+	BigDecimal t148(short obj);
+	BigDecimal t149(Short obj);
+	BigDecimal t150(int obj);
+	BigDecimal t151(Integer obj);
+	BigDecimal t152(float obj);
+	BigDecimal t153(Float obj);
+	BigDecimal t154(double obj);
+	BigDecimal t155(Double obj);
+	BigDecimal t156(String obj);
 
-	byte t155(BigDecimal obj);
-	Byte t156(BigDecimal obj);
-	short t157(BigDecimal obj);
-	Short t158(BigDecimal obj);
-	int t159(BigDecimal obj);
-	Integer t160(BigDecimal obj);
-	float t161(BigDecimal obj);
-	Float t162(BigDecimal obj);
-	double t163(BigDecimal obj);
-	Double t164(BigDecimal obj);
-	String t165(BigDecimal obj);
+	byte t157(BigDecimal obj);
+	Byte t158(BigDecimal obj);
+	short t159(BigDecimal obj);
+	Short t160(BigDecimal obj);
+	int t161(BigDecimal obj);
+	Integer t162(BigDecimal obj);
+	float t163(BigDecimal obj);
+	Float t164(BigDecimal obj);
+	double t165(BigDecimal obj);
+	Double t166(BigDecimal obj);
+	String t167(BigDecimal obj);
+
+	byte t168(float obj);
+	Byte t169(float obj);
+	short t170(float obj);
+	Short t171(float obj);
+	int t172(float obj);
+	Integer t173(float obj);
+	long t174(float obj);
+	Long t175(float obj);
+	double t176(float obj);
+	Double t177(float obj);
+
+	byte t178(Float obj);
+	Byte t179(Float obj);
+	short t180(Float obj);
+	Short t181(Float obj);
+	int t182(Float obj);
+	Integer t183(Float obj);
+	long t184(Float obj);
+	Long t185(Float obj);
+	double t186(Float obj);
+	Double t187(Float obj);
+
+	byte t188(double obj);
+	Byte t189(double obj);
+	short t190(double obj);
+	Short t191(double obj);
+	int t192(double obj);
+	Integer t193(double obj);
+	long t194(double obj);
+	Long t195(double obj);
+	float t196(double obj);
+	Float t197(double obj);
+
+	byte t198(Double obj);
+	Byte t199(Double obj);
+	short t200(Double obj);
+	Short t201(Double obj);
+	int t202(Double obj);
+	Integer t203(Double obj);
+	long t204(Double obj);
+	Long t205(Double obj);
+	float t206(Double obj);
+	Float t207(Double obj);
 }
