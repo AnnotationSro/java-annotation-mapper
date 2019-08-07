@@ -8,14 +8,7 @@ import static org.junit.Assert.*;
 public class IgnoreFieldMapperTest {
     @Test
     public void testIgnoreFieldMapper(){
-        final Long id = 42L;
-        final String name = "TesterName";
-        final String surname = "TesterSurname";
-
-        UserInput input = new UserInput();
-        input.setId(id);
-        input.setName(name);
-        input.setSurname(surname);
+        UserInput input = createUserInput();
 
         IgnoreFieldMapper mapper = MapperUtil.getMapper(IgnoreFieldMapper.class);
 
@@ -24,7 +17,51 @@ public class IgnoreFieldMapperTest {
         assertNotNull(output);
 
         assertNull(output.getId());
-        assertEquals(name, output.getFirstName());
-        assertEquals(surname, output.getLastName());
+        assertEquals(input.getName(), output.getFirstName());
+        assertEquals(input.getSurname(), output.getLastName());
+
+        assertNotNull(output.getDetail());
+
+        assertNull(output.getDetail().getId());
+        assertEquals(input.getDetail().getDetail(), output.getDetail().getDetail());
+    }
+
+
+    @Test
+    public void testIgnoreFieldMapperWithId(){
+        UserInput input = createUserInput();
+
+        IgnoreFieldMapper mapper = MapperUtil.getMapper(IgnoreFieldMapper.class);
+
+        UserOutput output = mapper.toOutputWithId(input);
+
+        assertNotNull(output);
+
+        assertEquals(input.getId(), output.getId());
+        assertEquals(input.getName(), output.getFirstName());
+        assertEquals(input.getSurname(), output.getLastName());
+
+        assertNotNull(output.getDetail());
+
+        assertEquals(input.getDetail().getId(), output.getDetail().getId());
+        assertEquals(input.getDetail().getDetail(), output.getDetail().getDetail());
+    }
+
+    private UserInput createUserInput() {
+        Long id = 42L;
+        String name = "TesterName";
+        String surname = "TesterSurname";
+
+        UserInput input = new UserInput();
+        input.setId(id);
+        input.setName(name);
+        input.setSurname(surname);
+
+        UserDetailInput detailInput = new UserDetailInput();
+        detailInput.setDetail("detail ...");
+        detailInput.setId(1337L);
+
+        input.setDetail(detailInput);
+        return input;
     }
 }

@@ -157,11 +157,11 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 		String methodContextValue = null;
 		if (analyzedDataAreDifferents()) {
-			methodContextValue = NameUtils.findBestNameAndUpdateSet(this.usedNames, "methodConfig");
+			methodContextValue = this.varCtxMethodId.getVariableName();
 
-			ctx.pw.print("\nint ");
-			ctx.pw.print(methodContextValue);
-			ctx.pw.print(" = MapperUtil.getCurrentMethodContext();");
+//			ctx.pw.print("\nint ");
+//			ctx.pw.print(methodContextValue);
+//			ctx.pw.print(" = MapperUtil.getCurrentMethodContext();");
 		}
 
 		/////////////////////////

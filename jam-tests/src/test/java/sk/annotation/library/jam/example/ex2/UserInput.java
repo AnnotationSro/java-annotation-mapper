@@ -5,6 +5,8 @@ public class UserInput {
     private String name;
     private String surname;
 
+    private UserDetailInput detail;
+
     public Long getId() {
         return id;
     }
@@ -27,5 +29,13 @@ public class UserInput {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public UserDetailInput getDetail() {
+        return detail;
+    }
+
+    public void setDetail(UserDetailInput detail) {
+        this.detail = detail;
     }
 }

@@ -10,11 +10,17 @@ import sk.annotation.library.jam.annotations.MapperFieldConfig;
     fieldMapping = {
         @FieldMapping(s="name", d="firstName"),
         @FieldMapping(s="surname", d="lastName")
-    },
-    fieldIgnore = {
-        @FieldIgnore("id")
     }
 )
 public interface IgnoreFieldMapper {
+    @MapperFieldConfig(
+            fieldIgnore = {
+                    @FieldIgnore("id")
+            }
+    )
     UserOutput toOutput(UserInput userInput);
+
+    UserOutput toOutputWithId(UserInput userInput);
+
+    UserDetailOutput toOutputDetail(UserDetailInput detailInput);
 }

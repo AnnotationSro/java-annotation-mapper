@@ -5,6 +5,8 @@ public class UserOutput {
     private String firstName;
     private String lastName;
 
+    private UserDetailOutput detail;
+
     public Long getId() {
         return id;
     }
@@ -27,5 +29,13 @@ public class UserOutput {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public UserDetailOutput getDetail() {
+        return detail;
+    }
+
+    public void setDetail(UserDetailOutput detail) {
+        this.detail = detail;
     }
 }
