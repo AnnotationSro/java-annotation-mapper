@@ -1,10 +1,13 @@
 package sk.annotation.library.jam.processor.sourcewriter;
 
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -15,6 +18,7 @@ import java.util.regex.Pattern;
 public class ImportsTypeDefinitions implements SourceGenerator {
 	protected final Map<String, String> realNames = new LinkedHashMap<>();
 	protected final Set<String> imports = new TreeSet<>();
+	protected final Map<String, Element> dependOnElements = new LinkedHashMap<>();
 	protected final String destPackage;
 
 	public ImportsTypeDefinitions(TypeElement forClass) {
@@ -93,12 +97,28 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 		String packageName = TypeUtils.findPackageName(topElementType);
 		if (packageName == null) return new ResolveImportStatus(null, simpleName);
 
+		registerElements(simpleName, packageName, type);
+
 		String shortName = StringUtils.substring(simpleName, packageName.length() + 1);
-		if (StringUtils.equals(packageName, this.destPackage)) return new ResolveImportStatus(null, shortName);
 		if (StringUtils.equals(packageName, "java.lang")) return new ResolveImportStatus(null, shortName);
+		if (StringUtils.equals(packageName, this.destPackage)) return new ResolveImportStatus(null, shortName);
 
 		String importName = topElementType.asElement().toString();
 		return new ResolveImportStatus(importName, shortName);
+	}
+
+	protected void registerElements(String simpleName, String packageName, TypeMirror type) {
+		if (StringUtils.startsWith(packageName, "java.")) return;
+		if (StringUtils.startsWith(packageName, "javax.")) return;
+		if (StringUtils.startsWith(packageName, "sk.annotation.library.jam.annotations")) return;
+		if (StringUtils.startsWith(packageName, "sk.annotation.library.jam.utils")) return;
+
+		if (type.getKind() != TypeKind.DECLARED) return;
+		Element element = ((Type) type).asElement();
+
+		if (element.getKind() == ElementKind.ANNOTATION_TYPE) return;
+//		if (element.getKind() == ElementKind.) return;
+		dependOnElements.put(simpleName, element);
 	}
 
 	public static void main(String[] args) {
