@@ -5,6 +5,7 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,10 +34,10 @@ public class BodyGenerator implements SourceRegisterImports, SourceGenerator {
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
 		for (Object obj : objs) {
 			if (obj instanceof SourceRegisterImports) {
-				((SourceRegisterImports) obj).registerImports(ctx, imports);
+				((SourceRegisterImports) obj).registerImports(processingEnv, imports);
 			}
 		}
 	}

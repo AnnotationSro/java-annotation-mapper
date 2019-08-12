@@ -5,6 +5,7 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class AnnotationsInfo implements SourceGenerator, SourceRegisterImports {
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		annotationData.keySet().forEach(a -> a.registerImports(ctx,imports));
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+		annotationData.keySet().forEach(a -> a.registerImports(processingEnv,imports));
 	}
 }

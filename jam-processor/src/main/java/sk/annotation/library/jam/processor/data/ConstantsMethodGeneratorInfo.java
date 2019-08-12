@@ -6,6 +6,7 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class ConstantsMethodGeneratorInfo implements SourceGenerator, SourceRegi
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
 	}
 
 

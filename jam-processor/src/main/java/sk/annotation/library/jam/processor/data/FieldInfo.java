@@ -6,6 +6,7 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 
 
 	private Optional<TypeInfo> customFieldInstance = null;
-	protected TypeInfo getFieldTypeForInstance(SourceGeneratorContext ctx) {
+	protected TypeInfo getFieldTypeForInstance(ProcessingEnvironment processingEnv) {
 		if (true) return null;
 //		if (customFieldInstance  == null) {
 //			TypeInfo type = variable.getType();
@@ -55,7 +56,7 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 		variable.writeSourceCode(ctx);
 
 		// If this is generated mapper - we can create instance of this
-		TypeInfo typeForInstance = getFieldTypeForInstance(ctx);
+		TypeInfo typeForInstance = getFieldTypeForInstance(ctx.processingEnv);
 		if (typeForInstance != null) {
 			// TODO: Check how we can INITIALIZE it
 			ctx.pw.print(" = new ");
@@ -80,9 +81,9 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		variable.registerImports(ctx, imports);
-		SourceRegisterImports.runIfPresent(getFieldTypeForInstance(ctx), ctx, imports);
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+		variable.registerImports(processingEnv, imports);
+		SourceRegisterImports.runIfPresent(getFieldTypeForInstance(processingEnv), processingEnv, imports);
 	}
 
 }

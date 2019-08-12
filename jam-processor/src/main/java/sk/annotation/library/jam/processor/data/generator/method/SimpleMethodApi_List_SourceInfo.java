@@ -51,9 +51,9 @@ public class SimpleMethodApi_List_SourceInfo extends AbstractMethodSourceInfo {
     }
 
     @Override
-    public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-        super.registerImports(ctx, imports);
-        if (listConstructorType != null) listConstructorType.registerImports(ctx, imports);
+    public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+        super.registerImports(processingEnv, imports);
+        if (listConstructorType != null) listConstructorType.registerImports(processingEnv, imports);
     }
 
     @Override

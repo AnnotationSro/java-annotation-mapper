@@ -7,6 +7,7 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
@@ -102,9 +103,9 @@ public class FieldValueAccessData implements SourceRegisterImports {
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		imports.registerImports(ctx.processingEnv, getTypeOfGetter());
-		imports.registerImports(ctx.processingEnv, getTypeOfSetter());
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+		imports.registerImports(processingEnv, getTypeOfGetter());
+		imports.registerImports(processingEnv, getTypeOfSetter());
 	}
 
 	@Override

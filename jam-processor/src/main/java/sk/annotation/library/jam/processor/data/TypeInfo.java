@@ -46,8 +46,8 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		imports.registerImports(ctx.processingEnv, getType(ctx.processingEnv));
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+		imports.registerImports(processingEnv, getType(processingEnv));
 	}
 
 	@Override

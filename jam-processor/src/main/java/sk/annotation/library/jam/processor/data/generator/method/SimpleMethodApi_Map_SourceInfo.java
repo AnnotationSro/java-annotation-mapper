@@ -55,9 +55,9 @@ public class SimpleMethodApi_Map_SourceInfo extends AbstractMethodSourceInfo {
     }
 
     @Override
-    public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-        super.registerImports(ctx, imports);
-        if (mapConstructorType != null) mapConstructorType.registerImports(ctx, imports);
+    public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+        super.registerImports(processingEnv, imports);
+        if (mapConstructorType != null) mapConstructorType.registerImports(processingEnv, imports);
     }
 
     @Override

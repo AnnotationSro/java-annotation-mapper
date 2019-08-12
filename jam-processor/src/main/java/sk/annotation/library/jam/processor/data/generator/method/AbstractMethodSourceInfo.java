@@ -213,13 +213,13 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 //	}
 
     @Override
-    public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
+    public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
         if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) {
-            Constants.typeInstanceCacheValue.registerImports(ctx, imports);
+            Constants.typeInstanceCacheValue.registerImports(processingEnv, imports);
         }
-        methodApiFullSyntax.registerImports(ctx, imports);
+        methodApiFullSyntax.registerImports(processingEnv, imports);
         for (SourceRegisterImports v : sourcesForImports) {
-            v.registerImports(ctx, imports);
+            v.registerImports(processingEnv, imports);
         }
     }
 

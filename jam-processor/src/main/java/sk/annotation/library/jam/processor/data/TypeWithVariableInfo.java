@@ -15,6 +15,7 @@ import sk.annotation.library.jam.processor.utils.MsgConstants;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 import sk.annotation.library.jam.utils.MapperRunCtxDataHolder;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import java.util.LinkedHashSet;
@@ -130,9 +131,9 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		annotations.registerImports(ctx, imports);
-		type.registerImports(ctx, imports);
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+		annotations.registerImports(processingEnv, imports);
+		type.registerImports(processingEnv, imports);
 	}
 
 	public void genSourceForPutContext(SourceGeneratorContext ctx, String sourceValue, AbstractMethodSourceInfo method) {

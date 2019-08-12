@@ -103,10 +103,10 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		SourceRegisterImports.runIfPresent(returnType, ctx, imports);
-		annotations.registerImports(ctx, imports);
-		params.forEach(param -> SourceRegisterImports.runIfPresent(param, ctx, imports));
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+		SourceRegisterImports.runIfPresent(returnType, processingEnv, imports);
+		annotations.registerImports(processingEnv, imports);
+		params.forEach(param -> SourceRegisterImports.runIfPresent(param, processingEnv, imports));
 	}
 
 	public void writeMethodDeclaration(SourceGeneratorContext ctx) {

@@ -58,7 +58,7 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 	}
 
 	@Override
-	public void registerImports(SourceGeneratorContext ctx, ImportsTypeDefinitions imports) {
-		getTypeConstructor(ctx.processingEnv).registerImports(ctx, imports);
+	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
+		getTypeConstructor(processingEnv).registerImports(processingEnv, imports);
 	}
 }

@@ -28,6 +28,19 @@ public class JavaClassWriter implements SourceGenerator {
 
 	public void writeSourceCode(ProcessingEnvironment processingEnv) {
 		try {
+			// addMissingImports ...
+			TypeInfo parentType = new TypeInfo(mapperClassInfo.parentElement.asType());
+			parentType.registerImports(processingEnv, imports);
+			mapperClassInfo.generateAnnotations.registerImports(processingEnv, imports);
+			for (FieldInfo value : mapperClassInfo.fieldsToImplement) {
+				value.registerImports(processingEnv, imports);
+			}
+			for (AbstractMethodSourceInfo m : mapperClassInfo.getMethodsToImplement().values()) {
+				m.registerImports(processingEnv, imports);
+			}
+
+
+			// Create source file
 			JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(mapperClassInfo.getFullClassName());
 			try (
 					Writer w = sourceFile.openWriter();
@@ -44,17 +57,6 @@ public class JavaClassWriter implements SourceGenerator {
 
 	@Override
 	public boolean writeSourceCode(SourceGeneratorContext ctx) {
-
-		// addMissingImports ...
-		TypeInfo parentType = new TypeInfo(mapperClassInfo.parentElement.asType());
-		parentType.registerImports(ctx, imports);
-		mapperClassInfo.generateAnnotations.registerImports(ctx, imports);
-		for (FieldInfo value : mapperClassInfo.fieldsToImplement) {
-			value.registerImports(ctx, imports);
-		}
-		for (AbstractMethodSourceInfo m : mapperClassInfo.getMethodsToImplement().values()) {
-			m.registerImports(ctx, imports);
-		}
 
 		// Package
 		String packageName = NameUtils.getUpperPackage(mapperClassInfo.getFullClassName());
@@ -76,7 +78,7 @@ public class JavaClassWriter implements SourceGenerator {
 //TODO: later		if (mapperClassInfo.parentElement.getModifiers().contains(Modifier.ABSTRACT)) ctx.pw.print("abstract ");
 		ctx.pw.print("class " + mapperClassInfo.getSimpleClassName() + " ");
 		ctx.pw.print(mapperClassInfo.parentTypeAsAbstractClass ? "extends " : "implements ");
-		parentType.writeSourceCode(ctx);
+		new TypeInfo(mapperClassInfo.parentElement.asType()).writeSourceCode(ctx);
 		ctx.pw.print(" {");
 		ctx.pw.printNewLine();
 
