@@ -5,6 +5,7 @@ import lombok.Setter;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
+import sk.annotation.library.jam.processor.utils.LombokUtil;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -12,35 +13,74 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import java.util.Set;
 
 @Getter
-@Setter
 public class FieldValueAccessData implements SourceRegisterImports {
-	final private String fieldName;
-	private VariableElement field = null;
-	private ExecutableElement setter = null;
-	private ExecutableElement getter = null;
+	@Getter
+	public static class AccessableTypeName {
+		final private String name;
+		final private boolean accessable;
+		final private TypeMirror type;
 
-	public void setField(VariableElement field) {
-		this.field = field;
+		public AccessableTypeName(String name, boolean accessable, TypeMirror type) {
+			this.name = name;
+			this.accessable = accessable;
+			this.type = type;
+		}
 
-		// TODO: Add check for lombok Getter and Setter
-//		List<? extends AnnotationMirror> annotationMirrors = this.field.getAnnotationMirrors();
-//		for (AnnotationMirror annotationMirror : annotationMirrors) {
-//			if (annotationMirror.getElementValues())
-//		}
+		static boolean isAccessable(AccessableTypeName value) {
+			return value!=null && value.accessable;
+		}
 	}
+
+
+	final private String fieldName;
+//	private Boolean fieldNamePublic = false;
+
+	private AccessableTypeName field = null;
+	private AccessableTypeName setter = null;
+	private AccessableTypeName getter = null;
 
 	public FieldValueAccessData(String name) {
 		this.fieldName = name;
 	}
+	public void setField(VariableElement field) {
+//		this.field = field;
+		this.field = new AccessableTypeName(field.getSimpleName().toString(), field.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(field));
+
+		if (this.setter==null) {
+			String setterName = LombokUtil.findLombokPublicSetter(field);
+			if (setterName != null) {
+				this.setter = new AccessableTypeName(setterName, true, this.field.getType());
+			}
+		}
+
+		if (this.getter==null) {
+			String getterName = LombokUtil.findLombokPublicGetter(field);
+			if (getterName != null) {
+				this.getter = new AccessableTypeName(getterName, true, this.field.getType());
+			}
+		}
+	}
+
+
+
+	public void setSetter(ExecutableElement value) {
+		if (value.getParameters().size()!=1) return;
+		this.setter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(value.getParameters().get(0)));
+	}
+	public void setGetter(ExecutableElement value) {
+		this.getter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), value.getReturnType());
+	}
+
 
 	public boolean isWritable() {
-		return field != null && field.getModifiers().contains(Modifier.PUBLIC) || setter != null && setter.getModifiers().contains(Modifier.PUBLIC);
+		return AccessableTypeName.isAccessable(setter) || AccessableTypeName.isAccessable(field);
 	}
 
 	public boolean isReadable() {
-		return field != null && field.getModifiers().contains(Modifier.PUBLIC) || getter != null && getter.getModifiers().contains(Modifier.PUBLIC);
+		return AccessableTypeName.isAccessable(getter) || AccessableTypeName.isAccessable(field);
 	}
 
 	public TypeMirror getTypeOfGetter() {
@@ -53,22 +93,21 @@ public class FieldValueAccessData implements SourceRegisterImports {
 
 	private TypeMirror getType(boolean forGetter) {
 		if (forGetter) {
-			if (getter != null) getter.getReturnType();
-			if (field != null) return TypeUtils.findType(field);
+			if (getter != null) getter.getType();
+			if (field != null) return field.getType();
 		} else {
-			if (setter != null && !setter.getParameters().isEmpty())
-				return TypeUtils.findType(setter.getParameters().get(0));
-			if (field != null) return TypeUtils.findType(field);
+			if (setter != null) setter.getType();
+			if (field != null) return field.getType();
 		}
 
 		return null;
 	}
 
-	public boolean useField(boolean forGetter) {
+	private boolean useField(boolean forGetter) {
 		if (forGetter) {
-			if (getter != null && isReadable()) return false;
+			if (getter != null && getter.isAccessable()) return false;
 		} else {
-			if (setter != null && !setter.getParameters().isEmpty() && isWritable()) return false;
+			if (setter != null && setter.isAccessable()) return false;
 		}
 		return true;
 	}
@@ -80,7 +119,7 @@ public class FieldValueAccessData implements SourceRegisterImports {
 		if (useField(true)) {
 			sb.append(fieldName);
 		} else {
-			sb.append(getter.getSimpleName().toString());
+			sb.append(getter.getName());
 			sb.append("()");
 		}
 		return sb.toString();
@@ -95,7 +134,7 @@ public class FieldValueAccessData implements SourceRegisterImports {
 			};
 		}
 		return new String[]{
-				varDestName + "." + setter.getSimpleName(),
+				varDestName + "." + setter.getName(),
 				" ( ",
 				" )"
 		};
