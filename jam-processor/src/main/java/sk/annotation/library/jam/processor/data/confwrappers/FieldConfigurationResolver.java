@@ -128,11 +128,10 @@ public class FieldConfigurationResolver {
         Set<String> unusedSourceFields = new HashSet<>(srcFields.keySet());
         Set<String> unusedDestinationFields = new HashSet<>(dstFields.keySet());
 
-        Map<String, AnnotationFieldIgnore> srcFieldConfigMap = resolveFieldConfigsMap(processingEnv, typeFrom, srcFields);
-        Map<String, AnnotationFieldIgnore> dstFieldConfigMap = resolveFieldConfigsMap(processingEnv, typeTo, dstFields);
-
         // Find custom fields
         for (FieldMapperWrapper customField : customFieldMapping) {
+			if (!customField.a.isTypeAcceptable(processingEnv, typeFrom)) continue; // ignore not appliable customFieldMapping
+			if (!customField.b.isTypeAcceptable(processingEnv, typeTo)) continue; // ignore not appliable customFieldMapping
 
             if (sameTypes && !customField.directionSToD) continue;
 
@@ -322,37 +321,9 @@ public class FieldConfigurationResolver {
 
     	return false;
 	}
-    private boolean isIgnoredKey(Map<String, AnnotationFieldIgnore> srcFieldConfigMap, String key) {
-        if (key == null) return true;
-        if (srcFieldConfigMap.containsKey(key)) {
-            return srcFieldConfigMap.get(key).isIgnored();
-        }
-        return false;
-    }
 
 
-    private Map<String, AnnotationFieldIgnore> resolveFieldConfigsMap(ProcessingEnvironment processingEnv, Type type, Map<String, FieldValueAccessData> fieldsMap) {
-        Map<String, AnnotationFieldIgnore> ret = new HashMap<>();
 
-        // Resolve Ignored Fields
-        for (AnnotationMapperFieldConfig mapperConf : fieldConfigDataList) {
-            if (mapperConf == null) continue;
-            if (mapperConf.getFieldIgnore().isEmpty()) continue;
-
-            for (AnnotationFieldIgnore fieldIgnore : mapperConf.getFieldIgnore()) {
-                List<FieldValueAccessData> ignoredFieldPathList = findFieldPath(processingEnv, type, fieldsMap, fieldIgnore);
-                if (ignoredFieldPathList == null || ignoredFieldPathList.isEmpty()) continue;
-
-                String pathKey = createKeyForFieldPath(ignoredFieldPathList);
-                if (pathKey == null || pathKey.length() == 0) continue;
-
-                if (ret.containsKey(pathKey)) continue;
-                ret.put(pathKey, fieldIgnore);
-            }
-        }
-
-        return ret;
-    }
 
     static private String createKeyForFieldPath(List<FieldValueAccessData> fields) {
         if (fields == null || fields.isEmpty()) return "";
