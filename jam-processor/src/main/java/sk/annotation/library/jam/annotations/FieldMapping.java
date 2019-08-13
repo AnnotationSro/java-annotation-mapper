@@ -7,7 +7,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target({})
 public @interface FieldMapping {
+	Class[] dstObj() default {};
 	String d();
+
+	Class[] srcObj() default {};
 	String s();
 
 	boolean ignoreDirectionS2D() default false;

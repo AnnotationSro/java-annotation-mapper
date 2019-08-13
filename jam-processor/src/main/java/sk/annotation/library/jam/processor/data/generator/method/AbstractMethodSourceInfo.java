@@ -10,7 +10,6 @@ import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
-import sk.annotation.library.jam.processor.data.confwrappers.MapperConfigurationResolver;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
 import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;

@@ -63,14 +63,11 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
         ////////////////////////////////////////////////////////
         // 1)  Create MethodConfigKey
-        methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method, ownerClassInfo));
+        methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method, ownerClassInfo), method);
         MapperFieldConfig methodConfig = method.getAnnotation(MapperFieldConfig.class);
         if (methodConfig != null) {
-            methodConfigKey.getConfigurations().add(methodConfig);
             methodConfigKey.setWithCustomConfig(true);
-            ownerClassInfo.getFeatures().setEnableMethodContext(true);
         }
-        methodConfigKey.getConfigurations().addAll(ElementUtils.findAllAnnotationsInStructure(processingEnv, ownerClassInfo.getParentElement(), MapperFieldConfig.class));
 
         ////////////////////////////////////////////////////////
         // 2)  analyze neccessary fields + return Type

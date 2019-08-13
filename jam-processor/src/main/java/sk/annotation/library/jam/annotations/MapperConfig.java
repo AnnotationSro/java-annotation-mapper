@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.TYPE, ElementType.PACKAGE})
 public @interface MapperConfig {
-    ConfigGenerator[] config() default {};
+	ConfigGenerator[] config() default {};
 
     Class[] immutable() default {};
 }

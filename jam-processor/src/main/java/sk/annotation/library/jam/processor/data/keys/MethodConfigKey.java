@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
 
+import javax.lang.model.element.ExecutableElement;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,5 +16,5 @@ public class MethodConfigKey {
 	private boolean withCustomConfig = false;
 
 	@EqualsAndHashCode.Exclude
-	final List<MapperFieldConfig> configurations = new LinkedList<>();
+	final private ExecutableElement method;
 }

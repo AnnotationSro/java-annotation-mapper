@@ -11,10 +11,12 @@ import sk.annotation.library.jam.utils.MapperUtil;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
+import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 abstract public class ElementUtils {
@@ -62,9 +64,13 @@ abstract public class ElementUtils {
 	}
 
 	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
+		return findAllElementsWithAnnotationsInStructure(processingEnv, element, e ->
+			e !=null && e.getAnnotation(annotationType)!=null
+		);
+	}
+	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Function<Element, Boolean> accept) {
 		List<Element> ret = new LinkedList<>();
-		T conf = element.getAnnotation(annotationType);
-		if (conf != null) ret.add(element);
+		if (accept.apply(element)) ret.add(element);
 
 
 		// Scan packages ...
@@ -73,8 +79,7 @@ abstract public class ElementUtils {
 				pckType != null;
 				pckType = (Symbol.PackageSymbol) pckType.owner
 		) {
-			conf = pckType.getAnnotation(annotationType);
-			if (conf != null) ret.add(pckType);
+			if (accept.apply(pckType)) ret.add(element);
 		}
 
 		return ret;
@@ -135,13 +140,24 @@ abstract public class ElementUtils {
 			exclusions.addAll(ElementFilter.methodsIn(objectElement.getEnclosedElements()));
 		}
 
+		List<Element> allAcceptedMembers = new LinkedList<>();
+		addAcceptedMembers(processingEnv, allAcceptedMembers, element);
+		return allAcceptedMembers;
+	}
+	private static void addAcceptedMembers(ProcessingEnvironment processingEnv, List<Element> allAcceptedMembers, TypeElement element) {
 		List<? extends Element> allMembers = processingEnv.getElementUtils().getAllMembers(element);
-		List<Element> allAcceptedMembers = new ArrayList<>(allMembers.size());
 		for (Element member : allMembers) {
 			if (exclusions.contains(member)) continue;
 			allAcceptedMembers.add(member);
 		}
-		return allAcceptedMembers;
+
+		if (element.getSuperclass() instanceof Type.ClassType) {
+			Type.ClassType superClass = (Type.ClassType) element.getSuperclass();
+			if (TypeUtils.isSame(processingEnv, superClass, TypeUtils.convertToType(processingEnv, Object.class))) return;
+			if (Object.class.getCanonicalName().equals(superClass.toString())) return;
+
+			addAcceptedMembers(processingEnv, allAcceptedMembers, (TypeElement)(superClass).asElement());
+		}
 	}
 
 

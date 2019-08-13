@@ -15,7 +15,8 @@ import sk.annotation.library.jam.annotations.MapperFieldConfig;
 public interface IgnoreFieldMapper {
     @MapperFieldConfig(
             fieldIgnore = {
-                    @FieldIgnore("id")
+				@FieldIgnore(value="id", types={Object.class}),
+				@FieldIgnore("id")
             }
     )
     UserOutput toOutput(UserInput userInput);

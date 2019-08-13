@@ -6,15 +6,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperConfig;
+import sk.annotation.library.jam.annotations.MapperFieldConfig;
 import sk.annotation.library.jam.processor.Constants;
-import sk.annotation.library.jam.processor.data.generator.method.SimpleMethodApi_RowTransform_SourceInfo;
-import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
-import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.data.generator.method.DeclaredMethodSourceInfo;
+import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
+import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.utils.*;
+import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -132,7 +132,12 @@ public class MapperClassInfo {
 
         // Analyze methods ...
         for (ExecutableElement method : allMethods) {
-            registerMethod(processingEnv, method);
+            registerTopMethod(processingEnv, method);
+
+			MapperFieldConfig methodConfig = method.getAnnotation(MapperFieldConfig.class);
+			if (methodConfig != null) {
+				getFeatures().setEnableMethodContext(true);
+			}
         }
 
         // analyze classes to uses
@@ -291,7 +296,7 @@ public class MapperClassInfo {
     }
 
 
-    private void registerMethod(ProcessingEnvironment processingEnv, ExecutableElement method) {
+    private void registerTopMethod(ProcessingEnvironment processingEnv, ExecutableElement method) {
         MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, method);
 
         if (ApiUtil.canImplementMethod(this.parentTypeAsAbstractClass, method)) {
