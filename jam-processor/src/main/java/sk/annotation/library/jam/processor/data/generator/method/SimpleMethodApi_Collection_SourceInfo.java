@@ -17,8 +17,8 @@ import javax.annotation.processing.ProcessingEnvironment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleMethodApi_List_SourceInfo extends AbstractMethodSourceInfo {
-    public SimpleMethodApi_List_SourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams) {
+public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceInfo {
+    public SimpleMethodApi_Collection_SourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams) {
         super(ownerClassInfo, methodApiParams);
     }
 

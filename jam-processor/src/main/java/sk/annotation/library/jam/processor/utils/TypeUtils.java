@@ -124,6 +124,26 @@ abstract public class TypeUtils {
     }
 
 
+    public static boolean isSameTypes(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
+        if (types == null || types.length == 0) return false;
+
+        TypeMirror type = processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType();
+        for (Type tp : types) {
+            if (!processingEnv.getTypeUtils().isSameType(type, tp)) return false;
+        }
+
+        return true;
+    }
+    public static boolean isAssignableTypes(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
+        if (types == null || types.length == 0) return false;
+
+        TypeMirror type = processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType();
+        for (Type tp : types) {
+            if (!processingEnv.getTypeUtils().isAssignable(tp, type)) return false;
+        }
+
+        return true;
+    }
     //  @return {@code true} if and only if the first type is d subtype of the second
     static public boolean isSame(ProcessingEnvironment processingEnv, TypeInfo type1, TypeInfo type2) {
         if (type1 == null && type2 == null) return true;

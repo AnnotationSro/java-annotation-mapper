@@ -285,15 +285,14 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
                 TypeUtils.getBaseTypeWithoutParametrizedFields(dstType)
         };
 
-        // Implemented List
-        if (isSameType(processingEnv, List.class, types)) {
-            return new SimpleMethodApi_List_SourceInfo(ownerClassInfo, subMethodApiSyntax);
+        // Implemented Map
+        if (TypeUtils.isSameTypes(processingEnv, Map.class, types)) {
+            return new SimpleMethodApi_Map_SourceInfo(ownerClassInfo, subMethodApiSyntax);
         }
 
-
-        // Implemented Map
-        if (isSameType(processingEnv, Map.class, types)) {
-            return new SimpleMethodApi_Map_SourceInfo(ownerClassInfo, subMethodApiSyntax);
+        // Implemented List
+        if (TypeUtils.isAssignableTypes(processingEnv, Collection.class, types)) {
+            return new SimpleMethodApi_Collection_SourceInfo(ownerClassInfo, subMethodApiSyntax);
         }
 
         //
@@ -318,14 +317,4 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         return true;
     }
 
-    protected static boolean isSameType(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
-        if (types == null || types.length == 0) return false;
-
-        TypeMirror type = processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType();
-        for (Type tp : types) {
-            if (!processingEnv.getTypeUtils().isSameType(type, tp)) return false;
-        }
-
-        return true;
-    }
 }
