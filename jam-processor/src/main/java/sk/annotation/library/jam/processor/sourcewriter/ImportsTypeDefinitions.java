@@ -100,6 +100,9 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 		registerElements(simpleName, packageName, type);
 
 		String shortName = StringUtils.substring(simpleName, packageName.length() + 1);
+		if (packageName.length()==0) {
+			shortName = simpleName;
+		}
 		if (StringUtils.equals(packageName, "java.lang")) return new ResolveImportStatus(null, shortName);
 		if (StringUtils.equals(packageName, this.destPackage)) return new ResolveImportStatus(null, shortName);
 

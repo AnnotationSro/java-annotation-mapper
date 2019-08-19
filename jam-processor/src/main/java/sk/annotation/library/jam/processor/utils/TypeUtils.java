@@ -29,7 +29,7 @@ abstract public class TypeUtils {
         if (Iterable.class.getCanonicalName().equals(intName)) return ArrayList.class.getCanonicalName();
         else if (Collection.class.getCanonicalName().equals(intName)) return ArrayList.class.getCanonicalName();
         else if (List.class.getCanonicalName().equals(intName)) return ArrayList.class.getCanonicalName();
-        else if (Set.class.getCanonicalName().equals(intName)) return HashSet.class.getCanonicalName();
+        else if (Set.class.getCanonicalName().equals(intName)) return LinkedHashSet.class.getCanonicalName();
         else if (SortedSet.class.getCanonicalName().equals(intName)) return TreeSet.class.getCanonicalName();
         else if (NavigableSet.class.getCanonicalName().equals(intName)) return TreeSet.class.getCanonicalName();
         else if (Map.class.getCanonicalName().equals(intName)) return LinkedHashMap.class.getCanonicalName();
@@ -134,16 +134,6 @@ abstract public class TypeUtils {
 
         return true;
     }
-    public static boolean isAssignableTypes(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
-        if (types == null || types.length == 0) return false;
-
-        TypeMirror type = processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType();
-        for (Type tp : types) {
-            if (!processingEnv.getTypeUtils().isAssignable(tp, type)) return false;
-        }
-
-        return true;
-    }
     //  @return {@code true} if and only if the first type is d subtype of the second
     static public boolean isSame(ProcessingEnvironment processingEnv, TypeInfo type1, TypeInfo type2) {
         if (type1 == null && type2 == null) return true;
@@ -156,17 +146,23 @@ abstract public class TypeUtils {
         return processingEnv.getTypeUtils().isSameType(type1, type2);
     }
 
-    //@return {@code true} if and only if the first type is assignable to the second
-    static public boolean isAssignable(ProcessingEnvironment processingEnv, TypeInfo type1, TypeInfo type2) {
-        if (type1 == null && type2 == null) return true;
-        if (type1 == null || type2 == null) return false;
-        return processingEnv.getTypeUtils().isAssignable(type1.getType(processingEnv), type2.getType(processingEnv));
-    }
     static public boolean isAssignable(ProcessingEnvironment processingEnv, TypeMirror type1, TypeMirror type2) {
         if (type1 == null && type2 == null) return true;
         if (type1 == null || type2 == null) return false;
-        return processingEnv.getTypeUtils().isAssignable(type1, type2);
+        return processingEnv.getTypeUtils().isAssignable(processingEnv.getTypeUtils().erasure(type1), processingEnv.getTypeUtils().erasure(type2));
     }
+	public static boolean isAssignableTypes(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
+		if (types == null || types.length == 0) return false;
+
+		TypeMirror type = processingEnv.getTypeUtils().erasure(processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType());
+
+		for (Type tp : types) {
+			TypeMirror erasureTP = processingEnv.getTypeUtils().erasure(tp);
+			if (!processingEnv.getTypeUtils().isAssignable(erasureTP, type)) return false;
+		}
+
+		return true;
+	}
 
     static public Type findType(VariableElement element) {
         if (element == null) return null;

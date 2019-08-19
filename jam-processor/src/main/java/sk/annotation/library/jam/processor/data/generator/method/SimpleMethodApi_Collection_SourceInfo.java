@@ -6,6 +6,7 @@ import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
+import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
@@ -23,9 +24,13 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
     }
 
 
+    private AbstractRowValueTransformator rowFieldGenerator = null;
     private MethodCallApi methodCallApi = null;
     private TypeConstructorInfo listConstructorType = null;
     private boolean analyzeRequired = true;
+
+    private Type dstType = null;
+    private Type srcType = null;
 
     @Override
     protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
@@ -38,10 +43,18 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
             // Find source and destination types
             List<Type> dstTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getReturnType().getType(processingEnv));
             List<Type> srcTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getRequiredParams().get(0).getVariableType().getType(processingEnv));
-            if (dstTypeList != null && srcTypeList != null && dstTypeList.size() == 1 && srcTypeList.size() == 1) {
-                /* Maybe it will be needed to find out context of this method */
-                methodCallApi = findOrCreateOwnMethod(processingEnv, null, srcTypeList.get(0), dstTypeList.get(0));
-            }
+
+			if (dstTypeList == null || srcTypeList == null || dstTypeList.size() != 1 || srcTypeList.size() != 1) {
+				return;	// unknown definition !!!
+			}
+			srcType = srcTypeList.get(0);
+			dstType = dstTypeList.get(0);
+
+			rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, srcType, dstType);
+			if (rowFieldGenerator == null) {
+				/* Maybe it will be needed to find out context of this method */
+				methodCallApi = findOrCreateOwnMethod(processingEnv, null, srcType, dstType);
+			}
         }
 
         // call reference for type ...
@@ -106,7 +119,10 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
         ctx.pw.print(dstVarName);
         ctx.pw.print(".add(");
 
-        if (methodCallApi != null) {
+        if (rowFieldGenerator!=null) {
+			ctx.pw.print(rowFieldGenerator.generateRowTransform(ctx, srcType, dstType, name));
+		}
+        else if (methodCallApi != null) {
             List<String> params = new ArrayList<>(2);
             params.add(name);
             params.add("null");
