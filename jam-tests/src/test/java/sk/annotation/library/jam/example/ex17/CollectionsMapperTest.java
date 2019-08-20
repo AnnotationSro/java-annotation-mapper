@@ -159,6 +159,7 @@ public class CollectionsMapperTest {
 		Assertions.assertNull(mapper.spec3(null));
 	}
 
+
 	@Test
 	public void test_m1() {
 		Map<String, String> mapIn = new HashMap<String, String>(){{
@@ -179,5 +180,47 @@ public class CollectionsMapperTest {
 		Assertions.assertNull(mapper.m1(null));
 	}
 
-	//TODO: m2, m3
+	@Test
+	public void test_m2() {
+		Map<Integer, Integer> mapIn = new HashMap<Integer, Integer>(){{
+			put(1, 11);
+			put(2, 22);
+			put(3, 33);
+			put(4, null);
+		}};
+
+		Map<String, String> mapOut = mapper.m2(mapIn);
+		Assertions.assertNotNull(mapOut);
+		Assertions.assertEquals(mapIn.size(), mapOut.size());
+		for (Integer inKey : mapIn.keySet()) {
+			Assertions.assertTrue(mapOut.containsKey(inKey+""));
+			Integer inValue = mapIn.get(inKey);
+			String expected = inValue == null ? null : inValue + "";
+			Assertions.assertEquals(expected, mapOut.get(inKey+""));
+		}
+
+		Assertions.assertNull(mapper.m2(null));
+	}
+
+	@Test
+	public void test_m3() {
+
+		Map<Integer, Obj1> mapIn = new HashMap<Integer, Obj1>(){{
+			put(1, new Obj1("o1"));
+			put(2, new Obj1("o2"));
+			put(3, new Obj1("o3"));
+			put(4, null);
+		}};
+
+		Map<String, Obj1> mapOut = mapper.m3(mapIn);
+		Assertions.assertNotNull(mapOut);
+		Assertions.assertEquals(mapIn.size(), mapOut.size());
+		for (Integer inKey : mapIn.keySet()) {
+			Assertions.assertTrue(mapOut.containsKey(inKey+""));
+			Assertions.assertEquals(mapIn.get(inKey), mapOut.get(inKey+""));
+		}
+
+		Assertions.assertNull(mapper.m3(null));
+
+	}
 }
