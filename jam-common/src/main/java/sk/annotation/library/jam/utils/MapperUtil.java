@@ -1,7 +1,9 @@
 package sk.annotation.library.jam.utils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 abstract public class MapperUtil {
@@ -13,6 +15,20 @@ abstract public class MapperUtil {
     public static final String constPostFixClassName = "JAMImpl";
 
     static public <T> T getMapper(Class<T> clsMapper) {
+    	return getMapper(clsMapper, null);
+	}
+	static private final Map<String, Object> cache = new HashMap<>();
+    static public <T> T getMapper(Class<T> clsMapper, Object fromOtherMapper) {
+    	if (fromOtherMapper!=null) {
+			cache.putIfAbsent(fromOtherMapper.getClass().getCanonicalName(), fromOtherMapper);
+		}
+    	String cacheKey = clsMapper.getName() + constPostFixClassName;
+    	Object o = cache.get(cacheKey);
+    	if (o != null) {
+    		return (T) o;
+		}
+
+
         T val = doGetMapper(clsMapper, clsMapper.getClassLoader());
         if (val == null) {
             val = doGetMapper(clsMapper, Thread.currentThread().getContextClassLoader());
@@ -20,6 +36,10 @@ abstract public class MapperUtil {
         if (val == null) {
             val = doGetMapper(clsMapper, MapperUtil.class.getClassLoader());
         }
+
+        if (val != null) {
+        	cache.put(cacheKey, val);
+		}
 
         return val;
     }

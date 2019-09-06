@@ -200,6 +200,9 @@ public class MapperClassInfo {
     private void registerField(ProcessingEnvironment processingEnv, VariableElement field) {
         if (ApiUtil.ignoreUsing(true, field)) return;
         Type type = TypeUtils.findType(field);
+        // Authomatically ignored same mapper
+        if (TypeUtils.isSame(processingEnv, type, parentElement.asType())) return;
+
         allFieldsTypes.put(field.getSimpleName().toString(), type);
         List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, type);
         registerApiForPath(processingEnv, field.getSimpleName().toString(), methods);

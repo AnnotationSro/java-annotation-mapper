@@ -11,6 +11,7 @@ import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.NameUtils;
+import sk.annotation.library.jam.processor.utils.TypeUtils;
 import sk.annotation.library.jam.utils.MapperRunCtxData;
 import sk.annotation.library.jam.utils.MapperRunCtxDataHolder;
 
@@ -53,6 +54,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
 		super.registerImports(processingEnv, imports);
 		Constants.typeMapperRunCtxDataHolder.registerImports(processingEnv, imports);
+		Constants.typeMapperRunCtxData.registerImports(processingEnv, imports);
 	}
 
 	public void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv) {
@@ -148,14 +150,15 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 				ctx.pw.print(".data.get();");
 			} else {
 				ctx.pw.print("new ");
-				ctx.pw.print(MapperRunCtxData.class.getSimpleName());
+				varCtxVariable.getVariableType().writeSourceCode(ctx);
+				//ctx.pw.print(MapperRunCtxData.class.getSimpleName());
 				ctx.pw.print("();");
 			}
 		}
 		String mngCtx = null;
 		if (!ownerClassInfo.getFeatures().isDisabled_SHARED_CONTEXT_DATA_IN_SUB_MAPPER()) {
 			mngCtx = NameUtils.findBestNameAndUpdateSet(this.usedNames, "mng" + StringUtils.capitalize(varCtxVariable.getVariableName()));
-			ctx.pw.print("\nboolean " + mngCtx + " = " + varCtxVariable.getVariableName() + "==null;");
+			ctx.pw.print("\nboolean " + mngCtx + " = " + varCtxVariable.getVariableName() + "=="+ TypeUtils.createNullValue(varCtxVariable.getVariableType().getType(ctx.processingEnv))+";");
 			ctx.pw.print("\n\ntry {");
 			ctx.pw.levelSpaceUp();
 			ctx.pw.print("\nif (" + mngCtx + ") {\n\t");
@@ -181,7 +184,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 		if (!methodApiFullSyntax.isReturnLastParam()) {
 			ctx.pw.print("\n");
 			varRet.writeSourceCode(ctx, true, false);
-			ctx.pw.print(" = null;");
+			ctx.pw.print(" = "+TypeUtils.createNullValue(varRet.getVariableType().getType(ctx.processingEnv))+";");
 		}
 
 		int i = 0;

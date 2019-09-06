@@ -64,21 +64,31 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
         List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
         if (!requiredParams.isEmpty()) {
-            ctx.pw.print("\n// check null inputs ");
-            ctx.pw.print("\nif (");
-            boolean addAnd = false;
-            for (TypeWithVariableInfo requiredParam : requiredParams) {
-                if (requiredParam.isMarkedAsReturn()) continue;
-                if (addAnd) ctx.pw.print(" && ");
-                addAnd = true;
-                ctx.pw.print(requiredParam.getVariableName());
-                ctx.pw.print("==null");
-            }
-            ctx.pw.print(") return");
-            if (methodApiFullSyntax.getReturnType() != null) {
-                ctx.pw.print(" null");
-            }
-            ctx.pw.print(";\n");
+        	boolean hasPrimitiveInput = false;
+			for (TypeWithVariableInfo requiredParam : requiredParams) {
+				if (requiredParam.getVariableType().getType(ctx.processingEnv).getKind().isPrimitive()) {
+					hasPrimitiveInput = true;
+					break;
+				}
+			}
+
+			if (!hasPrimitiveInput) {
+				ctx.pw.print("\n// check null inputs ");
+				ctx.pw.print("\nif (");
+				boolean addAnd = false;
+				for (TypeWithVariableInfo requiredParam : requiredParams) {
+					if (requiredParam.isMarkedAsReturn()) continue;
+					if (addAnd) ctx.pw.print(" && ");
+					addAnd = true;
+					ctx.pw.print(requiredParam.getVariableName());
+					ctx.pw.print("==" + TypeUtils.createNullValue(requiredParam.getVariableType().getType(ctx.processingEnv)));
+				}
+				ctx.pw.print(") return");
+				if (methodApiFullSyntax.getReturnType() != null) {
+					ctx.pw.print(" " + TypeUtils.createNullValue(methodApiFullSyntax.getReturnType().getType(ctx.processingEnv)));
+				}
+				ctx.pw.print(";\n");
+			}
         }
 
 
@@ -151,7 +161,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
             ctx.pw.print("\n");
             if (this.methodApiFullSyntax.isGenerateReturnParamRequired())
-                ctx.pw.print("if (" + varRet.getVariableName() + "==null) \n\t");
+                ctx.pw.print("if (" + varRet.getVariableName() + "=="+TypeUtils.createNullValue(varRet.getVariableType().getType(ctx.processingEnv))+") \n\t");
             ctx.pw.print("if (cacheValue.isRegisteredAnyValue()) return cacheValue.getValue();");
             ctx.pw.print("\n");
             if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
