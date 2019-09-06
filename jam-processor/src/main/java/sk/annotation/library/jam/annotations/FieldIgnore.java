@@ -1,5 +1,7 @@
 package sk.annotation.library.jam.annotations;
 
+import sk.annotation.library.jam.annotations.enums.IgnoreType;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -9,5 +11,5 @@ import java.lang.annotation.Target;
 public @interface FieldIgnore {
 	Class[] types() default {};
 	String value();
-	boolean ignored() default true;
+	IgnoreType ignored() default IgnoreType.IGNORE_ALL;
 }

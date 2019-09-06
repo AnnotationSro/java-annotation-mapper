@@ -4,19 +4,19 @@ import com.sun.tools.javac.code.Type;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import sk.annotation.library.jam.annotations.*;
+import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
+import sk.annotation.library.jam.annotations.enums.IgnoreType;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
+import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
+import sk.annotation.library.jam.processor.utils.ElementUtils;
+import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationConfigGenerator;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldId;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldIgnore;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldMapping;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationMapperFieldConfig;
-import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
-import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueExtractUtil;
-import sk.annotation.library.jam.processor.utils.ElementUtils;
-import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import java.util.*;
@@ -154,8 +154,8 @@ public class FieldConfigurationResolver {
 
             // if it should be ignored, it needs to be checked
             if (customField.ignoreDirection) continue;
-			if (isIgnoredPath(processingEnv, typeFrom, srcFieldPathList)) continue;
-			if (isIgnoredPath(processingEnv, typeTo, dstFieldPathList)) continue;
+			if (isIgnoredPath(processingEnv, typeFrom, srcFieldPathList, false)) continue;
+			if (isIgnoredPath(processingEnv, typeTo, dstFieldPathList, true)) continue;
 //            if (isIgnoredKey(srcFieldConfigMap, srcPathKey)) continue;
 //            if (isIgnoredKey(dstFieldConfigMap, dstPathKey)) continue;
 
@@ -190,8 +190,8 @@ public class FieldConfigurationResolver {
 //                mappingData.setDstIgnored(isIgnoredKey(dstFieldConfigMap, orderedUnusedKey));
                 mappingData.setSrc(srcFields.get(orderedUnusedKey));
                 mappingData.setDst(dstFields.get(orderedUnusedKey));
-				mappingData.setSrcIgnored(isIgnoredPath(processingEnv, typeFrom, Collections.singletonList(mappingData.getSrc())));
-				mappingData.setDstIgnored(isIgnoredPath(processingEnv, typeTo, Collections.singletonList(mappingData.getDst())));
+				mappingData.setSrcIgnored(isIgnoredPath(processingEnv, typeFrom, Collections.singletonList(mappingData.getSrc()), false));
+				mappingData.setDstIgnored(isIgnoredPath(processingEnv, typeTo, Collections.singletonList(mappingData.getDst()), true));
                 if (!mappingData.isWithoutProblemOrNotIgnored()) {
                     mappingData.setSrcConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeFrom, orderedUnusedKey, true));
                     mappingData.setDstConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeTo, orderedUnusedKey, false));
@@ -309,13 +309,16 @@ public class FieldConfigurationResolver {
         return ConfigErrorReporting.WARNINGS_ONLY;
     }
 
-	private boolean isIgnoredPath(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> srcFieldPathList) {
+	private boolean isIgnoredPath(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> srcFieldPathList, boolean forUpdate) {
     	if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return true;
 
 		for (AnnotationMapperFieldConfig fieldConfig : fieldConfigDataList) {
 			for (AnnotationFieldIgnore fieldIgnore : fieldConfig.getFieldIgnore()) {
 				if (!fieldIgnore.isTypeAcceptable(processingEnv, type)) continue;
-				if (StringUtils.equals(fieldIgnore.getValue(), srcFieldPathList.get(0).getFieldName())) return fieldIgnore.isIgnored();
+				if (!StringUtils.equals(fieldIgnore.getValue(), srcFieldPathList.get(0).getFieldName())) continue;
+				if (fieldIgnore.getIgnored() == IgnoreType.IGNORE_ALL) return true;
+				if (forUpdate) return fieldIgnore.getIgnored() == IgnoreType.IGNORE_WRITE;
+				return fieldIgnore.getIgnored() == IgnoreType.IGNORE_READ;
 			}
 		}
 

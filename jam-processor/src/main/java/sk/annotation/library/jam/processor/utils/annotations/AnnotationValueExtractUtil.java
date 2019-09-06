@@ -1,19 +1,15 @@
 package sk.annotation.library.jam.processor.utils.annotations;
 
 import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import sk.annotation.library.jam.annotations.Mapper;
-import sk.annotation.library.jam.annotations.MapperFieldConfig;
-import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
-import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldId;
-import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldIgnore;
-import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldMapping;
-import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationMapperFieldConfig;
-import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
@@ -66,6 +62,23 @@ abstract public class AnnotationValueExtractUtil {
 			if (val instanceof Attribute.Constant) {
 				Attribute.Constant constant = (Attribute.Constant)val;
 				return (T) constant.getValue();
+			}
+			return (T) val;
+		}).get(0);
+	}
+
+	static <T extends Enum> T getAnnotationValue_enum(ProcessingEnvironment processingEnv, AnnotationValue value, Class<T> cls) {
+		if (value == null) return null;
+		return getAnnotationValue_common(processingEnv, value, val -> {
+			if (val instanceof Symbol.VarSymbol) {
+				Symbol.VarSymbol symbol = (Symbol.VarSymbol)val;
+				String enumName = symbol.getSimpleName().toString();
+				for (T e : cls.getEnumConstants()) {
+					if (e.name().equals(enumName)) {
+						return e;
+					}
+				}
+				return null;
 			}
 			return (T) val;
 		}).get(0);

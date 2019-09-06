@@ -3,9 +3,7 @@ package sk.annotation.library.jam.example.ex15;
 import sk.annotation.library.jam.annotations.FieldIgnore;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import sk.annotation.library.jam.annotations.enums.IgnoreType;
 
 
 @Mapper
@@ -24,9 +22,9 @@ public interface FieldIgnoresMapper {
 
 	@MapperFieldConfig(
 		fieldIgnore = {
-			@FieldIgnore("e"),												// testIgnoreE
-			@FieldIgnore(types = Data1.class, value="f",ignored = false),	// testIgnoreF
-			@FieldIgnore(types = Data3.class, value="g",ignored = false)	// testIgnoreG
+			@FieldIgnore("e"),												            // testIgnoreE
+			@FieldIgnore(types = Data1.class, value="f",ignored = IgnoreType.DISABLED),	// testIgnoreF
+			@FieldIgnore(types = Data3.class, value="g",ignored = IgnoreType.DISABLED)	// testIgnoreG
 		}
 	)
 	public Data1 clone1b(Data1 d1);
@@ -35,9 +33,9 @@ public interface FieldIgnoresMapper {
 
 	@MapperFieldConfig(
 		fieldIgnore = {
-			@FieldIgnore("e"),												// testIgnoreE
-			@FieldIgnore(types = Data1.class, value="f",ignored = false),	// testIgnoreF
-			@FieldIgnore(types = Data3.class, value="g",ignored = false)	// testIgnoreG
+			@FieldIgnore("e"),												            // testIgnoreE
+			@FieldIgnore(types = Data1.class, value="f",ignored = IgnoreType.DISABLED),	// testIgnoreF
+			@FieldIgnore(types = Data3.class, value="g",ignored = IgnoreType.DISABLED)	// testIgnoreG
 		}
 	)
 	public Data2 clone2b(Data2 d1);
@@ -46,9 +44,9 @@ public interface FieldIgnoresMapper {
 
 	@MapperFieldConfig(
 		fieldIgnore = {
-			@FieldIgnore("e"),												// testIgnoreE
-			@FieldIgnore(types = Data1.class, value="f",ignored = false),	// testIgnoreF
-			@FieldIgnore(types = Data3.class, value="g",ignored = false)	// testIgnoreG
+			@FieldIgnore("e"),												            // testIgnoreE
+			@FieldIgnore(types = Data1.class, value="f",ignored = IgnoreType.DISABLED),	// testIgnoreF
+			@FieldIgnore(types = Data3.class, value="g",ignored = IgnoreType.DISABLED)	// testIgnoreG
 		}
 	)
 	public Data3 clone3b(Data3 d1);

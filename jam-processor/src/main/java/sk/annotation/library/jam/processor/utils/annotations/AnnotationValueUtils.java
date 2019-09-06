@@ -4,16 +4,16 @@ import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
+import sk.annotation.library.jam.annotations.enums.IgnoreType;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationConfigGenerator;
+import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldId;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldIgnore;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldMapping;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationMapperFieldConfig;
-import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationConfigGenerator;
-import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
-
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationValue;
@@ -85,7 +85,7 @@ abstract public class AnnotationValueUtils {
 		for (Map<String, AnnotationValue> fieldIgnoreMap : AnnotationValueExtractUtil.getAnnotationValue_innerValueMapList(processingEnv, valuesWithDefaults.get("fieldIgnore"))) {
 			AnnotationFieldIgnore fieldIgnoreData = new AnnotationFieldIgnore();
 			fieldIgnoreData.setTypes(getAnnotationValue_ClassList(processingEnv, fieldIgnoreMap.get("types")));
-			fieldIgnoreData.setIgnored(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldIgnoreMap.get("ignored")));
+			fieldIgnoreData.setIgnored(AnnotationValueExtractUtil.getAnnotationValue_enum(processingEnv, fieldIgnoreMap.get("ignored"), IgnoreType.class));
 			fieldIgnoreData.setValue(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldIgnoreMap.get("value")));
 			mapperFieldConfigData.getFieldIgnore().add(fieldIgnoreData);
 		}
