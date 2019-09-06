@@ -7,7 +7,17 @@
         <version>0.9.3-SNAPSHOT</version>
     </parent>
 
+    <packaging>pom</packaging>
     <artifactId>jam-tests</artifactId>
+
+	<modules>
+		<module>jam-tests-minimum</module>
+		<module>jam-tests-with-lombok</module>
+		<!--
+		<module>jam-tests-with-cdi</module>
+		<module>jam-tests-with-spring</module>
+		-->
+	</modules>
 
     <dependencies>
         <dependency>

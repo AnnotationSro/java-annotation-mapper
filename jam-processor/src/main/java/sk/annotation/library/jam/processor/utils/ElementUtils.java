@@ -3,15 +3,14 @@ package sk.annotation.library.jam.processor.utils;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import org.apache.commons.lang.StringUtils;
+import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
-import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import java.lang.annotation.Annotation;
@@ -176,7 +175,7 @@ abstract public class ElementUtils {
 				if (member.getModifiers().contains(Modifier.STATIC)) continue;
 
 				if (member instanceof VariableElement) {
-					ret.computeIfAbsent(name, FieldValueAccessData::new).setField((VariableElement) member);
+					ret.computeIfAbsent(name, FieldValueAccessData::new).setField(processingEnv, (VariableElement) member);
 					continue;
 				}
 
@@ -190,7 +189,7 @@ abstract public class ElementUtils {
 						if (methodSyntax.getReturnType() != null) continue;
 
 						name = StringUtils.uncapitalize(name.substring(3));
-						ret.computeIfAbsent(name, FieldValueAccessData::new).setSetter(method);
+						ret.computeIfAbsent(name, FieldValueAccessData::new).setSetter(processingEnv, method);
 
 						continue;
 					}
@@ -208,7 +207,7 @@ abstract public class ElementUtils {
 						if (methodSyntax.getParams().size() != 0) continue;
 						if (methodSyntax.getReturnType() == null) continue;
 
-						ret.computeIfAbsent(getterForField, FieldValueAccessData::new).setGetter(method);
+						ret.computeIfAbsent(getterForField, FieldValueAccessData::new).setGetter(processingEnv, method);
 
 						continue;
 					}

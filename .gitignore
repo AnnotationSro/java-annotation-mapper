@@ -1,7 +1,10 @@
-/*/target
 /target
+/*/target
+/*/*/target
+
 /*.iml
 /*/*.iml
+/*/*/*.iml
 /.idea
 
 /java-object-mapper-benchmark/*.zip

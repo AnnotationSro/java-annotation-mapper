@@ -3,6 +3,7 @@ package sk.annotation.library.jam.processor.utils.annotations;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
+import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -122,6 +123,24 @@ abstract public class AnnotationValueExtractUtil {
 		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
 			if (!processingEnv.getTypeUtils().isSameType(annotationMirror.getAnnotationType(), typeMapperFieldConfig))
 				continue;
+
+			Map<String, AnnotationValue> ret = new LinkedHashMap<>();
+			for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror).entrySet()) {
+				AnnotationValue v = entry.getValue();
+				ret.put(getAnnotationMethodName(entry.getKey()), v);
+			}
+			return ret;
+
+		}
+		return null;
+	}
+	public static <T extends Annotation> Map<String, AnnotationValue> getAnnotationValues(ProcessingEnvironment processingEnv, Element element, String clsName) {
+		if (element == null || element.getAnnotationMirrors()==null || element.getAnnotationMirrors().isEmpty()) return null;
+
+		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+			if (!clsName.equals(ElementUtils.getQualifiedName(annotationMirror.getAnnotationType().asElement()))){
+				continue;
+			}
 
 			Map<String, AnnotationValue> ret = new LinkedHashMap<>();
 			for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror).entrySet()) {

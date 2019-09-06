@@ -1,9 +1,7 @@
 package sk.annotation.library.jam.processor.data.confwrappers;
 
 import lombok.Getter;
-import lombok.Setter;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
-import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.LombokUtil;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
@@ -13,7 +11,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import java.util.Set;
 
 @Getter
 public class FieldValueAccessData implements SourceRegisterImports {
@@ -45,19 +42,19 @@ public class FieldValueAccessData implements SourceRegisterImports {
 	public FieldValueAccessData(String name) {
 		this.fieldName = name;
 	}
-	public void setField(VariableElement field) {
+	public void setField(ProcessingEnvironment processingEnv, VariableElement field) {
 //		this.field = field;
 		this.field = new AccessableTypeName(field.getSimpleName().toString(), field.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(field));
 
 		if (this.setter==null) {
-			String setterName = LombokUtil.findLombokPublicSetter(field);
+			String setterName = LombokUtil.findLombokPublicSetter(processingEnv, field);
 			if (setterName != null) {
 				this.setter = new AccessableTypeName(setterName, true, this.field.getType());
 			}
 		}
 
 		if (this.getter==null) {
-			String getterName = LombokUtil.findLombokPublicGetter(field);
+			String getterName = LombokUtil.findLombokPublicGetter(processingEnv, field);
 			if (getterName != null) {
 				this.getter = new AccessableTypeName(getterName, true, this.field.getType());
 			}
@@ -66,11 +63,11 @@ public class FieldValueAccessData implements SourceRegisterImports {
 
 
 
-	public void setSetter(ExecutableElement value) {
+	public void setSetter(ProcessingEnvironment processingEnv, ExecutableElement value) {
 		if (value.getParameters().size()!=1) return;
 		this.setter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(value.getParameters().get(0)));
 	}
-	public void setGetter(ExecutableElement value) {
+	public void setGetter(ProcessingEnvironment processingEnv, ExecutableElement value) {
 		this.getter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), value.getReturnType());
 	}
 
