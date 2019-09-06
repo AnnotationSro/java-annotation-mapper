@@ -28,8 +28,22 @@ Result of this process is:
   * very fast code in runtime 
   * without other additional dependencies at runtime (only jam-common.jar ~ 9.5 KB) 
 
-JAM library significantly reduces developer's time.
-
+## Why JAM mapper is good to use
+JAM library:
+   * significantly reduces developer's time
+   * improvement quality of code
+   * improvement speed of development
+     * a lot of problems are resolved by mapper generator
+   * mapper is generated during compilation
+     * detected problem at compilation time
+     * runtime is very fast 
+   * solving a lot of often problems as:
+     * problem with cyclic dependencies in runtime
+     * problem with object instances
+     * problem with shared context data (as cache of instances)
+     * problem with different but compatible types between internal and external sources (WebServices,JAXB,...)
+     * support for injection containers as CDI or Spring
+    
 
 ## How to add it into project ?
 
@@ -54,7 +68,7 @@ Define *Mapper* interface (or abstract class) describing the mapping you want. F
 
 ```java
 @Mapper
-@EnableSpring
+@EnableSpring   // this is optional, generated interface is annotated for spring with @Component 
 public interface SimpleMapper {
     
     // Imutable mapping
@@ -101,3 +115,4 @@ public class AnySpringService {
 
 **Warning**: WEB, documentation, examples and new features are in progress.
 
+Please, follow examples in jam-tests for learn features. 
