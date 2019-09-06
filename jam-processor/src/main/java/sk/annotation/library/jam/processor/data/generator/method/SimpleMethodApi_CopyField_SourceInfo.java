@@ -38,45 +38,45 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			return;
 		}
 
-		// If its already default
-		if (!forMethodConfig.isWithCustomConfig()) {
-			for (MethodConfigKey methodConfigKey : this.analyzedDataMap.keySet()) {
-				if (!methodConfigKey.isWithCustomConfig()) return;
+		try {
+			// If its already default
+			if (!forMethodConfig.isWithCustomConfig()) {
+				for (MethodConfigKey methodConfigKey : this.analyzedDataMap.keySet()) {
+					if (!methodConfigKey.isWithCustomConfig()) return;
+				}
 			}
-		}
 
 
+			// remember Source / Destination
+			List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
+			Type typeFrom = (Type) requiredParams.get(0).getVariableType().getType(null);
+			Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
 
-		// remember Source / Destination
-		List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
-		Type typeFrom = (Type) requiredParams.get(0).getVariableType().getType(null);
-		Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
+			/////////////////////////
+			// 1) Collect all information ...
+			FieldConfigurationResolver resolver = new FieldConfigurationResolver(processingEnv, ownerClassInfo, forMethodConfig);
+			List<FieldConfigurationResolver.ResolvedTransformation> transformGroups = resolver.findTransformationGroups(processingEnv, typeFrom, typeTo);
+			this.analyzedDataMap.put(forMethodConfig, transformGroups);
 
-		/////////////////////////
-		// 1) Collect all information ...
-		FieldConfigurationResolver resolver = new FieldConfigurationResolver(processingEnv, ownerClassInfo, forMethodConfig);
-		List<FieldConfigurationResolver.ResolvedTransformation> transformGroups = resolver.findTransformationGroups(processingEnv, typeFrom, typeTo);
-		this.analyzedDataMap.put(forMethodConfig, transformGroups);
-
-		/////////////////////////
-		// 2) Check missing transformation methods ...
-		for (FieldConfigurationResolver.ResolvedTransformation group : transformGroups) {
-			registerInports(group.getPathFrom());
-			registerInports(group.getPathTo());
+			/////////////////////////
+			// 2) Check missing transformation methods ...
+			for (FieldConfigurationResolver.ResolvedTransformation group : transformGroups) {
+				registerInports(group.getPathFrom());
+				registerInports(group.getPathTo());
 
 
-			// Check transformation types
-			for (FieldMappingData fieldMapping : group.fieldMappingData) {
-				if (fieldMapping == null) continue;
-				if (fieldMapping.getSrc() == null) continue;
-				if (fieldMapping.getDst() == null) continue;
+				// Check transformation types
+				for (FieldMappingData fieldMapping : group.fieldMappingData) {
+					if (fieldMapping == null) continue;
+					if (fieldMapping.getSrc() == null) continue;
+					if (fieldMapping.getDst() == null) continue;
 
-				TypeMirror sourceType = fieldMapping.getSrc().getTypeOfGetter();
-				TypeMirror destinationType = fieldMapping.getDst().getTypeOfSetter();
-				if (sourceType == null) continue;
-				if (destinationType == null) continue;
+					TypeMirror sourceType = fieldMapping.getSrc().getTypeOfGetter();
+					TypeMirror destinationType = fieldMapping.getDst().getTypeOfSetter();
+					if (sourceType == null) continue;
+					if (destinationType == null) continue;
 
-				// check for same type and if its primitive type
+					// check for same type and if its primitive type
 //				if (!fieldMapping.isWithoutProblemOrNotIgnored()) {
 					AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType);
 					if (rowFieldGenerator != null) {
@@ -85,25 +85,30 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 					}
 //				}
 
-				if (!fieldMapping.isWithoutProblemOrNotIgnored()) continue;
+					if (!fieldMapping.isWithoutProblemOrNotIgnored()) continue;
 
 
+					// TODO: Complete this later
+					if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) {
+						processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "@FieldMapping: methodNameS2D or methodNameD2S are not supported yet (this cofiguration is ignored).");
+					}
 
-				// TODO: Complete this later
-				if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) {
-					processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "@FieldMapping: methodNameS2D or methodNameD2S are not supported yet (this cofiguration is ignored).");
+
+					// Create or call method !!!
+
+
+					fieldMapping.setMethodCallApi(findOrCreateOwnMethod(processingEnv, fieldMapping.getMethodNameRequired(), sourceType, destinationType));
+
+					if (fieldMapping.getMethodCallApi() != null && fieldMapping.getMethodCallApi().getOutGeneratedMethod() != null && canAccept(fieldMapping, forMethodConfig)) {
+						fieldMapping.getMethodCallApi().getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig, this);
+					}
+
 				}
-
-
-				// Create or call method !!!
-
-
-				fieldMapping.setMethodCallApi(findOrCreateOwnMethod(processingEnv, fieldMapping.getMethodNameRequired(), sourceType, destinationType));
-
-				if (fieldMapping.getMethodCallApi() != null && fieldMapping.getMethodCallApi().getOutGeneratedMethod() != null && canAccept(fieldMapping, forMethodConfig)) {
-					fieldMapping.getMethodCallApi().getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
-				}
-
+			}
+		}
+		finally {
+			if (generatedBodyWithMultipleBehaviours()) {
+				ownerClassInfo.getFeatures().registerMethodWithMultipleBodyVariant(analyzedDataMap.keySet());
 			}
 		}
 	}
@@ -156,7 +161,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 
 		String methodContextValue = null;
-		if (analyzedDataAreDifferents()) {
+		if (generatedBodyWithMultipleBehaviours()) {
 			methodContextValue = this.varCtxMethodId.getVariableName();
 
 //			ctx.pw.print("\nint ");
@@ -363,7 +368,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		return variable;
 	}
 
-	protected boolean analyzedDataAreDifferents() {
+	protected boolean generatedBodyWithMultipleBehaviours() {
 		if (this.analyzedDataMap.size() < 2) return false;
 		// TODO : compare content !!!
 		return true;

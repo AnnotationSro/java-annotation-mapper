@@ -17,7 +17,7 @@ import sk.annotation.library.jam.annotations.enums.MapperFeature;
 		@FieldIgnore(types=Data1.class, value = "h", ignored = IgnoreType.IGNORE_WRITE)
 	}
 )
-@DisableMapperFeature({MapperFeature.PERSISTED_DATA_IN_LOCAL_THREAD,MapperFeature.PREVENT_CYCLIC_MAPPING})
+@DisableMapperFeature({MapperFeature.ALL})
 public interface FieldIgnoresDirectionMapper {
 	public Data2 clone1a2(Data1 in);
 	public Data1 clone2a1(Data2 in);

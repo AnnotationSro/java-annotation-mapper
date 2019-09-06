@@ -8,7 +8,7 @@ import java.util.*;
 
 @Mapper
 
-@DisableMapperFeature({MapperFeature.PREVENT_CYCLIC_MAPPING, MapperFeature.METHOD_SUPPORTS_CONTEXT_PARAMETERS, MapperFeature.PERSISTED_DATA_IN_LOCAL_THREAD})
+@DisableMapperFeature(MapperFeature.ALL)
 public interface CollectionsMapper {
 	List<String> l1(List<String> in);
 	List<String> l2(List<Integer> in);

@@ -137,8 +137,6 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 	}
 
 	public void genSourceForPutContext(SourceGeneratorContext ctx, String sourceValue, AbstractMethodSourceInfo method) {
-		if (method.getOwnerClassInfo().getFeatures().isDisabledToUseMapperRunCtxData()) return;
-
 		// contextValueIsAvailable
 		if (method.getVarCtxVariable()!=null) {
 			ctx.pw.print(method.getVarCtxVariable().getVariableName());
@@ -150,25 +148,16 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 			return;
 		}
 
-		if (!method.getOwnerClassInfo().getFeatures().isDisabled_SHARED_THREAD_CONTEXT()) {
-			ctx.pw.print(MapperRunCtxDataHolder.class.getSimpleName());
-			ctx.pw.print(".data.get()");
-			ctx.pw.print(".putContextValue(\"");
-			ctx.pw.print(StringEscapeUtils.escapeJava(hasContextKey));
-			ctx.pw.print("\", ");
-			ctx.pw.print(sourceValue);
-			ctx.pw.print(")");
-			return;
-		}
+		ctx.pw.print(MapperRunCtxDataHolder.class.getSimpleName());
+		ctx.pw.print(".data.get()");
+		ctx.pw.print(".putContextValue(\"");
+		ctx.pw.print(StringEscapeUtils.escapeJava(hasContextKey));
+		ctx.pw.print("\", ");
+		ctx.pw.print(sourceValue);
+		ctx.pw.print(")");
 	}
 
 	public void genSourceForLoadContext(SourceGeneratorContext ctx, AbstractMethodSourceInfo method, TypeInfo typeOfParam) {
-		if (method.getOwnerClassInfo().getFeatures().isDisabledToUseMapperRunCtxData()) {
-			String value = TypeUtils.createNullValue(typeOfParam.getType(ctx.processingEnv));
-			ctx.pw.print(value);
-			return;
-		}
-
 		// contextValueIsAvailable
 		if (method.getVarCtxVariable()!=null) {
 			ctx.pw.print(method.getVarCtxVariable().getVariableName());
@@ -178,17 +167,10 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 			return;
 		}
 
-		if (!method.getOwnerClassInfo().getFeatures().isDisabled_SHARED_THREAD_CONTEXT()) {
-			ctx.pw.print(MapperRunCtxDataHolder.class.getSimpleName());
-			ctx.pw.print(".data.get()");
-			ctx.pw.print(".getContextValue(\"");
-			ctx.pw.print(StringEscapeUtils.escapeJava(hasContextKey));
-			ctx.pw.print("\")");
-			return;
-		}
-
-		// default value
-		String value = TypeUtils.createNullValue(typeOfParam.getType(ctx.processingEnv));
-		ctx.pw.print(value);
+		ctx.pw.print(MapperRunCtxDataHolder.class.getSimpleName());
+		ctx.pw.print(".data.get()");
+		ctx.pw.print(".getContextValue(\"");
+		ctx.pw.print(StringEscapeUtils.escapeJava(hasContextKey));
+		ctx.pw.print("\")");
 	}
 }

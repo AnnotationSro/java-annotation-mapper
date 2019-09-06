@@ -43,6 +43,9 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
     }
 
+    final protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig, AbstractMethodSourceInfo parentMethod) {
+    	analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
+	}
     abstract protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig);
 
     @Getter
@@ -55,6 +58,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
     @Override
     public boolean writeSourceCode(SourceGeneratorContext ctx) {
         methodApiFullSyntax.writeMethodDeclaration(ctx);
+
         ctx.pw.print(" {");
         ctx.pw.levelSpaceUp();
 
@@ -85,11 +89,20 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
         varCtxMethodId = MethodCallApi.ctx_findVariable(Constants.methodParamInfo_ctxForMethodId, methodApiFullSyntax.getParams());
         if (varCtxMethodId != null) usedNames.add(varCtxMethodId.getVariableName());
-
+		else if (ownerClassInfo.getFeatures().isRequiredInputWithMethodId()) {
+			if (!(this instanceof DeclaredMethodSourceInfo)) {
+				throw new IllegalStateException("Problem with required variable!");
+			}
+		}
         varCtxVariable = MethodCallApi.ctx_findVariable(Constants.methodParamInfo_ctxForRunData, methodApiFullSyntax.getParams());
         if (varCtxVariable != null) usedNames.add(varCtxVariable.getVariableName());
+		else if (ownerClassInfo.getFeatures().isRequiredInputWithContextData()) {
+			if (!(this instanceof DeclaredMethodSourceInfo)) {
+				throw new IllegalStateException("Problem with required variable!");
+			}
+		}
 
-        varRet = null;
+		varRet = null;
         if (methodApiFullSyntax.getReturnType() != null) {
             for (TypeWithVariableInfo param : methodApiFullSyntax.getParams()) {
                 if (param.isMarkedAsReturn()) {
@@ -243,12 +256,8 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 //        }
 
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
-        if (ownerClassInfo.getFeatures().isEnableMethodContext()) {
-            subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
-        }
-        if (!ownerClassInfo.getFeatures().isDisabledToUseMapperRunCtxData()) {
-            subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
-        }
+		subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
+		subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
         subMethodParams.add(new TypeWithVariableInfo("in", inType, null, false));
         subMethodParams.add(new TypeWithVariableInfo("out", retType, null, true));
         MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
@@ -260,6 +269,8 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
                 methodCallApi.getMethodSyntax().setReturnLastParamRequired(true);
             }
 
+            // Check type values
+            ownerClassInfo.getFeatures().checkContextValuesInMethodInputs(methodCallApi.getMethodSyntax().getParams());
             return methodCallApi;
         }
 

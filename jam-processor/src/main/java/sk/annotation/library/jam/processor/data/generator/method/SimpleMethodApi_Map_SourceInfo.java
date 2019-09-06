@@ -9,9 +9,9 @@ import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo
 import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -61,10 +61,10 @@ public class SimpleMethodApi_Map_SourceInfo extends AbstractMethodSourceInfo {
 
         // call reference for type ...
         if (methodCallApiKeys != null && methodCallApiKeys.getOutGeneratedMethod() != null) {
-            methodCallApiKeys.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
+            methodCallApiKeys.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig, this);
         }
         if (methodCallApiValues != null && methodCallApiValues.getOutGeneratedMethod() != null) {
-            methodCallApiValues.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
+            methodCallApiValues.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig, this);
         }
     }
 

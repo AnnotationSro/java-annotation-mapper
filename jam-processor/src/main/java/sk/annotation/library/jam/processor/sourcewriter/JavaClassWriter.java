@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.sourcewriter;
 
-import lombok.val;
 import sk.annotation.library.jam.processor.data.FieldInfo;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -12,7 +11,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -55,9 +53,8 @@ public class JavaClassWriter implements SourceGenerator {
 				processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Generating mapper : " + sourceFile.getName() + " - depends on: " + originatingElements);
 				writeSourceCode(new SourceGeneratorContext(processingEnv, this, pw));
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IllegalStateException(e);
+		} catch (Exception e) {
+			throw new IllegalStateException("Errror in " + mapperClassInfo.getFullClassName(), e);
 		}
 	}
 

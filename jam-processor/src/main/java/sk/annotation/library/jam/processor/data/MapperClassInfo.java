@@ -6,7 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperConfig;
-import sk.annotation.library.jam.annotations.MapperFieldConfig;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.data.generator.method.DeclaredMethodSourceInfo;
@@ -68,7 +67,7 @@ public class MapperClassInfo {
     final public AnnotationsInfo generateAnnotations;
 
     @Getter
-    protected FeatureSourceUtils features;
+    final protected FeatureSourceUtils features;
 
 
     private MapperClassInfo(ProcessingEnvironment processingEnv, TypeElement element) {
@@ -82,9 +81,9 @@ public class MapperClassInfo {
         }
         this.parentTypeAsAbstractClass = parentElement.getKind() == ElementKind.CLASS;
 
-        this.features = new FeatureSourceUtils(element);
+		this.features = new FeatureSourceUtils(this);
 
-        // Prepare IMPORT SCOPE !!!
+		// Prepare IMPORT SCOPE !!!
         imports = new ImportsTypeDefinitions(element);
 
         if (parentElement.getModifiers().contains(Modifier.PUBLIC))
@@ -133,11 +132,6 @@ public class MapperClassInfo {
         // Analyze methods ...
         for (ExecutableElement method : allMethods) {
             registerTopMethod(processingEnv, method);
-
-			MapperFieldConfig methodConfig = method.getAnnotation(MapperFieldConfig.class);
-			if (methodConfig != null) {
-				getFeatures().setEnableMethodContext(true);
-			}
         }
 
         // analyze classes to uses
@@ -145,15 +139,25 @@ public class MapperClassInfo {
             analyzedMethodSourceInfo.analyzeAndGenerateDependMethods(processingEnv);
         }
 
-        if (topMethods.size() < 2) {
-            getFeatures().setEnableMethodContext(false);
-        }
-        if (!getFeatures().isEnableMethodContext()) {
-//            topMethodsRegistrator = new ConstantsMethodGeneratorInfo();
+
+		///////////////////////////////////////
+        // clearing unnecessary params
+		// if it is possible, delete context params from generated methods
+
+        if (!getFeatures().isRequiredInputWithMethodId()) {
+			for (AbstractMethodSourceInfo value : this.methodsToImplement.values()) {
+				value.getMethodApiFullSyntax().getParams().remove(Constants.methodParamInfo_ctxForMethodId);
+			}
             topMethodsRegistrator.constanctsForTopMethods.clear();
         }
 
-        // analyze 2 - check delegatedTopMethods
+		if (!getFeatures().isRequiredInputWithContextData()) {
+			for (AbstractMethodSourceInfo value : this.methodsToImplement.values()) {
+				value.getMethodApiFullSyntax().getParams().remove(Constants.methodParamInfo_ctxForRunData);
+			}
+		}
+
+		// analyze 2 - check delegatedTopMethods
         for (DeclaredMethodSourceInfo analyzedMethodSourceInfo : topMethods) {
             analyzedMethodSourceInfo.tryUnwrapMethods(processingEnv);
         }
