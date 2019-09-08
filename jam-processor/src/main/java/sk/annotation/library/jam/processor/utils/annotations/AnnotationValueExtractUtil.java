@@ -47,7 +47,10 @@ abstract public class AnnotationValueExtractUtil {
 	}
 
 	static List<Type> getAnnotationValue_ClassList(ProcessingEnvironment processingEnv, AnnotationValue value) {
-		return getAnnotationValue_common(processingEnv, value, val -> {
+		if (value == null) {
+			throw new IllegalStateException("Annotation value cannot be null!");
+		}
+		List<Type> ret = getAnnotationValue_common(processingEnv, value, val -> {
 			if (val instanceof Attribute.Class) {
 				return ((Attribute.Class)val).getValue();
 			}
@@ -56,6 +59,27 @@ abstract public class AnnotationValueExtractUtil {
 			}
 			throw new IllegalStateException("Unknown type value");
 		});
+
+		if (ret == null) {
+			throw new IllegalStateException("Annotation value cannot be null!");
+		}
+		return ret;
+	}
+	static <T> List<T> getAnnotationValue_constantList(ProcessingEnvironment processingEnv, AnnotationValue value) {
+		if (value == null) {
+			throw new IllegalStateException("Annotation value cannot be null!");
+		}
+		List<T> ret = getAnnotationValue_common(processingEnv, value, val -> {
+			if (val instanceof Attribute.Constant) {
+				Attribute.Constant constant = (Attribute.Constant)val;
+				return (T) constant.getValue();
+			}
+			return (T) val;
+		});
+		if (ret == null) {
+			throw new IllegalStateException("Annotation value cannot be null!");
+		}
+		return ret;
 	}
 	static <T> T getAnnotationValue_constant(ProcessingEnvironment processingEnv, AnnotationValue value) {
 		if (value == null) return null;

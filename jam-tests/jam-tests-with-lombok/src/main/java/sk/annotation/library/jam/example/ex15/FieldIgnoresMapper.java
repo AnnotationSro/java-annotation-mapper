@@ -4,6 +4,7 @@ import sk.annotation.library.jam.annotations.FieldIgnore;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperFieldConfig;
 import sk.annotation.library.jam.annotations.enums.IgnoreType;
+import sk.annotation.library.jam.example.ex15.subpackage.Data1;
 
 
 @Mapper

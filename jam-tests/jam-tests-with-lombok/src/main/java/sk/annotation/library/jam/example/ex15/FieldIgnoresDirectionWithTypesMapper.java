@@ -3,6 +3,7 @@ package sk.annotation.library.jam.example.ex15;
 import sk.annotation.library.jam.annotations.*;
 import sk.annotation.library.jam.annotations.enums.IgnoreType;
 import sk.annotation.library.jam.annotations.enums.MapperFeature;
+import sk.annotation.library.jam.example.ex15.subpackage.Data1;
 
 
 @Mapper
@@ -18,7 +19,7 @@ import sk.annotation.library.jam.annotations.enums.MapperFeature;
 	}
 )
 @DisableMapperFeature({MapperFeature.ALL})
-public interface FieldIgnoresDirectionMapper {
+public interface FieldIgnoresDirectionWithTypesMapper {
 	public Data2 clone1a2(Data1 in);
 	public Data1 clone2a1(Data2 in);
 

@@ -25,8 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static sk.annotation.library.jam.processor.utils.annotations.AnnotationValueExtractUtil.getAnnotationValue_ClassList;
-import static sk.annotation.library.jam.processor.utils.annotations.AnnotationValueExtractUtil.getAnnotationValues;
+import static sk.annotation.library.jam.processor.utils.annotations.AnnotationValueExtractUtil.*;
 
 
 abstract public class AnnotationValueUtils {
@@ -65,15 +64,17 @@ abstract public class AnnotationValueUtils {
 		for (Map<String, AnnotationValue> fieldMappingMap : AnnotationValueExtractUtil.getAnnotationValue_innerValueMapList(processingEnv, valuesWithDefaults.get("fieldMapping"))) {
 			AnnotationFieldMapping fieldMappingData = new AnnotationFieldMapping();
 
-			AnnotationFieldId d = new AnnotationFieldId();
-			d.setTypes(getAnnotationValue_ClassList(processingEnv, fieldMappingMap.get("dstObj")));
-			d.setValue(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("d")));
-			fieldMappingData.setD(d);
-
 			AnnotationFieldId s = new AnnotationFieldId();
-			s.setTypes(getAnnotationValue_ClassList(processingEnv, fieldMappingMap.get("srcObj")));
+			s.setPackages(getAnnotationValue_constantList(processingEnv, fieldMappingMap.get("sPackages")));
+			s.setTypes(getAnnotationValue_ClassList(processingEnv, fieldMappingMap.get("sTypes")));
 			s.setValue(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("s")));
 			fieldMappingData.setS(s);
+
+			AnnotationFieldId d = new AnnotationFieldId();
+			d.setPackages(getAnnotationValue_constantList(processingEnv, fieldMappingMap.get("dPackages")));
+			d.setTypes(getAnnotationValue_ClassList(processingEnv, fieldMappingMap.get("dTypes")));
+			d.setValue(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("d")));
+			fieldMappingData.setD(d);
 
 			fieldMappingData.setMethodNameS2D(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("methodNameS2D")));
 			fieldMappingData.setMethodNameD2S(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("methodNameD2S")));
@@ -84,6 +85,7 @@ abstract public class AnnotationValueUtils {
 		}
 		for (Map<String, AnnotationValue> fieldIgnoreMap : AnnotationValueExtractUtil.getAnnotationValue_innerValueMapList(processingEnv, valuesWithDefaults.get("fieldIgnore"))) {
 			AnnotationFieldIgnore fieldIgnoreData = new AnnotationFieldIgnore();
+			fieldIgnoreData.setPackages(getAnnotationValue_constantList(processingEnv, fieldIgnoreMap.get("packages")));
 			fieldIgnoreData.setTypes(getAnnotationValue_ClassList(processingEnv, fieldIgnoreMap.get("types")));
 			fieldIgnoreData.setIgnored(AnnotationValueExtractUtil.getAnnotationValue_enum(processingEnv, fieldIgnoreMap.get("ignored"), IgnoreType.class));
 			fieldIgnoreData.setValue(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldIgnoreMap.get("value")));
@@ -113,7 +115,8 @@ abstract public class AnnotationValueUtils {
 				AnnotationFieldId fieldId = new AnnotationFieldId();
 				config.setFieldId(fieldId);
 
-				fieldId.setTypes(getAnnotationValue_ClassList(processingEnv, configMap.get("fieldType")));
+				fieldId.setPackages(getAnnotationValue_constantList(processingEnv, configMap.get("fieldPackages")));
+				fieldId.setTypes(getAnnotationValue_ClassList(processingEnv, configMap.get("fieldTypes")));
 				fieldId.setValue(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, configMap.get("field")));
 				config.setMissingAsSource(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, configMap.get("missingAsSource")));
 				config.setMissingAsDestination(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, configMap.get("missingAsDestination")));

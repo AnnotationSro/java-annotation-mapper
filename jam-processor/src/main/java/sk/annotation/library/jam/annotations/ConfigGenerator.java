@@ -9,8 +9,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target({})
 public @interface ConfigGenerator {
-	Class[] fieldType() default {};
-	String field();
+	Class[] fieldPackages() default {};
+	Class[] fieldTypes() default {};
+	String field() default "";
 	ConfigErrorReporting missingAsSource() default ConfigErrorReporting.WARNINGS_ONLY;
 	ConfigErrorReporting missingAsDestination() default ConfigErrorReporting.WARNINGS_ONLY;
 }
