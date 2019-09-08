@@ -47,19 +47,19 @@ abstract public class ElementUtils {
 		return null;
 	}
 
-	static public Symbol.PackageSymbol findPackageElementType(ProcessingEnvironment processingEnv, Element element) {
+	static public Element findParentElement(ProcessingEnvironment processingEnv, Element element) {
 		if (element == null) return null;
 		if (element.asType() == null) return null;
 		if (element.getKind() == ElementKind.PACKAGE) {
 			TypeMirror typeMirror = element.asType();
 			if (typeMirror instanceof Type.PackageType) {
-				return (Symbol.PackageSymbol) (((Type.PackageType) element.asType()).tsym);
+				return (((Type.PackageType) element.asType()).tsym).owner;
 			}
 			if (typeMirror instanceof Symbol.PackageSymbol) {
-				return (Symbol.PackageSymbol) element.asType();
+				return ((Symbol.PackageSymbol) element.asType()).owner;
 			}
 		}
-		return findPackageElementType(processingEnv, element.getEnclosingElement());
+		return element.getEnclosingElement();
 	}
 
 	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
@@ -69,16 +69,14 @@ abstract public class ElementUtils {
 	}
 	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Function<Element, Boolean> accept) {
 		List<Element> ret = new LinkedList<>();
-		if (accept.apply(element)) ret.add(element);
 
-
-		// Scan packages ...
+		// Scan owner class and packages ...
 		for (
-				Symbol.PackageSymbol pckType = findPackageElementType(processingEnv, element);
-				pckType != null;
-				pckType = (Symbol.PackageSymbol) pckType.owner
+				Element parentElement = element;
+				parentElement != null;
+				parentElement = findParentElement(processingEnv, parentElement)
 		) {
-			if (accept.apply(pckType)) ret.add(element);
+			if (accept.apply(parentElement)) ret.add(element);
 		}
 
 		return ret;

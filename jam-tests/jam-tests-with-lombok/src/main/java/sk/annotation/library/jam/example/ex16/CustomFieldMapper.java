@@ -2,12 +2,12 @@ package sk.annotation.library.jam.example.ex16;
 
 import sk.annotation.library.jam.annotations.FieldMapping;
 import sk.annotation.library.jam.annotations.Mapper;
-import sk.annotation.library.jam.annotations.MapperFieldConfig;
+import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.example.ex15.Data2;
 import sk.annotation.library.jam.example.ex15.IData;
 
 @Mapper
-@MapperFieldConfig(
+@MapperConfig(
 	fieldMapping = {
 		@FieldMapping(s = "a", d = "b", ignoreDirectionD2S = false, ignoreDirectionS2D = false),
 		@FieldMapping(s = "c", d = "d", ignoreDirectionD2S = true, ignoreDirectionS2D = false),

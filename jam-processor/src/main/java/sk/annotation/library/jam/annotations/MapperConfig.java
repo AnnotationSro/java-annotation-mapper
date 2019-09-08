@@ -6,9 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
-@Target({ElementType.TYPE, ElementType.PACKAGE})
+@Target({ElementType.TYPE, ElementType.PACKAGE, ElementType.METHOD})
 public @interface MapperConfig {
-	ConfigGenerator[] config() default {};
+	FieldMapping[] fieldMapping() default {};
+	FieldIgnore[] fieldIgnore() default {};
 
+	ConfigGenerator[] config() default {};
     Class[] immutable() default {};
 }

@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
 import org.apache.commons.lang3.StringUtils;
-import sk.annotation.library.jam.annotations.MapperFieldConfig;
+import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
@@ -64,7 +64,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 		////////////////////////////////////////////////////////
 		// 1)  Create MethodConfigKey
 		methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method, ownerClassInfo), method, this);
-		MapperFieldConfig methodConfig = method.getAnnotation(MapperFieldConfig.class);
+		MapperConfig methodConfig = method.getAnnotation(MapperConfig.class);
 		if (methodConfig != null) {
 			methodConfigKey.setWithCustomConfig(true);
 		}

@@ -2,17 +2,17 @@ package sk.annotation.library.jam.example.ex4;
 
 import sk.annotation.library.jam.annotations.FieldMapping;
 import sk.annotation.library.jam.annotations.Mapper;
-import sk.annotation.library.jam.annotations.MapperFieldConfig;
+import sk.annotation.library.jam.annotations.MapperConfig;
 
 @Mapper
 public interface NestedClassMapper {
-    @MapperFieldConfig(
+    @MapperConfig(
             fieldMapping = {
                     @FieldMapping(s = "zipCode", d="zip")
             }
     )
     UserWithAddressOutput toOutput(UserWithAddressInput userWithAddressInput);
-    @MapperFieldConfig(fieldMapping = {
+    @MapperConfig(fieldMapping = {
             @FieldMapping(s = "address.street", d = "street"),
             @FieldMapping(s = "address.number", d = "number"),
             @FieldMapping(s = "address.city", d = "city"),

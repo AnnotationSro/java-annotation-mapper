@@ -16,7 +16,6 @@ import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapp
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldId;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldIgnore;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldMapping;
-import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationMapperFieldConfig;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import java.util.*;
@@ -59,7 +58,7 @@ public class FieldConfigurationResolver {
     final private List<FieldMapperWrapper> customFieldMapping = new LinkedList<>();
     final private Mapper jamMapper;
 
-    final private List<AnnotationMapperFieldConfig> fieldConfigDataList;
+    final private List<AnnotationMapperConfig> mapperConfigs;
 
     public FieldConfigurationResolver(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, MethodConfigKey forMethodConfig) {
         if (ownerClassInfo == null || forMethodConfig == null) throw new IllegalStateException();
@@ -67,9 +66,9 @@ public class FieldConfigurationResolver {
         this.ownerClassInfo = ownerClassInfo;
         this.jamMapper = ownerClassInfo.getJamMapperConfig();
 
-		fieldConfigDataList = AnnotationValueUtils.resolveMapperFieldConfigData(processingEnv, forMethodConfig.getMethod());
+		mapperConfigs = AnnotationValueUtils.resolveMapperConfigData(processingEnv, forMethodConfig.getMethod());
 
-        for (AnnotationMapperFieldConfig mapperConf : fieldConfigDataList) {
+        for (AnnotationMapperConfig mapperConf : mapperConfigs) {
             if (mapperConf == null) continue;
 
             // 1) Custom Fields !!!
@@ -247,14 +246,10 @@ public class FieldConfigurationResolver {
         Map<String, FieldValueAccessData> fields = ElementUtils.findAllAccesableFields(processingEnv, type);
 
         // 1) Try find Fields or ClassName
-        List<AnnotationMapperConfig> mapperConfigs = AnnotationValueUtils.getMapperConfig(processingEnv, this.ownerClassInfo);
         for (AnnotationMapperConfig mapperConf : mapperConfigs) {
             if (mapperConf == null) continue;
 
             for (AnnotationConfigGenerator confGenerator : mapperConf.getConfig()) {
-                // Default - ignore in first time
-                if (StringUtils.isEmpty(confGenerator.getFieldId().getValue())) continue;
-
                 // Field configuration
                 List<FieldValueAccessData> fieldPath = findFieldPath(processingEnv, type, fields, confGenerator.getFieldId(), false);
                 if (fieldPath != null && !fieldPath.isEmpty()) {
@@ -271,23 +266,23 @@ public class FieldConfigurationResolver {
             }
         }
 
-        // 1) Try starts with package
-        String fullName = ElementUtils.getQualifiedName(type.asElement());
-        AnnotationConfigGenerator bestMatch = null;
-        for (AnnotationMapperConfig mapperConf : mapperConfigs) {
-            if (mapperConf == null) continue;
-
-            for (AnnotationConfigGenerator confGenerator : mapperConf.getConfig()) {
-                // Default - ignore in first time
-                if (!StringUtils.isEmpty(confGenerator.getFieldId().getValue()) && !StringUtils.startsWith(fullName, confGenerator.getFieldId().getValue()))
-                    continue;
-
-                if (bestMatch == null || bestMatch.getFieldId().getValue().length() < confGenerator.getFieldId().getValue().length()) {
-                    bestMatch = confGenerator;
-                }
-            }
-        }
-        return bestMatch;
+//        // 1) Try starts with package
+//        String fullName = ElementUtils.getQualifiedName(type.asElement());
+//        AnnotationConfigGenerator bestMatch = null;
+//        for (AnnotationMapperConfig mapperConf : mapperConfigs) {
+//            if (mapperConf == null) continue;
+//
+//            for (AnnotationConfigGenerator confGenerator : mapperConf.getConfig()) {
+//                // Default - ignore in first time
+//                if (!StringUtils.isEmpty(confGenerator.getFieldId().getValue()) && !StringUtils.startsWith(fullName, confGenerator.getFieldId().getValue()))
+//                    continue;
+//
+//                if (bestMatch == null || bestMatch.getFieldId().getValue().length() < confGenerator.getFieldId().getValue().length()) {
+//                    bestMatch = confGenerator;
+//                }
+//            }
+//        }
+        return null;
     }
 
     private ConfigErrorReporting resolveReportPriority(ProcessingEnvironment processingEnv, Type type, String key, boolean asSrc) {
@@ -312,10 +307,11 @@ public class FieldConfigurationResolver {
 	private boolean isIgnoredPath(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> srcFieldPathList, boolean forUpdate) {
     	if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return true;
 
-		for (AnnotationMapperFieldConfig fieldConfig : fieldConfigDataList) {
+		for (AnnotationMapperConfig fieldConfig : mapperConfigs) {
 			for (AnnotationFieldIgnore fieldIgnore : fieldConfig.getFieldIgnore()) {
 				if (!fieldIgnore.isTypeAcceptable(processingEnv, type)) continue;
 				if (!StringUtils.equals(fieldIgnore.getValue(), srcFieldPathList.get(0).getFieldName())) continue;
+
 				if (fieldIgnore.getIgnored() == IgnoreType.IGNORE_ALL) return true;
 				if (forUpdate) return fieldIgnore.getIgnored() == IgnoreType.IGNORE_WRITE;
 				return fieldIgnore.getIgnored() == IgnoreType.IGNORE_READ;

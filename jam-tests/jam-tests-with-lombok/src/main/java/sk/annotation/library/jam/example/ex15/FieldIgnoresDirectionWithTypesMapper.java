@@ -7,7 +7,7 @@ import sk.annotation.library.jam.example.ex15.subpackage.Data1;
 
 
 @Mapper
-@MapperFieldConfig(
+@MapperConfig(
 	fieldIgnore = {
 		@FieldIgnore(value = "b", ignored = IgnoreType.DISABLED),
 		@FieldIgnore("c"),													// applied on all fields
@@ -24,12 +24,12 @@ public interface FieldIgnoresDirectionWithTypesMapper {
 	public Data1 clone2a1(Data2 in);
 
 
-	@MapperFieldConfig(
+	@MapperConfig(
 		fieldMapping = {@FieldMapping(s="e",d="f")}
 	)
 	public Data2 clone1b2(Data1 in);
 
-	@MapperFieldConfig(
+	@MapperConfig(
 		fieldMapping = {@FieldMapping(s="e",d="f")}
 	)
 	public Data1 clone2b1(Data2 in);
