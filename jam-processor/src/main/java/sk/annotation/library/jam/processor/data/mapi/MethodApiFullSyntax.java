@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.processor.data.mapi;
 
+import com.sun.tools.javac.code.Type;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +18,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ExecutableType;
 import javax.tools.Diagnostic;
 import java.util.*;
 
@@ -82,12 +84,36 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		return _getNeccessaryParams;
 	}
 
-	static public MethodApiFullSyntax analyze(ProcessingEnvironment processingEnv, ExecutableElement method) {
+	static public MethodApiFullSyntax analyze(ProcessingEnvironment processingEnv, Type methodDeclaredInType, ExecutableElement method) {
 		try {
 			String name = method.getSimpleName().toString();
+			ExecutableType methodType = TypeUtils.findType(processingEnv, methodDeclaredInType, method);
+
+			TypeInfo returnType = TypeInfo.analyzeReturnType(methodType.getReturnType());
+
+			List<TypeWithVariableInfo> params = new LinkedList<>();
+			if (method.getParameters()!=null) {
+
+				for (int i=0; i<method.getParameters().size(); i++) {
+					VariableElement variableElement = method.getParameters().get(i);
+					TypeWithVariableInfo param = TypeWithVariableInfo.analyze(variableElement, (Type) methodType.getParameterTypes().get(i));
+					params.add(param);
+				}
+			}
+			return new MethodApiFullSyntax(processingEnv, name, returnType, params, true);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, ExceptionUtils.getFullStackTrace(e), method);
+		}
+
+		/*try {
+			String name = method.getSimpleName().toString();
+
 			TypeInfo returnType = TypeInfo.analyzeReturnType(method.getReturnType());
 			List<TypeWithVariableInfo> params = new LinkedList<>();
 			if (method.getParameters()!=null) {
+
 				for (VariableElement variableElement : method.getParameters()) {
 					TypeWithVariableInfo param = TypeWithVariableInfo.analyze(variableElement);
 					params.add(param);
@@ -99,7 +125,8 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 			e.printStackTrace();
 			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getFullStackTrace(e), method);
 			return null;
-		}
+		}*/
+		return null;
 	}
 
 	@Override

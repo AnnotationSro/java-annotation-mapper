@@ -2,18 +2,14 @@ package sk.annotation.library.jam.processor.utils;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.Types;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.element.*;
+import javax.lang.model.type.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
@@ -164,8 +160,17 @@ abstract public class TypeUtils {
 		return true;
 	}
 
-    static public Type findType(VariableElement element) {
-        if (element == null) return null;
+    static public ExecutableType findType(ProcessingEnvironment processingEnv, Type owner, ExecutableElement element) {
+        return (ExecutableType) processingEnv.getTypeUtils().asMemberOf((DeclaredType) owner, element);
+    }
+    static public Type findType(ProcessingEnvironment processingEnv, Type owner, VariableElement element) {
+        if (owner instanceof DeclaredType) {
+            TypeMirror typeMirror = processingEnv.getTypeUtils().asMemberOf((DeclaredType) owner, element);
+            if (typeMirror instanceof Type) {
+                return (Type) typeMirror;
+            }
+        }
+
         if (element instanceof Symbol) return ((Symbol) element).type;
 
         throw new IllegalStateException("Not Implemented yet!!!");

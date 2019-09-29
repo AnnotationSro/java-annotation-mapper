@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.processor.data;
 
+import com.sun.tools.javac.code.Type;
 import lombok.Getter;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -78,7 +79,7 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 		this.withAnnotations(annotationsInfo);
 	}
 
-	static public TypeWithVariableInfo analyze(VariableElement variableElement) {
+	static public TypeWithVariableInfo analyze(VariableElement variableElement, Type resolvedType) {
 		String hasContextKey = null;
 
 		Context ctx = variableElement.getAnnotation(Context.class);
@@ -87,7 +88,7 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 		}
 		boolean markedAsReturn = variableElement.getAnnotation(Return.class)!=null;
 
-		return new TypeWithVariableInfo(variableElement.getSimpleName().toString(), new TypeInfo(TypeUtils.findType(variableElement)),hasContextKey,markedAsReturn);
+		return new TypeWithVariableInfo(variableElement.getSimpleName().toString(), new TypeInfo(resolvedType),hasContextKey,markedAsReturn);
 	}
 
 

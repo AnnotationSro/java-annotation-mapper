@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.processor.data.confwrappers;
 
+import com.sun.tools.javac.code.Type;
 import lombok.Getter;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
@@ -42,9 +43,9 @@ public class FieldValueAccessData implements SourceRegisterImports {
 	public FieldValueAccessData(String name) {
 		this.fieldName = name;
 	}
-	public void setField(ProcessingEnvironment processingEnv, VariableElement field) {
+	public void setField(ProcessingEnvironment processingEnv, Type typeFrom, VariableElement field) {
 //		this.field = field;
-		this.field = new AccessableTypeName(field.getSimpleName().toString(), field.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(field));
+		this.field = new AccessableTypeName(field.getSimpleName().toString(), field.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(processingEnv, typeFrom, field));
 
 		if (this.setter==null) {
 			String setterName = LombokUtil.findLombokPublicSetter(processingEnv, field);
@@ -63,12 +64,12 @@ public class FieldValueAccessData implements SourceRegisterImports {
 
 
 
-	public void setSetter(ProcessingEnvironment processingEnv, ExecutableElement value) {
+	public void setSetter(ProcessingEnvironment processingEnv, Type typeFrom, ExecutableElement value) {
 		if (value.getParameters().size()!=1) return;
-		this.setter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(value.getParameters().get(0)));
+		this.setter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(processingEnv, typeFrom, value).getParameterTypes().get(0));
 	}
-	public void setGetter(ProcessingEnvironment processingEnv, ExecutableElement value) {
-		this.getter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), value.getReturnType());
+	public void setGetter(ProcessingEnvironment processingEnv, Type typeFrom, ExecutableElement value) {
+		this.getter = new AccessableTypeName(value.getSimpleName().toString(), value.getModifiers().contains(Modifier.PUBLIC), TypeUtils.findType(processingEnv, typeFrom, value).getReturnType());
 	}
 
 

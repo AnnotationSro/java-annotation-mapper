@@ -11,8 +11,11 @@ import sk.annotation.library.jam.utils.MapperUtil;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.SimpleElementVisitor6;
+import javax.lang.model.util.SimpleTypeVisitor6;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
@@ -173,7 +176,7 @@ abstract public class ElementUtils {
 				if (member.getModifiers().contains(Modifier.STATIC)) continue;
 
 				if (member instanceof VariableElement) {
-					ret.computeIfAbsent(name, FieldValueAccessData::new).setField(processingEnv, (VariableElement) member);
+					ret.computeIfAbsent(name, FieldValueAccessData::new).setField(processingEnv, typeFrom, (VariableElement) member);
 					continue;
 				}
 
@@ -182,12 +185,12 @@ abstract public class ElementUtils {
 
 					// Check SETTER
 					if (StringUtils.startsWith(name, "set")) {
-						MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, method);
+						MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, typeFrom, method);
 						if (methodSyntax.getParams().size() != 1) continue;
 						if (methodSyntax.getReturnType() != null) continue;
 
 						name = StringUtils.uncapitalize(name.substring(3));
-						ret.computeIfAbsent(name, FieldValueAccessData::new).setSetter(processingEnv, method);
+						ret.computeIfAbsent(name, FieldValueAccessData::new).setSetter(processingEnv, typeFrom, method);
 
 						continue;
 					}
@@ -201,11 +204,11 @@ abstract public class ElementUtils {
 					}
 
 					if (getterForField != null) {
-						MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, method);
+						MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, typeFrom, method);
 						if (methodSyntax.getParams().size() != 0) continue;
 						if (methodSyntax.getReturnType() == null) continue;
 
-						ret.computeIfAbsent(getterForField, FieldValueAccessData::new).setGetter(processingEnv, method);
+						ret.computeIfAbsent(getterForField, FieldValueAccessData::new).setGetter(processingEnv, typeFrom, method);
 
 						continue;
 					}

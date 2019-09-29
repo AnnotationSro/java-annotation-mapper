@@ -45,7 +45,7 @@ abstract public class LombokUtil {
 	public static String findLombokPublicGetter(ProcessingEnvironment processingEnv, VariableElement field) {
 		if (field == null) return null;
 
-		String prefix = TypeUtils.findType(field).getKind() == TypeKind.BOOLEAN ? "is" : "get";
+		String prefix = field.asType().getKind() == TypeKind.BOOLEAN ? "is" : "get";
 		String methodName = prefix + StringUtils.capitalize(field.getSimpleName().toString());
 
 		Map<String, AnnotationValue> s = AnnotationValueExtractUtil.getAnnotationValues(processingEnv, field, lombokAnnotationGetter);

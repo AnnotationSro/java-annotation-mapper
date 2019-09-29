@@ -191,7 +191,7 @@ public class MapperClassInfo {
 
             fieldsToImplement.add(new FieldInfo(fieldName, new TypeInfo(fieldType)).withInjections(fieldInjectionAnnotations));
             List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, fieldType);
-            registerApiForPath(processingEnv, fieldName, methods);
+            registerApiForPath(processingEnv, fieldName, fieldType, methods);
         }
     }
 
@@ -199,23 +199,23 @@ public class MapperClassInfo {
 
     private void registerField(ProcessingEnvironment processingEnv, VariableElement field) {
         if (ApiUtil.ignoreUsing(true, field)) return;
-        Type type = TypeUtils.findType(field);
+        Type type =TypeUtils.findType(processingEnv, (Type) parentElement.asType(), field);
         // Authomatically ignored same mapper
         if (TypeUtils.isSame(processingEnv, type, parentElement.asType())) return;
 
         allFieldsTypes.put(field.getSimpleName().toString(), type);
         List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, type);
-        registerApiForPath(processingEnv, field.getSimpleName().toString(), methods);
+        registerApiForPath(processingEnv, field.getSimpleName().toString(), type, methods);
     }
 
-    private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, List<ExecutableElement> executableElements) {
+    private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, Type fieldType, List<ExecutableElement> executableElements) {
         Map<MethodApiKey, MethodApiFullSyntax> mapApi = extUsableMethods.computeIfAbsent(pathApi, a -> new HashMap<>());
 
         // we need to find out, what can be given field used for
         for (ExecutableElement method : executableElements) {
             if (ApiUtil.ignoreUsing(false, method)) continue;
 
-            MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, method);
+            MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, fieldType, method);
             if (methodSyntax.getReturnType() == null) continue;
 
             mapApi.put(methodSyntax.getApiKey(), methodSyntax);
@@ -304,7 +304,7 @@ public class MapperClassInfo {
 
 
     private void registerTopMethod(ProcessingEnvironment processingEnv, ExecutableElement method) {
-        MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, method);
+        MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, (Type) parentElement.asType(), method);
 
         if (ApiUtil.canImplementMethod(this.parentTypeAsAbstractClass, method)) {
             // register implementation
