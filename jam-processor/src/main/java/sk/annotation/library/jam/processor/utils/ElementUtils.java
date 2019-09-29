@@ -145,6 +145,8 @@ abstract public class ElementUtils {
 		return allAcceptedMembers;
 	}
 	private static void addAcceptedMembers(ProcessingEnvironment processingEnv, List<Element> allAcceptedMembers, TypeElement element) {
+		if (element == null) return;
+
 		List<? extends Element> allMembers = processingEnv.getElementUtils().getAllMembers(element);
 		for (Element member : allMembers) {
 			if (exclusions.contains(member)) continue;

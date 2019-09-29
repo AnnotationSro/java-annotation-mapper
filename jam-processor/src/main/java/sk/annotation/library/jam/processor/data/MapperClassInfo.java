@@ -191,6 +191,7 @@ public class MapperClassInfo {
 
             fieldsToImplement.add(new FieldInfo(fieldName, new TypeInfo(fieldType)).withInjections(fieldInjectionAnnotations));
             List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, fieldType);
+            if (methods == null || methods.isEmpty()) return;
             registerApiForPath(processingEnv, fieldName, fieldType, methods);
         }
     }
@@ -205,6 +206,7 @@ public class MapperClassInfo {
 
         allFieldsTypes.put(field.getSimpleName().toString(), type);
         List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, type);
+        if (methods == null || methods.isEmpty()) return;
         registerApiForPath(processingEnv, field.getSimpleName().toString(), type, methods);
     }
 

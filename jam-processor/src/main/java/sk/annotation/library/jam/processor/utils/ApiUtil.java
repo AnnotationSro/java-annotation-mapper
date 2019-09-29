@@ -42,6 +42,8 @@ abstract public class ApiUtil {
 	}
 
 	static public List<ExecutableElement> readElementApi(ProcessingEnvironment processingEnv, Type type) {
+		if (type == null) return null;
+		if (type.getKind().isPrimitive()) return null;
 		List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) type.asElement());
 		return ElementFilter.methodsIn(allMembers);
 	}
