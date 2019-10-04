@@ -91,10 +91,10 @@ public class FieldValueAccessData implements SourceRegisterImports {
 
 	private TypeMirror getType(boolean forGetter) {
 		if (forGetter) {
-			if (getter != null) getter.getType();
+			if (getter != null) return getter.getType();
 			if (field != null) return field.getType();
 		} else {
-			if (setter != null) setter.getType();
+			if (setter != null) return setter.getType();
 			if (field != null) return field.getType();
 		}
 
