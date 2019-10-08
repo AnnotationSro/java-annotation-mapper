@@ -4,7 +4,7 @@
     <parent>
         <groupId>sk.annotation.library.jam</groupId>
 		<artifactId>jam-tests</artifactId>
-        <version>0.9.5-SNAPSHOT</version>
+        <version>0.9.4</version>
     </parent>
 
     <artifactId>jam-tests-with-lombok</artifactId>
