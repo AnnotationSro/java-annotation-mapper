@@ -79,19 +79,6 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 		this.withAnnotations(annotationsInfo);
 	}
 
-	static public TypeWithVariableInfo analyze(VariableElement variableElement, Type resolvedType) {
-		String hasContextKey = null;
-
-		Context ctx = variableElement.getAnnotation(Context.class);
-		if (ctx!=null) {
-			hasContextKey = ctx.value();
-		}
-		boolean markedAsReturn = variableElement.getAnnotation(Return.class)!=null;
-
-		return new TypeWithVariableInfo(variableElement.getSimpleName().toString(), new TypeInfo(resolvedType),hasContextKey,markedAsReturn);
-	}
-
-
 	private static String generateDefaultNameFrom(TypeInfo type) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("tmp"+System.currentTimeMillis());

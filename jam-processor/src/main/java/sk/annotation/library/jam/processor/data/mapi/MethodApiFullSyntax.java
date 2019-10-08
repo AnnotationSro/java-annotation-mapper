@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import sk.annotation.library.jam.annotations.Context;
+import sk.annotation.library.jam.annotations.Return;
 import sk.annotation.library.jam.processor.data.AnnotationsInfo;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
@@ -52,12 +54,13 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		if (params == null) params = Collections.emptyList();
 		this.params = params;
 
-		if (!params.isEmpty()) {
-			int paramSize = params.size();
-			returnLastParam = params.get(paramSize-1).isMarkedAsReturn();
+		List<TypeWithVariableInfo> requiredParams = getRequiredParams();
+		if (!requiredParams.isEmpty()) {
 
+			int paramSize = requiredParams.size();
+			returnLastParam = requiredParams.get(paramSize-1).isMarkedAsReturn();
 			int i = 0;
-			for (TypeWithVariableInfo param : params) {
+			for (TypeWithVariableInfo param : requiredParams) {
 				int paramIndex = i++;
 
 				// Neccessary Validation
@@ -77,6 +80,9 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 	}
 
 	public List<TypeWithVariableInfo> getRequiredParams() {
+		return _getRequiredParams(this.params);
+	}
+	private static List<TypeWithVariableInfo> _getRequiredParams(List<TypeWithVariableInfo> params) {
 		List<TypeWithVariableInfo> _getNeccessaryParams = new ArrayList<>(params.size());
 		for (TypeWithVariableInfo param : params) {
 			if (StringUtils.isNotEmpty(param.getHasContextKey())) continue;
@@ -94,13 +100,44 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 
 			List<TypeWithVariableInfo> params = new LinkedList<>();
 			if (method.getParameters()!=null) {
+				Map<String, String> contextKeysPerParameter = new HashMap<>();
+				Map<String, Boolean> returnPerParameter = new HashMap<>();
+				int lastIndexWithoutContext = -1;
+				int totalWithoutContext = 0;
+				for (int i=0; i<method.getParameters().size(); i++) {
+					VariableElement variableElement = method.getParameters().get(i);
+					String variableName = variableElement.getSimpleName().toString();
+					Context ctx = variableElement.getAnnotation(Context.class);
+					if (ctx!=null) {
+						contextKeysPerParameter.put(variableName, ctx.value());
+					}
+					else {
+						totalWithoutContext++;
+						lastIndexWithoutContext = i;
+					}
+
+					Return antReturn = variableElement.getAnnotation(Return.class);
+					if (antReturn!=null) returnPerParameter.put(variableName, antReturn.value());
+				}
+				if (totalWithoutContext >= 2 && TypeUtils.isSame(processingEnv, methodType.getReturnType(), methodType.getParameterTypes().get(lastIndexWithoutContext))) {
+					VariableElement variableElement = method.getParameters().get(lastIndexWithoutContext);
+					String variableName = variableElement.getSimpleName().toString();
+					returnPerParameter.putIfAbsent(variableName, true);
+				}
 
 				for (int i=0; i<method.getParameters().size(); i++) {
 					VariableElement variableElement = method.getParameters().get(i);
-					TypeWithVariableInfo param = TypeWithVariableInfo.analyze(variableElement, (Type) methodType.getParameterTypes().get(i));
-					params.add(param);
+					String variableName = variableElement.getSimpleName().toString();
+					Type resolvedType = (Type) methodType.getParameterTypes().get(i);
+					params.add(new TypeWithVariableInfo(
+							variableElement.getSimpleName().toString(),
+							new TypeInfo(resolvedType),
+							contextKeysPerParameter.get(variableName),
+							returnPerParameter.getOrDefault(variableName, false)
+					));
 				}
 			}
+
 			return new MethodApiFullSyntax(processingEnv, name, returnType, params, true);
 		}
 		catch (Exception e) {
