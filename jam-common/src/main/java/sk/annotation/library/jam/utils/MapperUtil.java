@@ -68,4 +68,27 @@ abstract public class MapperUtil {
             throw new RuntimeException(e);
         }
     }
+
+    public static void doInMapperContext(IRunInMapper worker) {
+        MapperRunCtxData ctx = MapperRunCtxDataHolder.data.get();
+        boolean mngCtx = ctx==null;
+
+        try {
+            if (mngCtx) {
+                ctx = new MapperRunCtxData();
+                MapperRunCtxDataHolder.data.set(ctx);
+            }
+
+            worker.run();
+        }
+        catch (Throwable e) {
+            if (e instanceof RuntimeException) throw (RuntimeException) e;
+            throw new IllegalStateException(e);
+        }
+        finally {
+            if (mngCtx) MapperRunCtxDataHolder.data.remove();
+        }
+
+
+    }
 }
