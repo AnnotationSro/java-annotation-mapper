@@ -139,6 +139,19 @@ abstract public class AnnotationValueExtractUtil {
 	}
 
 
+	public static <T extends Annotation> AnnotationMirror findAnnotationMirror(ProcessingEnvironment processingEnv, Element element, Class<T> cls) {
+		if (element == null || element.getAnnotationMirrors()==null || element.getAnnotationMirrors().isEmpty()) return null;
+
+		Type typeMapperFieldConfig = TypeUtils.convertToType(processingEnv, cls);
+
+		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+			if (!processingEnv.getTypeUtils().isSameType(annotationMirror.getAnnotationType(), typeMapperFieldConfig))
+				continue;
+			return annotationMirror;
+		}
+		return null;
+	}
+
 	static <T extends Annotation> Map<String, AnnotationValue> getAnnotationValues(ProcessingEnvironment processingEnv, Element element, Class<T> cls) {
 		if (element == null || element.getAnnotationMirrors()==null || element.getAnnotationMirrors().isEmpty()) return null;
 

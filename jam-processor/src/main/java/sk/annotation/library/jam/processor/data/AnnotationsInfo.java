@@ -14,6 +14,7 @@ public class AnnotationsInfo implements SourceGenerator, SourceRegisterImports {
 	private boolean inline = false;
 
 	public AnnotationValues getOrAddAnnotation(TypeInfo annotationType) {
+
 		return annotationData.computeIfAbsent(annotationType, a -> new AnnotationValues());
 	}
 

@@ -34,17 +34,17 @@ abstract public class Constants {
 
 
     // Spring & CDI
-    static final public TypeInfo annotationFieldSPRING = new TypeInfo(org.springframework.beans.factory.annotation.Autowired.class);
-    static final public TypeInfo annotationFieldCDI = new TypeInfo(javax.inject.Inject.class);
+    static final public String annotationFieldSPRING = "org.springframework.beans.factory.annotation.Autowired";
+    static final public String annotationFieldCDI = "javax.inject.Inject";
 
-    static final public TypeInfo springComponent = new TypeInfo(org.springframework.stereotype.Component.class);
-    static final public TypeInfo springContext = new TypeInfo(org.springframework.context.annotation.Scope.class);
+    static final public String springComponent = "org.springframework.stereotype.Component";
+    static final public String springContext = "org.springframework.context.annotation.Scope";
 
-    static final public TypeInfo cdiComponent = new TypeInfo(javax.inject.Named.class);
-    static final public TypeInfo cdiContextRequest = new TypeInfo(javax.enterprise.context.RequestScoped.class);
-    static final public TypeInfo cdiContextSession = new TypeInfo(javax.enterprise.context.SessionScoped.class);
-    static final public TypeInfo cdiContextApplication = new TypeInfo(javax.enterprise.context.ApplicationScoped.class);
-    static final public TypeInfo cdiContextSingleton = new TypeInfo(javax.inject.Singleton.class);
+    static final public String cdiComponent = "javax.inject.Named.class";
+    static final public String cdiContextRequest = "javax.enterprise.context.RequestScoped.class";
+    static final public String cdiContextSession = "javax.enterprise.context.SessionScoped.class";
+    static final public String cdiContextApplication = "javax.enterprise.context.ApplicationScoped.class";
+    static final public String cdiContextSingleton = "javax.inject.Singleton.class";
 
 
 

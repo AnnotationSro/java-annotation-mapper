@@ -18,6 +18,17 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	private Class clsType;
 	private String rawName;
 
+	public TypeInfo(ProcessingEnvironment processingEnv, String cls) {
+		this(TypeUtils.convertToType(processingEnv, cls));
+
+		if (clsType==null && type==null) {
+			try {
+				Class.forName(cls);
+			} catch (ClassNotFoundException e) {
+				throw new IllegalStateException(e);
+			}
+		}
+	}
 	public TypeInfo(Class cls) {
 		this(cls,null);
 	}

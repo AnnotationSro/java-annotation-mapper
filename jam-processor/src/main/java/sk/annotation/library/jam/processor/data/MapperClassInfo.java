@@ -101,7 +101,7 @@ public class MapperClassInfo {
         // Annotations ...
         generateAnnotations = new AnnotationsInfo()
                 //.withAnnotation(Constants.annotationJamMapperGenerated)
-                .mergeValues(IoCUtils.resolveMapperAnnotation(parentElement))
+                .mergeValues(IoCUtils.resolveMapperAnnotation(processingEnv, parentElement))
                 .mergeValues(Constants.createAnnotationGenerated());
 
 
@@ -118,7 +118,7 @@ public class MapperClassInfo {
             usedNames.add(method.getSimpleName().toString());
         }
         // Custom fields from API
-        AnnotationsInfo fieldInjectionAnnotations = IoCUtils.getFieldAnnotationType(parentElement, null);
+        AnnotationsInfo fieldInjectionAnnotations = IoCUtils.getFieldAnnotationType(processingEnv, parentElement, null);
         registerCustomFields(processingEnv, fieldInjectionAnnotations, element);
         for (ExecutableElement method : allMethods) {
             registerCustomFields(processingEnv, fieldInjectionAnnotations, method);
@@ -218,6 +218,11 @@ public class MapperClassInfo {
             if (ApiUtil.ignoreUsing(false, method)) continue;
 
             MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, fieldType, method);
+            if (methodSyntax == null || !methodSyntax.getErrorsMapping().isEmpty()) {
+                // Ignore bad API
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, methodSyntax.getErrorsMapping().toString(), method);
+                continue;
+            }
             if (methodSyntax.getReturnType() == null) continue;
 
             mapApi.put(methodSyntax.getApiKey(), methodSyntax);
@@ -307,6 +312,11 @@ public class MapperClassInfo {
 
     private void registerTopMethod(ProcessingEnvironment processingEnv, ExecutableElement method) {
         MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, (Type) parentElement.asType(), method);
+        if (methodSyntax == null || !methodSyntax.getErrorsMapping().isEmpty()) {
+            // Ignore bad API
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, methodSyntax.getErrorsMapping().toString(), method);
+            return;
+        }
 
         if (ApiUtil.canImplementMethod(this.parentTypeAsAbstractClass, method)) {
             // register implementation

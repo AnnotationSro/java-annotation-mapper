@@ -43,7 +43,8 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		return isReturnLastParam() && isReturnLastParamRequired();
 	}
 
-
+	@Getter
+	private Set<String> errorsMapping = new LinkedHashSet<>();
 
 	public MethodApiFullSyntax(ProcessingEnvironment processingEnv, String methodName, TypeInfo returnType, List<TypeWithVariableInfo> params, boolean returnLastParamRequired) {
 		this.name = methodName;
@@ -62,10 +63,10 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 				// Neccessary Validation
 				if (param.isMarkedAsReturn()) {
 					if (paramIndex < paramSize-1) {
-						throw new IllegalArgumentException(MsgConstants.errorMethodParamWithReturnIsNotLast);
+						errorsMapping.add(MsgConstants.errorMethodParamWithReturnIsNotLast);
 					}
 					else if (!TypeUtils.isSame(processingEnv, returnType, param.getVariableType())) {
-						throw new IllegalArgumentException(MsgConstants.errorMethodParamBadType);
+						errorsMapping.add(MsgConstants.errorMethodParamBadType);
 					}
 				}
 			}

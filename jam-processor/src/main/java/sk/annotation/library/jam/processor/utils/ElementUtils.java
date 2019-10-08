@@ -16,6 +16,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.SimpleElementVisitor6;
 import javax.lang.model.util.SimpleTypeVisitor6;
+import javax.tools.Diagnostic;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
@@ -188,6 +189,11 @@ abstract public class ElementUtils {
 					// Check SETTER
 					if (StringUtils.startsWith(name, "set")) {
 						MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, typeFrom, method);
+						if (methodSyntax == null || !methodSyntax.getErrorsMapping().isEmpty()) {
+							// Ignore bad API
+							processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, methodSyntax.getErrorsMapping().toString(), method);
+							continue;
+						}
 						if (methodSyntax.getParams().size() != 1) continue;
 						if (methodSyntax.getReturnType() != null) continue;
 
@@ -207,6 +213,11 @@ abstract public class ElementUtils {
 
 					if (getterForField != null) {
 						MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, typeFrom, method);
+						if (methodSyntax == null || !methodSyntax.getErrorsMapping().isEmpty()) {
+							// Ignore bad API
+							processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, methodSyntax.getErrorsMapping().toString(), method);
+							continue;
+						}
 						if (methodSyntax.getParams().size() != 0) continue;
 						if (methodSyntax.getReturnType() == null) continue;
 
