@@ -49,7 +49,8 @@
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <source.skip>true</source.skip>
-        <gpg.skip>true</gpg.skip>
+        <gpg.skip.new>true</gpg.skip.new>
+        <gpg.skip.old>true</gpg.skip.old>
 
         <!-- - - - - - - - - - - - - - - - - - - - - - -->
         <!-- Annotation standard properties            -->
@@ -96,19 +97,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-                <executions>
-                    <execution>
-                        <id>default-deploy</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
@@ -185,14 +173,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <configuration>
-					<skip>${gpg.skip}</skip>
-                    <gpgArguments>
-                        <!-- for older PGP this not working -->
-                        <arg>--pinentry-mode</arg>
-                        <arg>loopback</arg>
-                    </gpgArguments>
-                </configuration>
                 <executions>
                     <execution>
                         <!-- Note - check: -Dgpg.passphrase=... -->
@@ -200,6 +180,49 @@
                         <phase>verify</phase>
                         <goals>
                             <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${gpg.skip.new}</skip>
+                            <gpgArguments>
+                                <!-- for older PGP this not working -->
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Note - check: -Dgpg.passphrase=... -->
+                        <id>sign-artifacts-old-compatibility</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${gpg.skip.old}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <configuration>
+                    <skipLocalStaging>${maven.deploy.skip}</skipLocalStaging>
+                    <skipNexusStagingDeployMojo>${maven.deploy.skip}</skipNexusStagingDeployMojo>
+                    <skipRemoteStaging>${maven.deploy.skip}</skipRemoteStaging>
+                    <skipStaging>${maven.deploy.skip}</skipStaging>
+                    <skipStagingRepositoryClose>${maven.deploy.skip}</skipStagingRepositoryClose>
+
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy-release</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -226,6 +249,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>3.0.0-M1</version>
+                    <configuration><skip>true</skip></configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -250,7 +274,7 @@
                 <plugin>
                     <groupId>org.sonatype.plugins</groupId>
                     <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.7</version>
+                    <version>1.6.8</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -263,7 +287,8 @@
                 <maven.deploy.skip>false</maven.deploy.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
-				<gpg.skip>false</gpg.skip>
+				<gpg.skip.new>false</gpg.skip.new>
+				<gpg.skip.old>true</gpg.skip.old>
             </properties>
         </profile>
         <profile>
@@ -272,23 +297,29 @@
                 <maven.deploy.skip>false</maven.deploy.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
-				<gpg.skip>false</gpg.skip>
+				<gpg.skip.new>false</gpg.skip.new>
+                <gpg.skip.old>true</gpg.skip.old>
             </properties>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+        </profile>
+        <profile>
+            <id>release-snapshot-old-gpg</id>
+            <properties>
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <source.skip>false</source.skip>
+                <gpg.skip.new>true</gpg.skip.new>
+                <gpg.skip.old>false</gpg.skip.old>
+            </properties>
+        </profile>
+        <profile>
+            <id>release-old-gpg</id>
+            <properties>
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <source.skip>false</source.skip>
+				<gpg.skip.old>false</gpg.skip.old>
+				<gpg.skip.new>true</gpg.skip.new>
+            </properties>
         </profile>
     </profiles>
 
@@ -307,6 +338,6 @@
         <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
         <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
         <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
-        <tag>release-0.9.4</tag>
+        <tag>release-0.9.5</tag>
     </scm>
 </project>
