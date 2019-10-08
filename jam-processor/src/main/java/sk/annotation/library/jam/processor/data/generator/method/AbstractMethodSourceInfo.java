@@ -185,7 +185,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         if (methodCallApi != null) {
             if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) {
                 ctx.pw.print(methodCallApi.getPathToSyntax());
-                ctx.pw.print(".");
+                if (!StringUtils.endsWith(methodCallApi.getPathToSyntax(),".")) ctx.pw.print(".");
                 ctx.pw.print(methodCallApi.getMethodSyntax().getName());
                 ctx.pw.print("()");
                 return;

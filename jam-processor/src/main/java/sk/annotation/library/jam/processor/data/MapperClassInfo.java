@@ -211,7 +211,6 @@ public class MapperClassInfo {
     }
 
     private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, Type fieldType, List<ExecutableElement> executableElements) {
-        Map<MethodApiKey, MethodApiFullSyntax> mapApi = extUsableMethods.computeIfAbsent(pathApi, a -> new HashMap<>());
 
         // we need to find out, what can be given field used for
         for (ExecutableElement method : executableElements) {
@@ -225,7 +224,7 @@ public class MapperClassInfo {
             }
             if (methodSyntax.getReturnType() == null) continue;
 
-            mapApi.put(methodSyntax.getApiKey(), methodSyntax);
+            extUsableMethods.computeIfAbsent(pathApi, a -> new HashMap<>()).put(methodSyntax.getApiKey(), methodSyntax);
         }
     }
 
