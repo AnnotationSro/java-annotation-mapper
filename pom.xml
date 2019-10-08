@@ -3,7 +3,7 @@
 
     <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-root</artifactId>
-    <version>0.9.6</version>
+    <version>0.9.7-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jam-root</name>
@@ -338,6 +338,6 @@
         <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
         <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
         <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
-        <tag>release-0.9.6</tag>
+        <tag>release-0.9.5</tag>
     </scm>
 </project>
