@@ -42,7 +42,7 @@
         <module>jam-tests</module>
 
         <!--
-         deploy for jam-tests are disabled => sollution is possible with last dummy module -
+         deploy for jam-tests are disabled => solution is possible with last dummy module -
          see https://github.com/sonatype/nexus-maven-plugins/tree/master/staging/maven-plugin - property skipNexusStagingDeployMojo
          from documentation:
 
