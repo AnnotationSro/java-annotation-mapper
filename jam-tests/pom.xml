@@ -58,7 +58,6 @@
                     <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
                     <skipRemoteStaging>true</skipRemoteStaging>
                     <skipStaging>true</skipStaging>
-                    <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                 </configuration>
             </plugin>
         </plugins>

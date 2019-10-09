@@ -177,7 +177,7 @@
                     <execution>
                         <!-- Note - check: -Dgpg.passphrase=... -->
                         <id>sign-artifacts</id>
-                        <phase>verify</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>
@@ -193,7 +193,7 @@
                     <execution>
                         <!-- Note - check: -Dgpg.passphrase=... -->
                         <id>sign-artifacts-old-compatibility</id>
-                        <phase>verify</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>
@@ -211,11 +211,13 @@
                     <skipNexusStagingDeployMojo>${maven.deploy.skip}</skipNexusStagingDeployMojo>
                     <skipRemoteStaging>${maven.deploy.skip}</skipRemoteStaging>
                     <skipStaging>${maven.deploy.skip}</skipStaging>
-                    <skipStagingRepositoryClose>${maven.deploy.skip}</skipStagingRepositoryClose>
 
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+                    <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
+                    <autoDropAfterRelease>true</autoDropAfterRelease>
                 </configuration>
                 <executions>
                     <execution>
