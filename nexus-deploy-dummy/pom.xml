@@ -3,10 +3,10 @@
 
     <parent>
         <groupId>sk.annotation.library.jam</groupId>
-		<artifactId>jam-tests</artifactId>
+        <artifactId>jam-root</artifactId>
         <version>0.9.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jam-tests-minimum</artifactId>
-
+    <packaging>pom</packaging>
+    <artifactId>nexus-deploy-dummy</artifactId>
 </project>

@@ -3,7 +3,7 @@
 
     <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-root</artifactId>
-    <version>0.9.8</version>
+    <version>0.9.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jam-root</name>
@@ -40,13 +40,23 @@
         <module>jam-common</module>
         <module>jam-processor</module>
         <module>jam-tests</module>
+
+        <!--
+         deploy for jam-tests are disabled => sollution is possible with last dummy module -
+         see https://github.com/sonatype/nexus-maven-plugins/tree/master/staging/maven-plugin - property skipNexusStagingDeployMojo
+         from documentation:
+
+         Completely skips the deploy Mojo (similar as maven.deploy.skip). In multi-module builds using the deploy-at-end feature,
+         the deployment of all components is performed in the last module based on the reactor order. If this property is set
+         to true in the last module, all staging deployment for all modules will be skipped. In some cases, it may be necessary to add a dummy module.
+         -->
+        <module>nexus-deploy-dummy</module>
     </modules>
 
     <properties>
         <!-- - - - - - - - - - - - - - - - - - - - - - -->
         <!-- Disable deploy every module               -->
         <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.release.skip>true</maven.release.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <source.skip>true</source.skip>
         <gpg.skip.new>true</gpg.skip.new>
@@ -207,11 +217,6 @@
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <configuration>
-                    <skipLocalStaging>${maven.release.skip}</skipLocalStaging>
-                    <skipNexusStagingDeployMojo>${maven.release.skip}</skipNexusStagingDeployMojo>
-                    <skipRemoteStaging>${maven.release.skip}</skipRemoteStaging>
-                    <skipStaging>${maven.release.skip}</skipStaging>
-
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
@@ -219,7 +224,7 @@
                     <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
                     <autoDropAfterRelease>true</autoDropAfterRelease>
 
-                    <stagingDescription>staging ${build.datetime} ${project.version}</stagingDescription>
+                    <stagingDescription>version ${project.version}</stagingDescription>
                 </configuration>
                 <executions>
                     <execution>
@@ -286,24 +291,10 @@
     </build>
 
     <profiles>
-<!--        <profile>-->
-<!--            <id>release-snapshot</id>-->
-<!--            <properties>-->
-<!--                <maven.deploy.skip>true</maven.deploy.skip>-->
-<!--                <maven.release.skip>false</maven.release.skip>-->
-<!--&lt;!&ndash;                <maven.deploy.skip>false</maven.deploy.skip>&ndash;&gt;-->
-<!--&lt;!&ndash;                <maven.release.skip>true</maven.release.skip>&ndash;&gt;-->
-<!--                <maven.javadoc.skip>false</maven.javadoc.skip>-->
-<!--                <source.skip>false</source.skip>-->
-<!--				<gpg.skip.new>false</gpg.skip.new>-->
-<!--				<gpg.skip.old>true</gpg.skip.old>-->
-<!--            </properties>-->
-<!--        </profile>-->
         <profile>
             <id>release</id>
             <properties>
-                <maven.deploy.skip>true</maven.deploy.skip>
-                <maven.release.skip>false</maven.release.skip>
+                <maven.deploy.skip>false</maven.deploy.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
 				<gpg.skip.new>false</gpg.skip.new>
@@ -334,6 +325,7 @@
         <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
         <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
         <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
-        <tag>release-0.9.5</tag>
     </scm>
+
 </project>
+

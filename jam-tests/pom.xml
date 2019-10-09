@@ -4,7 +4,7 @@
     <parent>
         <groupId>sk.annotation.library.jam</groupId>
         <artifactId>jam-root</artifactId>
-        <version>0.9.8</version>
+        <version>0.9.8-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -41,32 +41,32 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <configuration>
-<!--                            <skipLocalStaging>true</skipLocalStaging>-->
-                            <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-<!--                            <skipRemoteStaging>true</skipRemoteStaging>-->
-<!--                            <skipStaging>true</skipStaging>-->
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+<!--    <profiles>-->
+<!--        <profile>-->
+<!--            <id>release</id>-->
+<!--            <build>-->
+<!--                <plugins>-->
+<!--                    <plugin>-->
+<!--                        <groupId>org.sonatype.plugins</groupId>-->
+<!--                        <artifactId>nexus-staging-maven-plugin</artifactId>-->
+<!--                        <configuration>-->
+<!--&lt;!&ndash;                            <skipLocalStaging>true</skipLocalStaging>&ndash;&gt;-->
+<!--                            <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>-->
+<!--&lt;!&ndash;                            <skipRemoteStaging>true</skipRemoteStaging>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <skipStaging>true</skipStaging>&ndash;&gt;-->
+<!--                        </configuration>-->
+<!--                    </plugin>-->
+<!--                </plugins>-->
+<!--            </build>-->
+<!--        </profile>-->
+<!--    </profiles>-->
     <build>
         <plugins>
             <plugin>
-                <!-- Never deploy this module -->
-                <artifactId>maven-deploy-plugin</artifactId>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
                 </configuration>
             </plugin>
             <plugin>
