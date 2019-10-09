@@ -39,18 +39,11 @@
     <modules>
         <module>jam-common</module>
         <module>jam-processor</module>
-        <module>jam-tests</module>
-
         <!--
-         deploy for jam-tests are disabled => solution is possible with last dummy module -
-         see https://github.com/sonatype/nexus-maven-plugins/tree/master/staging/maven-plugin - property skipNexusStagingDeployMojo
-         from documentation:
-
-         Completely skips the deploy Mojo (similar as maven.deploy.skip). In multi-module builds using the deploy-at-end feature,
-         the deployment of all components is performed in the last module based on the reactor order. If this property is set
-         to true in the last module, all staging deployment for all modules will be skipped. In some cases, it may be necessary to add a dummy module.
-         -->
-        <module>nexus-deploy-dummy</module>
+        Disabled submodule here - tests are run in jenkins only (this solution can avoid to deploy tests jars to public maven repositories)
+        conditionaly enabled in profile -Prun-jam-tests
+        <module>jam-tests</module>
+        -->
     </modules>
 
     <properties>
@@ -307,6 +300,12 @@
                 <gpg.skip.new>true</gpg.skip.new>
                 <gpg.skip.old>false</gpg.skip.old>
             </properties>
+        </profile>
+        <profile>
+            <id>run-jam-tests</id>
+            <modules>
+                <module>jam-tests</module>
+            </modules>
         </profile>
     </profiles>
 
