@@ -3,7 +3,7 @@
 
     <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-root</artifactId>
-    <version>0.9.8-SNAPSHOT</version>
+    <version>0.9.8</version>
     <packaging>pom</packaging>
 
     <name>jam-root</name>
@@ -253,7 +253,8 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>3.0.0-M1</version>
-                    <configuration><skip>${maven.deploy.skip}</skip></configuration>
+<!--                    <configuration><skip>${maven.deploy.skip}</skip></configuration>-->
+                    <configuration><skip>true</skip></configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -285,19 +286,19 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>release-snapshot</id>
-            <properties>
-                <maven.deploy.skip>true</maven.deploy.skip>
-                <maven.release.skip>false</maven.release.skip>
-<!--                <maven.deploy.skip>false</maven.deploy.skip>-->
-<!--                <maven.release.skip>true</maven.release.skip>-->
-                <maven.javadoc.skip>false</maven.javadoc.skip>
-                <source.skip>false</source.skip>
-				<gpg.skip.new>false</gpg.skip.new>
-				<gpg.skip.old>true</gpg.skip.old>
-            </properties>
-        </profile>
+<!--        <profile>-->
+<!--            <id>release-snapshot</id>-->
+<!--            <properties>-->
+<!--                <maven.deploy.skip>true</maven.deploy.skip>-->
+<!--                <maven.release.skip>false</maven.release.skip>-->
+<!--&lt;!&ndash;                <maven.deploy.skip>false</maven.deploy.skip>&ndash;&gt;-->
+<!--&lt;!&ndash;                <maven.release.skip>true</maven.release.skip>&ndash;&gt;-->
+<!--                <maven.javadoc.skip>false</maven.javadoc.skip>-->
+<!--                <source.skip>false</source.skip>-->
+<!--				<gpg.skip.new>false</gpg.skip.new>-->
+<!--				<gpg.skip.old>true</gpg.skip.old>-->
+<!--            </properties>-->
+<!--        </profile>-->
         <profile>
             <id>release</id>
             <properties>
@@ -308,11 +309,6 @@
 				<gpg.skip.new>false</gpg.skip.new>
                 <gpg.skip.old>true</gpg.skip.old>
             </properties>
-            <build>
-                <plugins>
-
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>old-gpg</id>
