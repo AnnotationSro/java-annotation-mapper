@@ -45,8 +45,8 @@
     <properties>
         <!-- - - - - - - - - - - - - - - - - - - - - - -->
         <!-- Disable deploy every module               -->
-        <!--<maven.deploy.skip>true</maven.deploy.skip>-->
         <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.release.skip>true</maven.release.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <source.skip>true</source.skip>
         <gpg.skip.new>true</gpg.skip.new>
@@ -207,10 +207,10 @@
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <configuration>
-                    <skipLocalStaging>${maven.deploy.skip}</skipLocalStaging>
-                    <skipNexusStagingDeployMojo>${maven.deploy.skip}</skipNexusStagingDeployMojo>
-                    <skipRemoteStaging>${maven.deploy.skip}</skipRemoteStaging>
-                    <skipStaging>${maven.deploy.skip}</skipStaging>
+                    <skipLocalStaging>${maven.release.skip}</skipLocalStaging>
+                    <skipNexusStagingDeployMojo>${maven.release.skip}</skipNexusStagingDeployMojo>
+                    <skipRemoteStaging>${maven.release.skip}</skipRemoteStaging>
+                    <skipStaging>${maven.release.skip}</skipStaging>
 
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
@@ -218,6 +218,8 @@
                     <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
                     <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
                     <autoDropAfterRelease>true</autoDropAfterRelease>
+
+                    <stagingDescription>staging ${build.datetime} ${project.version}</stagingDescription>
                 </configuration>
                 <executions>
                     <execution>
@@ -251,7 +253,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>3.0.0-M1</version>
-                    <configuration><skip>true</skip></configuration>
+                    <configuration><skip>${maven.deploy.skip}</skip></configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -286,7 +288,8 @@
         <profile>
             <id>release-snapshot</id>
             <properties>
-                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.deploy.skip>true</maven.deploy.skip>
+                <maven.release.skip>false</maven.release.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
 				<gpg.skip.new>false</gpg.skip.new>
@@ -296,7 +299,8 @@
         <profile>
             <id>release</id>
             <properties>
-                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.deploy.skip>true</maven.deploy.skip>
+                <maven.release.skip>false</maven.release.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
 				<gpg.skip.new>false</gpg.skip.new>
@@ -306,7 +310,8 @@
         <profile>
             <id>release-snapshot-old-gpg</id>
             <properties>
-                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.deploy.skip>true</maven.deploy.skip>
+                <maven.release.skip>false</maven.release.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
                 <gpg.skip.new>true</gpg.skip.new>
@@ -316,7 +321,8 @@
         <profile>
             <id>release-old-gpg</id>
             <properties>
-                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.deploy.skip>true</maven.deploy.skip>
+                <maven.release.skip>false</maven.release.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
 				<gpg.skip.old>false</gpg.skip.old>
