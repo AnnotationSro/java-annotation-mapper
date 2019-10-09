@@ -260,8 +260,8 @@
         <profile>
             <id>release-snapshot</id>
             <properties>
-                <maven.deploy.skip>true</maven.deploy.skip>
-                <maven.release.skip>false</maven.release.skip>
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.release.skip>true</maven.release.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <source.skip>false</source.skip>
 				<gpg.skip.new>false</gpg.skip.new>
