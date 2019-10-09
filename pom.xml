@@ -203,34 +203,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <configuration>
-                    <skipLocalStaging>${maven.release.skip}</skipLocalStaging>
-                    <skipNexusStagingDeployMojo>${maven.release.skip}</skipNexusStagingDeployMojo>
-                    <skipRemoteStaging>${maven.release.skip}</skipRemoteStaging>
-                    <skipStaging>${maven.release.skip}</skipStaging>
-
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                    <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
-                    <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
-                    <autoDropAfterRelease>true</autoDropAfterRelease>
-
-                    <stagingDescription>staging ${build.datetime} ${project.version}</stagingDescription>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>deploy-release</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -306,27 +278,44 @@
 				<gpg.skip.new>false</gpg.skip.new>
                 <gpg.skip.old>true</gpg.skip.old>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <configuration>
+                            <skipLocalStaging>${maven.release.skip}</skipLocalStaging>
+                            <skipNexusStagingDeployMojo>${maven.release.skip}</skipNexusStagingDeployMojo>
+                            <skipRemoteStaging>${maven.release.skip}</skipRemoteStaging>
+                            <skipStaging>${maven.release.skip}</skipStaging>
+
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+                            <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
+                            <autoDropAfterRelease>true</autoDropAfterRelease>
+
+                            <stagingDescription>staging ${build.datetime} ${project.version}</stagingDescription>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>deploy-release</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
-            <id>release-snapshot-old-gpg</id>
+            <id>old-gpg</id>
             <properties>
-                <maven.deploy.skip>true</maven.deploy.skip>
-                <maven.release.skip>false</maven.release.skip>
-                <maven.javadoc.skip>false</maven.javadoc.skip>
-                <source.skip>false</source.skip>
                 <gpg.skip.new>true</gpg.skip.new>
                 <gpg.skip.old>false</gpg.skip.old>
-            </properties>
-        </profile>
-        <profile>
-            <id>release-old-gpg</id>
-            <properties>
-                <maven.deploy.skip>true</maven.deploy.skip>
-                <maven.release.skip>false</maven.release.skip>
-                <maven.javadoc.skip>false</maven.javadoc.skip>
-                <source.skip>false</source.skip>
-				<gpg.skip.old>false</gpg.skip.old>
-				<gpg.skip.new>true</gpg.skip.new>
             </properties>
         </profile>
     </profiles>
