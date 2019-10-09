@@ -17,12 +17,16 @@ public class IgnoreFieldMapperTest {
         assertNotNull(output);
 
         assertNull(output.getId());
+        assertNull(output.getId2());
+        assertEquals(input.getId(), output.getId2());
+        assertEquals(input.getId2(), output.getId());
         assertEquals(input.getName(), output.getFirstName());
         assertEquals(input.getSurname(), output.getLastName());
 
         assertNotNull(output.getDetail());
 
         assertNull(output.getDetail().getId());
+        assertNull(output.getDetail().getId2());
         assertEquals(input.getDetail().getDetail(), output.getDetail().getDetail());
     }
 
@@ -38,6 +42,7 @@ public class IgnoreFieldMapperTest {
         assertNotNull(output);
 
         assertEquals(input.getId(), output.getId());
+        assertEquals(input.getId2(), output.getId2());
         assertEquals(input.getName(), output.getFirstName());
         assertEquals(input.getSurname(), output.getLastName());
 
@@ -54,12 +59,14 @@ public class IgnoreFieldMapperTest {
 
         UserInput input = new UserInput();
         input.setId(id);
+        input.setId2(id);
         input.setName(name);
         input.setSurname(surname);
 
         UserDetailInput detailInput = new UserDetailInput();
         detailInput.setDetail("detail ...");
         detailInput.setId(1337L);
+        detailInput.setId2(1338L);
 
         input.setDetail(detailInput);
         return input;

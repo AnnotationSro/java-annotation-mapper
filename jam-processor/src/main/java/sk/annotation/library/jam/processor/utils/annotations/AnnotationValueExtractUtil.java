@@ -153,24 +153,21 @@ abstract public class AnnotationValueExtractUtil {
 	}
 
 	static <T extends Annotation> Map<String, AnnotationValue> getAnnotationValues(ProcessingEnvironment processingEnv, Element element, Class<T> cls) {
-		if (element == null || element.getAnnotationMirrors()==null || element.getAnnotationMirrors().isEmpty()) return null;
-
-		Type typeMapperFieldConfig = TypeUtils.convertToType(processingEnv, cls);
-
-		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
-			if (!processingEnv.getTypeUtils().isSameType(annotationMirror.getAnnotationType(), typeMapperFieldConfig))
-				continue;
-
-			Map<String, AnnotationValue> ret = new LinkedHashMap<>();
-			for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror).entrySet()) {
-				AnnotationValue v = entry.getValue();
-				ret.put(getAnnotationMethodName(entry.getKey()), v);
-			}
-			return ret;
-
-		}
-		return null;
+		AnnotationMirror annotationMirror = findAnnotationMirror(processingEnv, element, cls);
+		if (annotationMirror == null) return null;
+		return getAnnotationValuesMapFromAnnotationMirror(processingEnv, annotationMirror);
 	}
+
+	public static Map<String, AnnotationValue> getAnnotationValuesMapFromAnnotationMirror(ProcessingEnvironment processingEnv, AnnotationMirror annotationMirror) {
+		if (annotationMirror == null) return null;
+		Map<String, AnnotationValue> ret = new LinkedHashMap<>();
+		for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror).entrySet()) {
+			AnnotationValue v = entry.getValue();
+			ret.put(getAnnotationMethodName(entry.getKey()), v);
+		}
+		return ret;
+	}
+
 	public static <T extends Annotation> Map<String, AnnotationValue> getAnnotationValues(ProcessingEnvironment processingEnv, Element element, String clsName) {
 		if (element == null || element.getAnnotationMirrors()==null || element.getAnnotationMirrors().isEmpty()) return null;
 
@@ -179,11 +176,7 @@ abstract public class AnnotationValueExtractUtil {
 				continue;
 			}
 
-			Map<String, AnnotationValue> ret = new LinkedHashMap<>();
-			for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror).entrySet()) {
-				AnnotationValue v = entry.getValue();
-				ret.put(getAnnotationMethodName(entry.getKey()), v);
-			}
+			Map<String, AnnotationValue> ret = getAnnotationValuesMapFromAnnotationMirror(processingEnv, annotationMirror);
 			return ret;
 
 		}

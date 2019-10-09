@@ -13,12 +13,13 @@ public interface InstanceCacheValue<T> {
 
 
     /**
+     * @param value - value for test
      * @return true, if value in parameter is registered
      */
     public boolean isRegistered(T value);
 
     /**
-     * register value
+     * @param value - register this value
      */
     public void registerValue(T value);
 }

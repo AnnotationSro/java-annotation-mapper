@@ -7,6 +7,7 @@ import lombok.Setter;
 public class UserInput {
 	@Getter @Setter
     public Long id;
+    public Long id2;
     private String name;
     private String surname;
 

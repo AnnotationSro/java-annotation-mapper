@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 public @interface FieldIgnore {
 	Class[] types() default {};
 	String[] packages() default {};
-	String value();
+	String[] value();
 	IgnoreType ignored() default IgnoreType.IGNORE_ALL;
 }
