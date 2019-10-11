@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
@@ -12,14 +12,16 @@ import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
+import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
 import sk.annotation.library.jam.utils.MapperRunCtxData;
 import sk.annotation.library.jam.utils.MapperRunCtxDataHolder;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /*
  Used for declaration input values, so the most important things can be wrapped
@@ -39,15 +41,27 @@ import java.util.List;
 * */
 public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
-	protected List<MethodCallApi> requiredMethods = new LinkedList<>();
-	protected ExecutableElement method;
-	protected MethodConfigKey methodConfigKey;
+	final protected List<MethodCallApi> requiredMethods = new LinkedList<>();
+	final protected ExecutableElement method;
+	@Getter
+	final protected MethodConfigKey methodConfigKey;
+	@Getter
+	final protected AnnotationMapperConfig customMethodConfig;
 
-	public DeclaredMethodSourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams, ExecutableElement method) {
+	public DeclaredMethodSourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams, ProcessingEnvironment processingEnv, ExecutableElement method) {
 		super(ownerClassInfo, methodApiParams);
 		this.method = method;
 		this.methodApiFullSyntax.getModifiers().addAll(method.getModifiers());
 		super.methodApiFullSyntax.getAnnotations().getOrAddAnnotation(Constants.annotationOverride);
+		this. methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method, ownerClassInfo), method, this);
+
+		////////////////////////////////////////////////////////
+		// 1)  Create MethodConfigKey
+		this.customMethodConfig = AnnotationValueUtils.resolveAnnotationMapperConfig(processingEnv, method);
+		if (customMethodConfig != null) {
+			methodConfigKey.setWithCustomConfig(true);
+			// if custom methods are here, we need to have MethodContextFeature
+		}
 	}
 
 	@Override
@@ -60,14 +74,6 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 	public void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv) {
 		if (!requiredMethods.isEmpty()) return;
 		if (methodApiFullSyntax.getReturnType() == null) return; // body will be empty
-
-		////////////////////////////////////////////////////////
-		// 1)  Create MethodConfigKey
-		methodConfigKey = new MethodConfigKey(ownerClassInfo.topMethodsRegistrator.registerTopMethod(method, ownerClassInfo), method, this);
-		MapperConfig methodConfig = method.getAnnotation(MapperConfig.class);
-		if (methodConfig != null) {
-			methodConfigKey.setWithCustomConfig(true);
-		}
 
 		////////////////////////////////////////////////////////
 		// 2)  analyze neccessary fields + return Type
@@ -88,7 +94,7 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 		for (int i = 0; i < numInputParams; i++) {
 
 			// 3a) Create methodApiKey
-			MethodCallApi methodCallApi = findOrCreateOwnMethod(processingEnv, null, inputParams.get(i).getVariableType(), varRet.getVariableType(), this.methodApiFullSyntax.isReturnLastParamRequired() || i > 0);
+			MethodCallApi methodCallApi = findOrCreateOwnMethod(processingEnv, methodConfigKey, null, inputParams.get(i).getVariableType(), varRet.getVariableType(), this.methodApiFullSyntax.isReturnLastParamRequired() || i > 0);
 
 			if (methodCallApi == null) {
 				throw new IllegalStateException("test");
@@ -119,6 +125,14 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
 	@Override
 	public boolean writeSourceCode(SourceGeneratorContext ctx) {
+		if (this.requiredMethods.size() == 1 && this.requiredMethods.get(0).getRowFieldGenerator()!=null) {
+			methodApiFullSyntax.getRequiredParams().get(0);
+			SimpleMethodApi_RowTransform_SourceInfo sourceInfo = new SimpleMethodApi_RowTransform_SourceInfo(ownerClassInfo, methodApiFullSyntax, this.requiredMethods.get(0).getRowFieldGenerator());
+			sourceInfo.writeSourceCode(ctx);
+//			ctx.pw.print("\nreturn " + this.requiredMethods.get(0).getRowFieldGenerator().generateRowTransform(ctx, sourceType, destinationType, methodApiFullSyntax.getRequiredParams().get(0).getVariableName()) + ";");
+			return true;
+		}
+
 		if (this.unwrapModeEnabled) return false;
 		return super.writeSourceCode(ctx);
 	}
@@ -216,32 +230,47 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
 	private boolean unwrapModeEnabled = false;
 	private boolean canUnwrapMethod(ProcessingEnvironment processingEnv) {
+//	    if (true) return false;
 		if (requiredMethods.size() != 1) return false;
 
 		MethodCallApi methodCallApi = requiredMethods.get(0);
-		if (methodCallApi.getOutGeneratedMethod() instanceof SimpleMethodApi_RowTransform_SourceInfo) {
-			return true;
-		}
+		if (methodCallApi.getRowFieldGenerator()!=null) return false;
+
+		if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) return false;
 
 		// ak Extended features are enabled !!!
 		if (ownerClassInfo.getFeatures().isRequiredInputWithMethodId()) return false;
 		if (ownerClassInfo.getFeatures().isRequiredInputWithContextData()) return false;
 		if (!ownerClassInfo.getFeatures().isDisabled_SHARED_CONTEXT_DATA_IN_SUB_MAPPER()) return false;
 		if (!ownerClassInfo.getFeatures().isDisabled_CYCLIC_MAPPING()) return false;
+		if (methodCallApi.getOutGeneratedMethod()==null) return false;
 
-		if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) return false;
+		// ak ApiKey su rozne
+		if (methodCallApi.getMethodSyntax() == null) return false;
+		if (!Objects.equals(this.methodApiFullSyntax.getApiKey(), methodCallApi.getMethodSyntax().getApiKey())) return false;
+
+		// return typ settings is different
+		if (this.methodApiFullSyntax.isReturnLastParamRequired() != methodCallApi.getMethodSyntax().isReturnLastParamRequired())
+			return false;
+
+		// if unwrapped methods has multiple variants or using!
+		if (methodCallApi.getOutGeneratedMethod().hasMultipleVariants(processingEnv)) return false;
+		if (methodCallApi.getOutGeneratedMethod() instanceof DeclaredMethodSourceInfo) {
+			if (!((DeclaredMethodSourceInfo)methodCallApi.getOutGeneratedMethod()).canUnwrapMethod(processingEnv)) return false;
+		}
+
 
 //        if (!Objects.equals(methodCallApi.getMethodSyntax().getApiKey(), this.methodApiFullSyntax.getApiKey()))
 //            return;//ApiKey is the same
 
-		if (this.methodApiFullSyntax.isReturnLastParamRequired() != methodCallApi.getMethodSyntax().isReturnLastParamRequired())
-			return false;
 
 		// unwrap =>
 		return true;
 	}
 
 	public void tryUnwrapMethods(ProcessingEnvironment processingEnv) {
+		if (this.requiredMethods.size() == 1 && this.requiredMethods.get(0).getRowFieldGenerator()!=null) return;
+
 		if (!canUnwrapMethod(processingEnv)) return;
 
 		this.unwrapModeEnabled = true;
@@ -254,18 +283,18 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 		methodCallApi.getMethodSyntax().getParams().clear();
 		methodCallApi.getMethodSyntax().getParams().addAll(methodApiFullSyntax.getParams());
 //        methodCallApi.getMethodSyntax().getParams().addAll(methodCallApi.getOutGeneratedMethod().getMethodApiFullSyntax().getParams());
-		if (methodCallApi.getMethodSyntax().isReturnLastParamRequired() != methodApiFullSyntax.isReturnLastParamRequired()) {
-			if (!methodCallApi.getMethodSyntax().isReturnLastParamRequired()) {
-				Iterator<TypeWithVariableInfo> iterator = methodCallApi.getMethodSyntax().getParams().iterator();
-				while (iterator.hasNext()) {
-					TypeWithVariableInfo next = iterator.next();
-					if (next.isMarkedAsReturn()) {
-						iterator.remove();
-						methodCallApi.getMethodSyntax().setReturnLastParam(false);
-						break;
-					}
-				}
-			}
-		}
+//		if (methodCallApi.getMethodSyntax().isReturnLastParamRequired() != methodApiFullSyntax.isReturnLastParamRequired()) {
+//			if (!methodCallApi.getMethodSyntax().isReturnLastParamRequired()) {
+//				Iterator<TypeWithVariableInfo> iterator = methodCallApi.getMethodSyntax().getParams().iterator();
+//				while (iterator.hasNext()) {
+//					TypeWithVariableInfo next = iterator.next();
+//					if (next.isMarkedAsReturn()) {
+//						iterator.remove();
+//						methodCallApi.getMethodSyntax().setReturnLastParam(false);
+//						break;
+//					}
+//				}
+//			}
+//		}
 	}
 }

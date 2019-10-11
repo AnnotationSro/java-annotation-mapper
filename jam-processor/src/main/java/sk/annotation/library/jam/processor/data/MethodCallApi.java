@@ -1,20 +1,36 @@
 package sk.annotation.library.jam.processor.data;
 
 import lombok.Data;
-import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
+import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
+import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 
-import java.util.*;
+import javax.lang.model.type.TypeMirror;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 @Data
 public class MethodCallApi {
 
-	private String pathToSyntax;
-	private MethodApiFullSyntax methodSyntax;
-	private AbstractMethodSourceInfo outGeneratedMethod;
+	private String pathToSyntax = null;
+	private MethodApiFullSyntax methodSyntax = null;
+	private AbstractMethodSourceInfo outGeneratedMethod = null;
 
+	private AbstractRowValueTransformator rowFieldGenerator = null;
+	private TypeMirror sourceType;
+	private TypeMirror destinationType;
+
+	public static MethodCallApi createFrom(TypeMirror sourceType, TypeMirror destinationType, AbstractRowValueTransformator rowFieldGenerator) {
+		MethodCallApi ret = new MethodCallApi();
+		ret.setRowFieldGenerator(rowFieldGenerator);
+		ret.setSourceType(sourceType);
+		ret.setDestinationType(destinationType);
+		return ret;
+	}
 	public static MethodCallApi createFrom(String path, MethodApiFullSyntax methodSyntax, AbstractMethodSourceInfo generatedMethodSource) {
+		if (path == null) path = "";
 		MethodCallApi ret = new MethodCallApi();
 		ret.setPathToSyntax(path);
 		ret.setMethodSyntax(methodSyntax);
@@ -62,6 +78,11 @@ public class MethodCallApi {
 		genSourceForCallWithStringParam(ctx, newMethodParams, newOtherVariables, method);
 	}
 	public void genSourceForCallWithStringParam(SourceGeneratorContext ctx, List<String> methodParams, List<TypeWithVariableInfo> otherVariables, AbstractMethodSourceInfo method) {
+		if (rowFieldGenerator!=null) {
+			ctx.pw.print(rowFieldGenerator.generateRowTransform(ctx, sourceType, destinationType, methodParams.get(0)));
+			return;
+		}
+
 		ctx.pw.print(pathToSyntax);
 		ctx.pw.print(methodSyntax.getName());
 		ctx.pw.print("(");

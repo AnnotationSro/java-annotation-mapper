@@ -10,7 +10,6 @@ import sk.annotation.library.jam.processor.data.confwrappers.FieldConfigurationR
 import sk.annotation.library.jam.processor.data.confwrappers.FieldMappingData;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
-import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
@@ -33,82 +32,75 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 	protected SortedSet<String> allKeys = new TreeSet<>();
 
 	@Override
+	public boolean hasMultipleVariants(ProcessingEnvironment processingEnv) {
+		return this.analyzedDataMap.size() > 1;
+	}
+
+	@Override
 	protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
 		if (this.analyzedDataMap.containsKey(forMethodConfig)) {
 			return;
 		}
 
-		try {
-			// If its already default
+		// if this is default call and default call is in analyzed data, we can stop immediate
 			if (!forMethodConfig.isWithCustomConfig()) {
 				for (MethodConfigKey methodConfigKey : this.analyzedDataMap.keySet()) {
-					if (!methodConfigKey.isWithCustomConfig()) return;
+					if (!methodConfigKey.isWithCustomConfig()) {
+						return;
+					}
 				}
 			}
 
 
-			// remember Source / Destination
-			List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
-			Type typeFrom = (Type) requiredParams.get(0).getVariableType().getType(null);
-			Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
+		// remember Source / Destination
+		List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
+		Type typeFrom = (Type) requiredParams.get(0).getVariableType().getType(null);
+		Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
 
-			/////////////////////////
-			// 1) Collect all information ...
-			FieldConfigurationResolver resolver = new FieldConfigurationResolver(processingEnv, ownerClassInfo, forMethodConfig);
-			List<FieldConfigurationResolver.ResolvedTransformation> transformGroups = resolver.findTransformationGroups(processingEnv, typeFrom, typeTo);
-			this.analyzedDataMap.put(forMethodConfig, transformGroups);
-
-			/////////////////////////
-			// 2) Check missing transformation methods ...
-			for (FieldConfigurationResolver.ResolvedTransformation group : transformGroups) {
-				registerInports(group.getPathFrom());
-				registerInports(group.getPathTo());
-
-
-				// Check transformation types
-				for (FieldMappingData fieldMapping : group.fieldMappingData) {
-					if (fieldMapping == null) continue;
-					if (fieldMapping.getSrc() == null) continue;
-					if (fieldMapping.getDst() == null) continue;
-
-					TypeMirror sourceType = fieldMapping.getSrc().getTypeOfGetter();
-					TypeMirror destinationType = fieldMapping.getDst().getTypeOfSetter();
-					if (sourceType == null) continue;
-					if (destinationType == null) continue;
-
-					// check for same type and if its primitive type
-//				if (!fieldMapping.isWithoutProblemOrNotIgnored()) {
-					AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType);
-					if (rowFieldGenerator != null) {
-						fieldMapping.setRowValueTransformator(rowFieldGenerator);
-						continue;
-					}
-//				}
-
-					if (!fieldMapping.isWithoutProblemOrNotIgnored()) continue;
-
-
-					// TODO: Complete this later
-					if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) {
-						processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "@FieldMapping: methodNameS2D or methodNameD2S are not supported yet (this cofiguration is ignored).");
-					}
-
-
-					// Create or call method !!!
-
-
-					fieldMapping.setMethodCallApi(findOrCreateOwnMethod(processingEnv, fieldMapping.getMethodNameRequired(), sourceType, destinationType));
-
-					if (fieldMapping.getMethodCallApi() != null && fieldMapping.getMethodCallApi().getOutGeneratedMethod() != null && canAccept(fieldMapping, forMethodConfig)) {
-						fieldMapping.getMethodCallApi().getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig, this);
-					}
-
-				}
-			}
+		/////////////////////////
+		// 1) Collect all information ...
+		FieldConfigurationResolver resolver = new FieldConfigurationResolver(processingEnv, ownerClassInfo, forMethodConfig);
+		List<FieldConfigurationResolver.ResolvedTransformation> transformGroups = resolver.findTransformationGroups(processingEnv, typeFrom, typeTo);
+		this.analyzedDataMap.put(forMethodConfig, transformGroups);
+		if (this.analyzedDataMap.size()>1) {
+			ownerClassInfo.getFeatures().setRequiredInputWithMethodId(true);
 		}
-		finally {
-			if (generatedBodyWithMultipleBehaviours()) {
-				ownerClassInfo.getFeatures().registerMethodWithMultipleBodyVariant(analyzedDataMap.keySet());
+
+		/////////////////////////
+		// 2) Check missing transformation methods ...
+		for (FieldConfigurationResolver.ResolvedTransformation group : transformGroups) {
+			registerInports(group.getPathFrom());
+			registerInports(group.getPathTo());
+
+
+			// Check transformation types
+			for (FieldMappingData fieldMapping : group.fieldMappingData) {
+				if (fieldMapping == null) continue;
+				if (fieldMapping.getSrc() == null) continue;
+				if (fieldMapping.getDst() == null) continue;
+
+				TypeMirror sourceType = fieldMapping.getSrc().getTypeOfGetter();
+				TypeMirror destinationType = fieldMapping.getDst().getTypeOfSetter();
+				if (sourceType == null) continue;
+				if (destinationType == null) continue;
+
+				// check for same type and if its primitive type
+				if (!fieldMapping.isWithoutProblemOrNotIgnored()) continue;
+
+
+				// TODO: Complete this later
+				if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) {
+					processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "@FieldMapping: methodNameS2D or methodNameD2S are not supported yet (this cofiguration is ignored).");
+				}
+
+
+				// Create or call method !!!
+				fieldMapping.setMethodCallApi(findOrCreateOwnMethod(processingEnv, forMethodConfig, fieldMapping.getMethodNameRequired(), sourceType, destinationType));
+
+				if (fieldMapping.getMethodCallApi() != null && fieldMapping.getMethodCallApi().getOutGeneratedMethod() != null && canAccept(fieldMapping, forMethodConfig)) {
+					fieldMapping.getMethodCallApi().getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig, this);
+				}
+
 			}
 		}
 	}
@@ -161,7 +153,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 
 		String methodContextValue = null;
-		if (generatedBodyWithMultipleBehaviours()) {
+		if (ownerClassInfo.getFeatures().isRequiredInputWithMethodId()) {
 			methodContextValue = this.varCtxMethodId.getVariableName();
 
 //			ctx.pw.print("\nint ");
@@ -176,7 +168,8 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		Collections.sort(methodConfigKeyList, new Comparator<MethodConfigKey>() {
 			private String getStringKey(MethodConfigKey o1) {
 				StringBuilder sb = new StringBuilder();
-				sb.append(o1.isWithCustomConfig() ? "a" : "z");
+//				sb.append(o1.isWithCustomConfig() ? "a" : "z");
+				sb.append(hasMultipleVariants(ctx.processingEnv) ? "a" : "z");
 				sb.append(o1.getForTopMethod());
 				return sb.toString();
 			}
@@ -196,7 +189,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			if (methodContextValue != null) cacheOfFoundPaths.clear();
 
 			if (methodContextValue != null) {
-				if (methodConfigKey.isWithCustomConfig()) {
+				if (hasMultipleVariants(ctx.processingEnv)) {
 					ctx.pw.print("\n\n// Copy Fields - for method custom configuration: ");
 					ctx.pw.print(methodConfigKey.getForTopMethod());
 				}
@@ -210,7 +203,8 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 				}
 				genElse = true;
 
-				if (methodConfigKey.isWithCustomConfig()) {
+//				if (methodConfigKey.isWithCustomConfig()) {
+				if (hasMultipleVariants(ctx.processingEnv)) {
 					ctx.pw.print("if (");
 					ctx.pw.print(methodContextValue);
 					ctx.pw.print(" == ");
@@ -263,7 +257,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		TypeMirror srcType = requiredParams.get(0).getVariableType().getType(ctx.processingEnv);
 		TypeMirror dstType = methodApiFullSyntax.getReturnType().getType(ctx.processingEnv);
 		List<MethodCallApi> interceptors = new LinkedList<>();
-		for (Map.Entry<MethodApiKey, MethodApiFullSyntax> entry : ownerClassInfo.getMyUsableMethods().entrySet()) {
+		for (Map.Entry<MethodApiKey, MethodApiFullSyntax> entry : ownerClassInfo.resolveMyUsableMethods(null).entrySet()) {
 			MethodApiKey methodApiKey = entry.getKey();
 			if (methodApiKey.isApiWithReturnType()) continue;
 			TypeMirror[] types = methodApiKey.getVisibleTypes();
@@ -366,12 +360,6 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		}
 
 		return variable;
-	}
-
-	protected boolean generatedBodyWithMultipleBehaviours() {
-		if (this.analyzedDataMap.size() < 2) return false;
-		// TODO : compare content !!!
-		return true;
 	}
 
 //	protected boolean canDoWithoutTransform(ProcessingEnvironment processingEnv, FieldMappingData fieldMapping) {

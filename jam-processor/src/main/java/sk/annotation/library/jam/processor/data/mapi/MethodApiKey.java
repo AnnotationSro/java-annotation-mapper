@@ -1,12 +1,15 @@
 package sk.annotation.library.jam.processor.data.mapi;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -30,8 +33,15 @@ public class MethodApiKey {
 		this.visibleStrTypes = transform(inputParams);
 	}
 
+    @Override
+    public String toString() {
+        return "MethodApiKey{" +
+                "visibleStrTypes=" + Arrays.toString(visibleStrTypes) +
+                ", apiWithReturnType=" + apiWithReturnType +
+                '}';
+    }
 
-	public MethodApiKey (TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
+    public MethodApiKey (TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
 		this(detectApiWithReturnType(returnType, inputParams), merge(returnType, inputParams));
 	}
 

@@ -37,7 +37,7 @@ public class JavaClassWriter implements SourceGenerator {
 			for (FieldInfo value : mapperClassInfo.fieldsToImplement) {
 				value.registerImports(processingEnv, imports);
 			}
-			for (AbstractMethodSourceInfo m : mapperClassInfo.getMethodsToImplement().values()) {
+			for (AbstractMethodSourceInfo m : mapperClassInfo.getMethodsToImplement()) {
 				m.registerImports(processingEnv, imports);
 			}
 
@@ -98,7 +98,7 @@ public class JavaClassWriter implements SourceGenerator {
 		}
 
 		// Generate Methods
-		for (AbstractMethodSourceInfo m : mapperClassInfo.getMethodsToImplement().values()) {
+		for (AbstractMethodSourceInfo m : mapperClassInfo.getMethodsToImplement()) {
 			if (m.writeSourceCode(ctx)) {
 				ctx.pw.printNewLine();
 			}

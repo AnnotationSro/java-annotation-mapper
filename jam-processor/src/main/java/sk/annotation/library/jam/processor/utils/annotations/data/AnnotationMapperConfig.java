@@ -18,4 +18,5 @@ public class AnnotationMapperConfig {
 	final private List<AnnotationFieldIgnore> fieldIgnore = new LinkedList<>();
 	final private List<AnnotationConfigGenerator> config = new LinkedList<>();
 	final private List<Type> immutable = new LinkedList<>();
+	final private List<Type> withCustom = new LinkedList<>();
 }

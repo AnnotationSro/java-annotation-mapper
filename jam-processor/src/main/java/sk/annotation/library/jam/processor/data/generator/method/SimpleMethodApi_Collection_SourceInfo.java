@@ -6,7 +6,6 @@ import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
-import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
@@ -24,7 +23,6 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
     }
 
 
-    private AbstractRowValueTransformator rowFieldGenerator = null;
     private MethodCallApi methodCallApi = null;
     private TypeConstructorInfo listConstructorType = null;
     private boolean analyzeRequired = true;
@@ -50,11 +48,8 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
 			srcType = srcTypeList.get(0);
 			dstType = dstTypeList.get(0);
 
-			rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, srcType, dstType);
-			if (rowFieldGenerator == null) {
-				/* Maybe it will be needed to find out context of this method */
-				methodCallApi = findOrCreateOwnMethod(processingEnv, null, srcType, dstType);
-			}
+            /* Maybe it will be needed to find out context of this method */
+            methodCallApi = findOrCreateOwnMethod(processingEnv, forMethodConfig, null, srcType, dstType);
         }
 
         // call reference for type ...
@@ -119,10 +114,7 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
         ctx.pw.print(dstVarName);
         ctx.pw.print(".add(");
 
-        if (rowFieldGenerator!=null) {
-			ctx.pw.print(rowFieldGenerator.generateRowTransform(ctx, srcType, dstType, name));
-		}
-        else if (methodCallApi != null) {
+        if (methodCallApi != null) {
             List<String> params = new ArrayList<>(2);
             params.add(name);
             params.add("null");

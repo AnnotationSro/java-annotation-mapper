@@ -2,7 +2,6 @@ package sk.annotation.library.jam.processor.utils;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Types;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
@@ -184,11 +183,17 @@ abstract public class TypeUtils {
             case BOOLEAN:
                 return "false";
             case INT:
+            case SHORT:
             case LONG:
                 return "0";
             case FLOAT:
+                return "0.0f";
             case DOUBLE:
                 return "0.0";
+            case BYTE:
+                return "(byte) 0";
+            case CHAR:
+                return "'0'";
         }
 
         throw new IllegalStateException("Nemapovany typ " + type);

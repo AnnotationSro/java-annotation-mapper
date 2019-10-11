@@ -1,11 +1,14 @@
 package sk.annotation.library.jam.example.ex14;
 
+import sk.annotation.library.jam.annotations.DisableMapperFeature;
 import sk.annotation.library.jam.annotations.Mapper;
+import sk.annotation.library.jam.annotations.enums.MapperFeature;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mapper
+@DisableMapperFeature(MapperFeature.ALL)
 public interface SimpleTypesMapper {
 	boolean t1(Boolean obj);
 	byte t2(Byte obj);

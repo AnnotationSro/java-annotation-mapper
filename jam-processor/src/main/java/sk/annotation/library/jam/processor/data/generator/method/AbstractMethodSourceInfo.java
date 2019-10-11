@@ -43,10 +43,17 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
     }
 
+    final private Set<MethodApiFullSyntax> usedByMethods = new HashSet<>();
     final protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig, AbstractMethodSourceInfo parentMethod) {
+        if (parentMethod!=null && parentMethod.getMethodApiFullSyntax()!=null) {
+            usedByMethods.add(parentMethod.methodApiFullSyntax);
+        }
     	analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
 	}
     abstract protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig);
+    public boolean hasMultipleVariants(ProcessingEnvironment processingEnv) {
+        return false;
+    }
 
     @Getter
     protected TypeWithVariableInfo varCtxVariable;
@@ -181,7 +188,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
     protected void writeConstructor(SourceGeneratorContext ctx, TypeWithVariableInfo field) {
         MethodApiKey constructorApiKey = new MethodApiKey(field.getVariableType(), Collections.emptyList());
-        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(constructorApiKey);
+        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(constructorApiKey,null /*TODO: This constructore has to be created during analyzes */);
         if (methodCallApi != null) {
             if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) {
                 ctx.pw.print(methodCallApi.getPathToSyntax());
@@ -246,15 +253,15 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
     }
 
 
-    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
-        return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType, destinationType, this.methodApiFullSyntax.isReturnLastParamRequired());
+    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType) {
+        return findOrCreateOwnMethod(processingEnv, forMethodConfig, requiredMethodName, sourceType, destinationType, this.methodApiFullSyntax.isReturnLastParamRequired());
     }
 
-    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeInfo sourceType, TypeInfo destinationType, boolean returnLastParamRequired) {
-        return findOrCreateOwnMethod(processingEnv, requiredMethodName, sourceType.getType(processingEnv), destinationType.getType(processingEnv), returnLastParamRequired);
+    protected MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig, String requiredMethodName, TypeInfo sourceType, TypeInfo destinationType, boolean returnLastParamRequired) {
+        return findOrCreateOwnMethod(processingEnv, forMethodConfig, requiredMethodName, sourceType.getType(processingEnv), destinationType.getType(processingEnv), returnLastParamRequired);
     }
 
-    private MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType, boolean returnLastParamRequired) {
+    private MethodCallApi findOrCreateOwnMethod(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig, String requiredMethodName, TypeMirror sourceType, TypeMirror destinationType, boolean returnLastParamRequired) {
 
         // Create transform value
         TypeInfo inType = new TypeInfo(sourceType);
@@ -273,7 +280,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
 
         // We search for method here, but if it doesnt exist, we create our own version
-        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey);
+        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey, forMethodConfig);
         if (methodCallApi != null) {
             if (returnLastParamRequired && methodCallApi.getMethodSyntax() != null) {
                 methodCallApi.getMethodSyntax().setReturnLastParamRequired(true);
@@ -284,6 +291,10 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             return methodCallApi;
         }
 
+        AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType);
+        if (rowFieldGenerator!=null) {
+            return MethodCallApi.createFrom(sourceType, destinationType, rowFieldGenerator);
+        }
 
         // We create our own mapper for method
         String subMethodName = ownerClassInfo.findBestNewMethodName_transformFromTo(processingEnv, transformApiKey);

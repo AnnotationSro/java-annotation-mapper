@@ -1,7 +1,6 @@
 package sk.annotation.library.jam.processor.utils.annotations;
 
 import com.sun.tools.javac.code.Type;
-import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.annotations.enums.IgnoreType;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
@@ -18,7 +17,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.util.Collections;
@@ -30,8 +28,7 @@ import static sk.annotation.library.jam.processor.utils.annotations.AnnotationVa
 
 
 abstract public class AnnotationValueUtils {
-
-    public static List<AnnotationMapperConfig> resolveMapperConfigData(ProcessingEnvironment processingEnv, ExecutableElement method) {
+    public static List<AnnotationMapperConfig> resolveMapperConfigData(ProcessingEnvironment processingEnv, Element method) {
         List<AnnotationMapperConfig> ret = new LinkedList<>();
 
         ElementUtils.findAllElementsWithAnnotationsInStructure(processingEnv, method, e -> {
@@ -43,13 +40,7 @@ abstract public class AnnotationValueUtils {
         return ret;
     }
 
-    public static List<Type> findWithCustomClasses(ProcessingEnvironment processingEnv, Element element) {
-        Map<String, AnnotationValue> annotationValueMap = getAnnotationValues(processingEnv, element, Mapper.class);
-        if (annotationValueMap == null) return Collections.emptyList();
-        return getAnnotationValue_ClassList(processingEnv, annotationValueMap.get("withCustom"));
-    }
-
-    static private AnnotationMapperConfig resolveAnnotationMapperConfig(ProcessingEnvironment processingEnv, Element element) {
+    static public AnnotationMapperConfig resolveAnnotationMapperConfig(ProcessingEnvironment processingEnv, Element element) {
         if (element == null) return null;
 
         AnnotationMirror annotationMirror = findAnnotationMirror(processingEnv, element, MapperConfig.class);
@@ -63,6 +54,7 @@ abstract public class AnnotationValueUtils {
         annotationMapperConfig.setType(TypeConfig.findTypeOrException(element));
 
         annotationMapperConfig.getImmutable().addAll(getAnnotationValue_ClassList(processingEnv, valuesWithDefaults.get("immutable")));
+        annotationMapperConfig.getWithCustom().addAll(getAnnotationValue_ClassList(processingEnv, valuesWithDefaults.get("withCustom")));
 
         for (Map<String, AnnotationValue> configMap : AnnotationValueExtractUtil.getAnnotationValue_innerValueMapList(processingEnv, valuesWithDefaults.get("config"))) {
 
@@ -144,20 +136,8 @@ abstract public class AnnotationValueUtils {
     }
 
 
-    public static List<AnnotationMapperConfig> getMapperConfig(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo) {
-        List<AnnotationMapperConfig> ret = new LinkedList<>();
-
-        ElementUtils.findAllElementsWithAnnotationsInStructure(processingEnv, ownerClassInfo.getParentElement(), e -> {
-            AnnotationMapperConfig annotationMapperConfig = resolveAnnotationMapperConfig(processingEnv, e);
-            if (annotationMapperConfig != null) ret.add(annotationMapperConfig);
-            return false;
-        });
-
-        return ret;
-    }
-
     public static boolean isConfiguredAsImmutableType(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, TypeMirror type) {
-        for (AnnotationMapperConfig annotationMapperConfig : getMapperConfig(processingEnv, ownerClassInfo)) {
+        for (AnnotationMapperConfig annotationMapperConfig : resolveMapperConfigData(processingEnv, ownerClassInfo.parentElement)) {
             for (Type anotationTypeValue : annotationMapperConfig.getImmutable()) {
                 if (TypeUtils.isSame(processingEnv, type, anotationTypeValue)) return true;
             }

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Target({})
 public @interface FieldIgnore {
 	Class[] types() default {};
-	String[] packages() default {};
+	String[] 	packages() default {};
 	String[] value();
 	IgnoreType ignored() default IgnoreType.IGNORE_ALL;
 }

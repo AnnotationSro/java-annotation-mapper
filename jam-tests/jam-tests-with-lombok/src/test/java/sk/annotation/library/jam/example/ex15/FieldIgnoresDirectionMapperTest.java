@@ -86,36 +86,36 @@ public class FieldIgnoresDirectionMapperTest {
 
 		if ("clone2a1".equals(methodName)) {
 			Function<Data2, Data1> clone2a1 = mapper1::clone2a1;
-			ret.add(createDynamicTestIn("public Data1 mapper1.clone2a1(Data2 in) - field " + destinationField, creator, (Function) clone2a1, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data1 mapper1.clone2a1(Data2 in) - field " + destinationField, creator, (Function) clone2a1, getterDestField, getterSourceField, sourceField));
 			clone2a1 = mapper2::clone2a1;
-			ret.add(createDynamicTestIn("public Data1 mapper2.clone2a1(Data2 in) - field " + destinationField, creator, (Function) clone2a1, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data1 mapper2.clone2a1(Data2 in) - field " + destinationField, creator, (Function) clone2a1, getterDestField, getterSourceField, sourceField));
 			return;
 		}
 		if ("clone1a2".equals(methodName)) {
 			Function<Data1, Data2> clone1a2 = mapper1::clone1a2;
-			ret.add(createDynamicTestIn("public Data2 mapper1.clone1a2(Data1 in) - field " + destinationField, creator, (Function) clone1a2, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data2 mapper1.clone1a2(Data1 in) - field " + destinationField, creator, (Function) clone1a2, getterDestField, getterSourceField, sourceField));
 			clone1a2 = mapper2::clone1a2;
-			ret.add(createDynamicTestIn("public Data2 mapper2.clone1a2(Data1 in) - field " + destinationField, creator, (Function) clone1a2, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data2 mapper2.clone1a2(Data1 in) - field " + destinationField, creator, (Function) clone1a2, getterDestField, getterSourceField, sourceField));
 			return;
 		}
 		if ("clone2b1".equals(methodName)) {
 			Function<Data2, Data1> clone2b1 = mapper1::clone2b1;
-			ret.add(createDynamicTestIn("public Data1 mapper1.clone2b1(Data2 in) - field " + destinationField, creator, (Function) clone2b1, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data1 mapper1.clone2b1(Data2 in) - field " + destinationField, creator, (Function) clone2b1, getterDestField, getterSourceField, sourceField));
 			clone2b1 = mapper2::clone2b1;
-			ret.add(createDynamicTestIn("public Data1 mapper2.clone2b1(Data2 in) - field " + destinationField, creator, (Function) clone2b1, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data1 mapper2.clone2b1(Data2 in) - field " + destinationField, creator, (Function) clone2b1, getterDestField, getterSourceField, sourceField));
 			return;
 		}
 		if ("clone1b2".equals(methodName)) {
 			Function<Data1, Data2> clone1b2 = mapper1::clone1b2;
-			ret.add(createDynamicTestIn("public Data2 mapper1.clone1b2(Data1 in) - field " + destinationField, creator, (Function) clone1b2, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data2 mapper1.clone1b2(Data1 in) - field " + destinationField, creator, (Function) clone1b2, getterDestField, getterSourceField, sourceField));
 			clone1b2 = mapper2::clone1b2;
-			ret.add(createDynamicTestIn("public Data2 mapper2.clone1b2(Data1 in) - field " + destinationField, creator, (Function) clone1b2, getterDestField, getterSourceField));
+			ret.add(createDynamicTestIn("public Data2 mapper2.clone1b2(Data1 in) - field " + destinationField, creator, (Function) clone1b2, getterDestField, getterSourceField, sourceField));
 			return;
 		}
 		throw new IllegalStateException("Unknown method");
 	}
-	protected <T extends AbstractData,F extends AbstractData> DynamicTest createDynamicTestIn(String name, Supplier<T> creator, Function<T,F> mapper, Function<AbstractData,Object> getterDst, Function<AbstractData,Object> getterSrc) {
-		return DynamicTest.dynamicTest(name + (getterSrc==null ? " - IGNORED" : " - MAPPED"), () -> {
+	protected <T extends AbstractData,F extends AbstractData> DynamicTest createDynamicTestIn(String name, Supplier<T> creator, Function<T,F> mapper, Function<AbstractData,Object> getterDst, Function<AbstractData,Object> getterSrc, String getterSrcProperty) {
+		return DynamicTest.dynamicTest(name + (getterSrc==null ? " - IGNORED" : " - MAPPED from " + getterSrcProperty ), () -> {
 			T in = creator.get();
 			assertNotNull(in);
 			F out = mapper.apply(in);

@@ -47,15 +47,8 @@ public class SimpleMethodApi_Map_SourceInfo extends AbstractMethodSourceInfo {
             srcTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getRequiredParams().get(0).getVariableType().getType(processingEnv));
             if (dstTypeList != null && srcTypeList != null && dstTypeList.size() == 2 && srcTypeList.size() == 2) {
                 /* Maybe it will be needed to find out context of this method */
-				rowFieldGeneratorForKeys = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, srcTypeList.get(0), dstTypeList.get(0));
-				if (rowFieldGeneratorForKeys == null) {
-					methodCallApiKeys = findOrCreateOwnMethod(processingEnv, null, srcTypeList.get(0), dstTypeList.get(0));
-				}
-
-				rowFieldGeneratorForValues = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, srcTypeList.get(1), dstTypeList.get(1));
-				if (rowFieldGeneratorForValues == null) {
-					methodCallApiValues = findOrCreateOwnMethod(processingEnv, null, srcTypeList.get(1), dstTypeList.get(1));
-				}
+                methodCallApiKeys = findOrCreateOwnMethod(processingEnv, forMethodConfig, null, srcTypeList.get(0), dstTypeList.get(0));
+                methodCallApiValues = findOrCreateOwnMethod(processingEnv, forMethodConfig, null, srcTypeList.get(1), dstTypeList.get(1));
             }
         }
 

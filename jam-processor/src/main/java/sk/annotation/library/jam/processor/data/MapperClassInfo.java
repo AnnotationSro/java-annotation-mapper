@@ -5,15 +5,16 @@ import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.annotations.Mapper;
-import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.data.generator.method.DeclaredMethodSourceInfo;
+import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.utils.*;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
+import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
 import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -34,7 +35,7 @@ public class MapperClassInfo {
 
     private String fullClassName;
     private String simpleClassName;
-    final List<MapperConfig> classAndPackageConfigurations;
+    final List<AnnotationMapperConfig> classAndPackageConfigurations;
 
     static public MapperClassInfo getOrCreate(ProcessingEnvironment processingEnv, TypeElement element) {
         String fullNamePath = ElementUtils.getQualifiedName(element);
@@ -94,9 +95,7 @@ public class MapperClassInfo {
             mapperModifiers.add(Modifier.DEFAULT);
 
         // Configuration ...
-
-        classAndPackageConfigurations = ElementUtils.findAllAnnotationsInStructure(processingEnv, element, MapperConfig.class);
-
+        classAndPackageConfigurations = AnnotationValueUtils.resolveMapperConfigData(processingEnv, element);
 
         // Annotations ...
         generateAnnotations = new AnnotationsInfo()
@@ -118,10 +117,10 @@ public class MapperClassInfo {
             usedNames.add(method.getSimpleName().toString());
         }
         // Custom fields from API
-        AnnotationsInfo fieldInjectionAnnotations = IoCUtils.getFieldAnnotationType(processingEnv, parentElement, null);
-        registerCustomFields(processingEnv, fieldInjectionAnnotations, element);
-        for (ExecutableElement method : allMethods) {
-            registerCustomFields(processingEnv, fieldInjectionAnnotations, method);
+        if (classAndPackageConfigurations!=null && !classAndPackageConfigurations.isEmpty()) {
+            for (AnnotationMapperConfig classAndPackageConfiguration : classAndPackageConfigurations) {
+                registerCustomFields(processingEnv, classAndPackageConfiguration.getWithCustom());
+            }
         }
 
         // Analyze customClass and fields
@@ -143,16 +142,15 @@ public class MapperClassInfo {
 		///////////////////////////////////////
         // clearing unnecessary params
 		// if it is possible, delete context params from generated methods
-
         if (!getFeatures().isRequiredInputWithMethodId()) {
-			for (AbstractMethodSourceInfo value : this.methodsToImplement.values()) {
+			for (AbstractMethodSourceInfo value : this.methodsToImplement) {
 				value.getMethodApiFullSyntax().getParams().remove(Constants.methodParamInfo_ctxForMethodId);
 			}
             topMethodsRegistrator.constanctsForTopMethods.clear();
         }
 
 		if (!getFeatures().isRequiredInputWithContextData()) {
-			for (AbstractMethodSourceInfo value : this.methodsToImplement.values()) {
+			for (AbstractMethodSourceInfo value : this.methodsToImplement) {
 				value.getMethodApiFullSyntax().getParams().remove(Constants.methodParamInfo_ctxForRunData);
 			}
 		}
@@ -162,6 +160,13 @@ public class MapperClassInfo {
             analyzedMethodSourceInfo.tryUnwrapMethods(processingEnv);
         }
 
+        // clear unused custom fields
+        List<FieldInfo> notUsedFields = new LinkedList<>();
+        for (FieldInfo fieldInfo : this.fieldsToImplement) {
+            if (this.usedField.contains(fieldInfo.getName())) continue;
+            notUsedFields.add(fieldInfo);
+        }
+        fieldsToImplement.removeAll(notUsedFields);
 
 
 //		//////////////////////////////
@@ -175,13 +180,17 @@ public class MapperClassInfo {
     }
 
 
-    private void registerCustomFields(ProcessingEnvironment processingEnv, AnnotationsInfo fieldInjectionAnnotations, Element element) {
-        List<Type> values = AnnotationValueUtils.findWithCustomClasses(processingEnv, element);
+    private void registerCustomFields(ProcessingEnvironment processingEnv, List<Type> values) {
+        registerCustomFields(processingEnv, values, null);
+    }
+    private void registerCustomFields(ProcessingEnvironment processingEnv, List<Type> values, MethodConfigKey topMmethodConfigKey) {
         if (values == null || values.isEmpty()) return;
 
+        AnnotationsInfo fieldInjectionAnnotations = IoCUtils.getFieldAnnotationType(processingEnv, parentElement, null);
         for (Type fieldType : values) {
             for (Type existFieldValue : allFieldsTypes.values()) {
                 if (processingEnv.getTypeUtils().isSameType(existFieldValue, fieldType)) continue; // already exists
+                if (processingEnv.getTypeUtils().isSameType(existFieldValue, parentElement.asType())) continue; // already exists
             }
 
             // Try name
@@ -192,7 +201,7 @@ public class MapperClassInfo {
             fieldsToImplement.add(new FieldInfo(fieldName, new TypeInfo(fieldType)).withInjections(fieldInjectionAnnotations));
             List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, fieldType);
             if (methods == null || methods.isEmpty()) return;
-            registerApiForPath(processingEnv, fieldName, fieldType, methods);
+            registerApiForPath(processingEnv, fieldName, fieldType, methods, topMmethodConfigKey);
         }
     }
 
@@ -207,10 +216,10 @@ public class MapperClassInfo {
         allFieldsTypes.put(field.getSimpleName().toString(), type);
         List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, type);
         if (methods == null || methods.isEmpty()) return;
-        registerApiForPath(processingEnv, field.getSimpleName().toString(), type, methods);
+        registerApiForPath(processingEnv, field.getSimpleName().toString(), type, methods, null);
     }
 
-    private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, Type fieldType, List<ExecutableElement> executableElements) {
+    private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, Type fieldType, List<ExecutableElement> executableElements, MethodConfigKey topMmethodConfigKey) {
 
         // we need to find out, what can be given field used for
         for (ExecutableElement method : executableElements) {
@@ -224,16 +233,28 @@ public class MapperClassInfo {
             }
             if (methodSyntax.getReturnType() == null) continue;
 
-            extUsableMethods.computeIfAbsent(pathApi, a -> new HashMap<>()).put(methodSyntax.getApiKey(), methodSyntax);
+            resolveExtUsableMethods(topMmethodConfigKey)
+                    .computeIfAbsent(pathApi, a -> new HashMap<>()).put(methodSyntax.getApiKey(), methodSyntax);
         }
     }
 
 
+
+
+    private Map<String, Map<MethodApiKey, MethodApiFullSyntax>> _myUsableMethods = new LinkedHashMap<>();
+    public Map<MethodApiKey, MethodApiFullSyntax> resolveMyUsableMethods(MethodConfigKey topMmethodConfigKey) {
+        return _myUsableMethods.
+                computeIfAbsent(topMmethodConfigKey==null ? "*" : topMmethodConfigKey.getForTopMethod(), a -> new HashMap<>());
+    }
+
+    private Map<String, Map<String, Map<MethodApiKey, MethodApiFullSyntax>>> _extUsableMethods = new LinkedHashMap<>();
+    private Map<String, Map<MethodApiKey, MethodApiFullSyntax>> resolveExtUsableMethods(MethodConfigKey topMmethodConfigKey) {
+        return _extUsableMethods
+                .computeIfAbsent(topMmethodConfigKey==null ? "*" : topMmethodConfigKey.getForTopMethod(), a -> new HashMap<>());
+    }
+
     @Getter
-    private Map<MethodApiKey, MethodApiFullSyntax> myUsableMethods = new LinkedHashMap<>();
-    private Map<String, Map<MethodApiKey, MethodApiFullSyntax>> extUsableMethods = new LinkedHashMap<>();
-    @Getter
-    private Map<MethodApiFullSyntax, AbstractMethodSourceInfo> methodsToImplement = new LinkedHashMap<>();
+    private List<AbstractMethodSourceInfo> methodsToImplement = new LinkedList<>();
     private List<DeclaredMethodSourceInfo> topMethods = new LinkedList<>();
 
     public String findBestNewMethodName_transformFromTo(ProcessingEnvironment processingEnv, MethodApiKey transformApiKey) {
@@ -264,45 +285,60 @@ public class MapperClassInfo {
         return NameUtils.findBestName(usedNames, sb.toString());
     }
 
-    public String findBestNewMethodName(ProcessingEnvironment processingEnv, String newExpectedName, List<TypeWithVariableInfo> nexExpectedParams) {
-        return NameUtils.findBestName(usedNames, newExpectedName);
-    }
-
     @Getter
     private Set<String> usedField = new HashSet<>();
 
-    public MethodCallApi findMethodApiToCall(MethodApiKey apiKey) {
+    public MethodCallApi findMethodApiToCall(MethodApiKey _apiKey, MethodConfigKey topMethodConfigKey) {
         // only visible method can by called !!!
 
-        MethodApiKey altApiKey = MethodApiKey.createWithoutReturnTypeInParam(apiKey);
-
-        String path = "";
-        MethodApiFullSyntax myMethod = myUsableMethods.get(apiKey);
-        if (myMethod == null && altApiKey != null) {
-            myMethod = myUsableMethods.get(altApiKey);
+        List<MethodApiKey> tryFindApiKeys = new ArrayList<>(2);
+        tryFindApiKeys.add(_apiKey);
+        if (_apiKey.isApiWithReturnType()) {
+            tryFindApiKeys.add(MethodApiKey.createWithoutReturnTypeInParam(_apiKey));
         }
-        if (myMethod == null) {
-            for (Map.Entry<String, Map<MethodApiKey, MethodApiFullSyntax>> e : extUsableMethods.entrySet()) {
-                myMethod = e.getValue().get(apiKey);
-                if (myMethod == null && altApiKey != null) {
-                    myMethod = e.getValue().get(altApiKey);
+
+        List<MethodConfigKey> methodConfigKeyList = new ArrayList<>(2);
+        methodConfigKeyList.add(topMethodConfigKey);
+        if (topMethodConfigKey!=null) methodConfigKeyList.add(null);
+
+        MethodApiFullSyntax myMethod = null;
+        for (MethodConfigKey methodConfigKey : methodConfigKeyList) {
+            Map<MethodApiKey, MethodApiFullSyntax> myUsableMethods = resolveMyUsableMethods(methodConfigKey);
+
+            for (MethodApiKey apiKey : tryFindApiKeys) {
+                myMethod = myUsableMethods.get(apiKey);
+                if (myMethod!=null) {
+                    for (AbstractMethodSourceInfo abstractMethodSourceInfo : methodsToImplement) {
+                        if (Objects.equals(abstractMethodSourceInfo.getMethodApiFullSyntax().getApiKey(), apiKey)) {
+                            return MethodCallApi.createFrom("", myMethod, abstractMethodSourceInfo);
+                        }
+                    }
+
+                    // Generated method is not found
+                    return MethodCallApi.createFrom("", myMethod, null);
                 }
-                if (myMethod != null) {
-                    path = e.getKey() + ".";
-                    usedField.add(e.getKey());
-                    break;
+            }
+
+            Map<String, Map<MethodApiKey, MethodApiFullSyntax>> extUsableMethods = resolveExtUsableMethods(methodConfigKey);
+            for (Map.Entry<String, Map<MethodApiKey, MethodApiFullSyntax>> e : extUsableMethods.entrySet()) {
+                for (MethodApiKey apiKey : tryFindApiKeys) {
+                    myMethod = e.getValue().get(apiKey);
+                    if (myMethod != null) {
+                        usedField.add(e.getKey());
+                        return MethodCallApi.createFrom(e.getKey() + ".", myMethod, null);
+                    }
                 }
             }
         }
-        if (myMethod == null) return null;
-
-        return MethodCallApi.createFrom(path, myMethod, methodsToImplement.get(myMethod));
+//        if (myMethod == null) return null;
+//        return MethodCallApi.createFrom(path, myMethod, methodsToImplement.get(myMethod));
+        return null;
     }
 
     public MethodCallApi registerNewGeneratedMethod(AbstractMethodSourceInfo methodSourceInfo) {
         MethodApiFullSyntax syntax = methodSourceInfo.getMethodApiFullSyntax();
-        methodsToImplement.put(syntax, methodSourceInfo);
-        myUsableMethods.put(syntax.getApiKey(), syntax);
+        methodsToImplement.add(methodSourceInfo);
+        resolveMyUsableMethods(null).put(syntax.getApiKey(), syntax);
         usedNames.add(syntax.getName());
 
         return MethodCallApi.createFrom(methodSourceInfo);
@@ -319,14 +355,19 @@ public class MapperClassInfo {
 
         if (ApiUtil.canImplementMethod(this.parentTypeAsAbstractClass, method)) {
             // register implementation
-            DeclaredMethodSourceInfo methodSourceInfo = new DeclaredMethodSourceInfo(this, methodSyntax, method);
-            methodsToImplement.put(methodSyntax, methodSourceInfo);
+            DeclaredMethodSourceInfo methodSourceInfo = new DeclaredMethodSourceInfo(this, methodSyntax, processingEnv, method);
+            methodsToImplement.add(methodSourceInfo);
             topMethods.add(methodSourceInfo);
+
+            // Register all custom types for this method
+            if (methodSourceInfo.getCustomMethodConfig()!=null && !methodSourceInfo.getCustomMethodConfig().getWithCustom().isEmpty()) {
+                registerCustomFields(processingEnv, methodSourceInfo.getCustomMethodConfig().getWithCustom(), methodSourceInfo.getMethodConfigKey());
+            }
         }
         // only not implemented method can be used (implemented method is wrapped and always allowed for use)
         else if (!ApiUtil.ignoreUsing(true, method)) {
             // register possible using
-            myUsableMethods.put(methodSyntax.getApiKey(), methodSyntax);
+            resolveMyUsableMethods(null).put(methodSyntax.getApiKey(), methodSyntax);
         }
 
     }

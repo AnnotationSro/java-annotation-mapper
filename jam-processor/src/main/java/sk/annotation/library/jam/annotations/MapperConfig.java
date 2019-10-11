@@ -13,4 +13,5 @@ public @interface MapperConfig {
 
 	ConfigGenerator[] config() default {};
     Class[] immutable() default {};
+	Class[] withCustom() default {};
 }

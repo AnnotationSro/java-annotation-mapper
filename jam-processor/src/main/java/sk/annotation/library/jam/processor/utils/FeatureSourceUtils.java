@@ -6,9 +6,11 @@ import sk.annotation.library.jam.annotations.enums.MapperFeature;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
-import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /*
  * methodId -> different body methods => isRequiredInputWithMethodId() - che
@@ -44,13 +46,12 @@ public class FeatureSourceUtils {
 
 	////////////////////////////////////////////////////////////////////////////
 	// 1) Analyze inputs for isRequiredInputWithMethodId()
-	private Set<MethodConfigKey> _methodsWithRequiredContextId = new HashSet<>();
-	public void registerMethodWithMultipleBodyVariant(Collection<MethodConfigKey> methodConfigKeySet) {
-		if (methodConfigKeySet == null) return;
-		this._methodsWithRequiredContextId.addAll(methodConfigKeySet);
+	private boolean requiredInputWithMethodId = false;
+	public void setRequiredInputWithMethodId(boolean requiredInputWithMethodId) {
+		if (requiredInputWithMethodId) this.requiredInputWithMethodId = true;
 	}
 	public boolean isRequiredInputWithMethodId() {
-		return !_methodsWithRequiredContextId.isEmpty();
+		return requiredInputWithMethodId;
 	}
 
 	////////////////////////////////////////////////////////////////////////////
