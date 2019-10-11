@@ -12,8 +12,8 @@ public class UseOtherMapperTest {
     public void testMapper1() {
         UseOtherMapperJAMImpl m = new UseOtherMapperJAMImpl();
         m.setOhterMapper1(new OhterMapper1());
-        m.setOhterMapper2(new OhterMapper2());
-        m.setOhterMapper3(new OhterMapper3());
+        m.setOtherMapper2(new OhterMapper2());
+        m.setOtherMapper3(new OhterMapper3());
         m.setOhterMapper4(new OhterMapper4());
         assertEquals("1:OhterMapper1", m.intToStr(1));
         assertEquals("2:OhterMapper2", m.longToStr(2L));
