@@ -138,7 +138,9 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 				}
 			}
 
-			return new MethodApiFullSyntax(processingEnv, name, returnType, params, true);
+			MethodApiFullSyntax val = new MethodApiFullSyntax(processingEnv, name, returnType, params, true);
+//			val.getApiKey().methodType = methodType; // cannot use - can by problem later
+			return val;
 		}
 		catch (Exception e) {
 			e.printStackTrace();

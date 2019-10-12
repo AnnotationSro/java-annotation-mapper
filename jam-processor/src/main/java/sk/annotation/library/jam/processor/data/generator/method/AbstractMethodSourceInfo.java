@@ -20,9 +20,11 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.NameUtils;
+import sk.annotation.library.jam.processor.utils.TypeMethodUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
@@ -145,9 +147,17 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
     }
 
     protected void writeSourceCodeBodyReturn(SourceGeneratorContext ctx) {
+        if (varRet!=null) {
+            List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
+            if (requiredParams.size() > 0) {
+                writeInterceptors(ctx, requiredParams.get(0), varRet);
+            }
+        }
+
         if (methodApiFullSyntax.getReturnType() != null) {
             ctx.pw.print("\nreturn " + varRet.getVariableName() + ";");
         }
+
     }
 
     protected void writeSourceInstanceCacheLoad(SourceGeneratorContext ctx, TypeWithVariableInfo input, TypeWithVariableInfo varRet) {
@@ -186,9 +196,47 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
     }
 
+    protected void writeInterceptors(SourceGeneratorContext ctx, TypeWithVariableInfo varSrc, TypeWithVariableInfo varRet) {
+        if (varSrc == null || varRet == null) return;
+
+        // Find all interceptors
+        TypeMirror srcType = varSrc.getVariableType().getType(ctx.processingEnv);
+        TypeMirror dstType = varRet.getVariableType().getType(ctx.processingEnv);
+
+
+        List<MethodCallApi> interceptors = new LinkedList<>();
+        for (MethodApiFullSyntax methodApiFullSyntax : ownerClassInfo.resolveMyUsableMethods(null)) {
+            MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
+            if (methodApiKey.isApiWithReturnType()) continue;
+
+            ExecutableType testMethodType = methodApiKey.createMethodExecutableType(ctx.processingEnv, ownerClassInfo.parentElement);
+            if (TypeMethodUtils.isMethodCallableForInterceptor(ctx.processingEnv, srcType, dstType, testMethodType)) {
+                // Function is OK, thay can be call
+                interceptors.add(MethodCallApi.createFrom("", methodApiFullSyntax, null));
+                continue;
+            }
+        }
+
+        if (!interceptors.isEmpty()) {
+            List<TypeWithVariableInfo> otherVariables = methodApiFullSyntax.getParams();
+
+            List<String> params = new ArrayList<>(2);
+            params.add(varSrc.getVariableName());
+            params.add(varRet.getVariableName());
+            ctx.pw.printNewLine();
+            ctx.pw.print("\n// Call Interceptors ... ");
+            for (MethodCallApi methodCallApi : interceptors) {
+                ctx.pw.print("\n");
+                methodCallApi.genSourceForCallWithStringParam(ctx, params, otherVariables, this);
+                ctx.pw.print(";");
+            }
+        }
+
+    }
+
     protected void writeConstructor(SourceGeneratorContext ctx, TypeWithVariableInfo field) {
         MethodApiKey constructorApiKey = new MethodApiKey(field.getVariableType(), Collections.emptyList());
-        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(constructorApiKey,null /*TODO: This constructore has to be created during analyzes */);
+        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(ctx.processingEnv, constructorApiKey,null /*TODO: This constructore has to be created during analyzes */);
         if (methodCallApi != null) {
             if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) {
                 ctx.pw.print(methodCallApi.getPathToSyntax());
@@ -267,11 +315,6 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         TypeInfo inType = new TypeInfo(sourceType);
         TypeInfo retType = new TypeInfo(destinationType);
 
-//        // If is required row transformation
-//        if (AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType)!=null) {
-//            return null;
-//        }
-
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
 		subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
 		subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
@@ -280,7 +323,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
 
         // We search for method here, but if it doesnt exist, we create our own version
-        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(transformApiKey, forMethodConfig);
+        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(processingEnv, transformApiKey, forMethodConfig);
         if (methodCallApi != null) {
             if (returnLastParamRequired && methodCallApi.getMethodSyntax() != null) {
                 methodCallApi.getMethodSyntax().setReturnLastParamRequired(true);

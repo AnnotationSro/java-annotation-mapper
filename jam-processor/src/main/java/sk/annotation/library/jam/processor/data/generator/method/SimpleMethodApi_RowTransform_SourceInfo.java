@@ -6,6 +6,7 @@ import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTr
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.NameUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.TypeMirror;
@@ -38,12 +39,37 @@ public class SimpleMethodApi_RowTransform_SourceInfo extends EmptyMethodSourceIn
 
 	@Override
 	protected void writeSourceCodeBody(SourceGeneratorContext ctx) {
+		if (varRet == null) {
+			if (methodApiFullSyntax.getReturnType() != null) {
+				for (TypeWithVariableInfo param : methodApiFullSyntax.getParams()) {
+					if (param.isMarkedAsReturn()) {
+						varRet = param;
+						break;
+					}
+				}
+				if (varRet == null) {
+					String bestRetName = NameUtils.findBestNameAndUpdateSet(this.usedNames, "ret");
+					varRet = new TypeWithVariableInfo(bestRetName, methodApiFullSyntax.getReturnType(), null, false);
+				}
+			}
+			if (varRet != null) usedNames.add(varRet.getVariableName());
+		}
+
+
 		TypeWithVariableInfo varSrc = methodApiFullSyntax.getRequiredParams().get(0);
 		TypeMirror srcType = varSrc.getVariableType().getType(ctx.processingEnv);
 		TypeMirror dstType = methodApiFullSyntax.getReturnType().getType(ctx.processingEnv);
 
-		ctx.pw.print("return ");
+		varRet.writeSourceCode(ctx);
+		ctx.pw.print(" = ");
 		ctx.pw.print(rowFieldGenerator.generateRowTransform(ctx, srcType, dstType, varSrc.getVariableName()));
+		ctx.pw.print(";");
+
+		writeInterceptors(ctx, varSrc, varRet);
+
+		ctx.pw.printNewLine();
+		ctx.pw.print("return ");
+		ctx.pw.print(varRet.getVariableName());
 		ctx.pw.print(";");
 	}
 }

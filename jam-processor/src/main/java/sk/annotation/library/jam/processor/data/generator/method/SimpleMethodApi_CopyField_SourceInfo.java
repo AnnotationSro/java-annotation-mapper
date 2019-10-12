@@ -3,7 +3,6 @@ package sk.annotation.library.jam.processor.data.generator.method;
 import com.sun.tools.javac.code.Type;
 import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
-import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldConfigurationResolver;
@@ -12,7 +11,6 @@ import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessDat
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
-import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.NameUtils;
 
@@ -135,6 +133,9 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		ctx.pw.print(";\n");
 		if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) ctx.pw.print("}");
 
+		// We have to register cache value earlier before starts copying fields
+		writeSourceInstanceCacheRegister(ctx, varSrc, varRet);
+
 
 		ctx.pw.print("\n// Copy Fields ");
 
@@ -253,23 +254,22 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			}
 		}
 
-		// Find all interceptors
-		TypeMirror srcType = requiredParams.get(0).getVariableType().getType(ctx.processingEnv);
+//		writeInterceptors(ctx, varSrc, varRet);
+/*		TypeMirror srcType = requiredParams.get(0).getVariableType().getType(ctx.processingEnv);
 		TypeMirror dstType = methodApiFullSyntax.getReturnType().getType(ctx.processingEnv);
+
+
 		List<MethodCallApi> interceptors = new LinkedList<>();
-		for (Map.Entry<MethodApiKey, MethodApiFullSyntax> entry : ownerClassInfo.resolveMyUsableMethods(null).entrySet()) {
-			MethodApiKey methodApiKey = entry.getKey();
+		for (MethodApiFullSyntax methodApiFullSyntax : ownerClassInfo.resolveMyUsableMethods(null)) {
+			MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
 			if (methodApiKey.isApiWithReturnType()) continue;
-			TypeMirror[] types = methodApiKey.getVisibleTypes();
-			if (types == null) continue;
-			if (types.length != 3) continue;
-			if (types[0] != null) continue;
 
-			if (!ctx.processingEnv.getTypeUtils().isAssignable(srcType, types[1])) continue;
-			if (!ctx.processingEnv.getTypeUtils().isAssignable(dstType, types[2])) continue;
-
-			// Function is OK, thay can be call
-			interceptors.add(MethodCallApi.createFrom("", entry.getValue(), null));
+			ExecutableType testMethodType = methodApiKey.createMethodExecutableType(ctx.processingEnv, ownerClassInfo.parentElement);
+			if (TypeMethodUtils.isMethodCallableForInterceptor(ctx.processingEnv, srcType, dstType, testMethodType)) {
+				// Function is OK, thay can be call
+				interceptors.add(MethodCallApi.createFrom("", methodApiFullSyntax, null));
+				continue;
+			}
 		}
 
 		if (!interceptors.isEmpty()) {
@@ -285,9 +285,8 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 				methodCallApi.genSourceForCallWithStringParam(ctx, params, otherVariables, this);
 				ctx.pw.print(";");
 			}
-		}
+		}*/
 
-		writeSourceInstanceCacheRegister(ctx, varSrc, varRet);
 
 //		ctx.pw.levelSpaceDown();
 //		ctx.pw.levelSpaceDown();

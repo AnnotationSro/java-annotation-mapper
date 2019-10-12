@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.processor.data.mapi;
 
+import com.sun.tools.javac.code.Type;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -7,6 +8,10 @@ import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,16 +26,45 @@ public class MethodApiKey {
 
 	@EqualsAndHashCode.Exclude
 	final private TypeMirror[] visibleTypes;
+	@EqualsAndHashCode.Exclude
+	private ExecutableType methodType = null;
 
 	private MethodApiKey (boolean apiWithReturnType, String[] visibleStrTypes,TypeMirror[] visibleTypes) {
 		this.apiWithReturnType = apiWithReturnType;
 		this.visibleStrTypes = visibleStrTypes;
 		this.visibleTypes = visibleTypes;
+		this.methodType = null;
 	}
 	private MethodApiKey (boolean apiWithReturnType, TypeMirror... inputParams) {
 		this.apiWithReturnType = apiWithReturnType;
 		this.visibleTypes = inputParams;
 		this.visibleStrTypes = transform(inputParams);
+	}
+
+	public ExecutableType createMethodExecutableType(ProcessingEnvironment processingEnv, TypeElement parentElement) {
+		if (methodType == null) {
+			Type returnType = (Type) visibleTypes[0];
+			List<Type> params = new ArrayList<>(visibleTypes.length);
+			for (int i = 1; i < visibleTypes.length; i++) {
+				TypeMirror visibleType = visibleTypes[i];
+				if (visibleType instanceof Type) {
+					params.add((Type) visibleType);
+				}
+				else {
+					//WARNING !!!
+					throw new IllegalStateException("");
+				}
+			}
+			if (apiWithReturnType && returnType!=null) {
+				params.add(returnType);
+			}
+			Type returnTypeMirror = (Type) visibleTypes[0];
+			if (returnTypeMirror == null) {
+				returnTypeMirror = (Type) processingEnv.getTypeUtils().getNoType(TypeKind.VOID);
+			}
+			methodType = new Type.MethodType(com.sun.tools.javac.util.List.from(params.toArray(new Type[0])), returnTypeMirror, com.sun.tools.javac.util.List.<Type>nil(), ((Type) parentElement.asType()).tsym);
+		}
+		return methodType;
 	}
 
     @Override
