@@ -117,12 +117,6 @@ public class MapperClassInfo {
         for (ExecutableElement method : allMethods) {
             usedNames.add(method.getSimpleName().toString());
         }
-        // Custom fields from API
-        if (classAndPackageConfigurations != null && !classAndPackageConfigurations.isEmpty()) {
-            for (AnnotationMapperConfig classAndPackageConfiguration : classAndPackageConfigurations) {
-                registerCustomFields(processingEnv, classAndPackageConfiguration.getWithCustom());
-            }
-        }
 
         // Analyze customClass and fields
         for (VariableElement field : allFields) {
@@ -132,6 +126,13 @@ public class MapperClassInfo {
         // Analyze methods ...
         for (ExecutableElement method : allMethods) {
             registerTopMethod(processingEnv, method);
+        }
+
+        // Custom fields from API
+        if (classAndPackageConfigurations != null && !classAndPackageConfigurations.isEmpty()) {
+            for (AnnotationMapperConfig classAndPackageConfiguration : classAndPackageConfigurations) {
+                registerCustomFields(processingEnv, classAndPackageConfiguration.getWithCustom());
+            }
         }
 
         // analyze classes to uses
@@ -185,15 +186,21 @@ public class MapperClassInfo {
         registerCustomFields(processingEnv, values, null);
     }
 
+    protected boolean alreadyExistsFieldType(ProcessingEnvironment processingEnv, Type fieldType) {
+        for (Type existFieldValue : allFieldsTypes.values()) {
+            if (processingEnv.getTypeUtils().isSameType(existFieldValue, fieldType)) return true; // already exists
+            if (processingEnv.getTypeUtils().isSameType(existFieldValue, parentElement.asType())) return true; // already exists
+        }
+
+        return false;
+    }
+
     private void registerCustomFields(ProcessingEnvironment processingEnv, List<Type> values, MethodConfigKey topMmethodConfigKey) {
         if (values == null || values.isEmpty()) return;
 
         AnnotationsInfo fieldInjectionAnnotations = IoCUtils.getFieldAnnotationType(processingEnv, parentElement, null);
         for (Type fieldType : values) {
-            for (Type existFieldValue : allFieldsTypes.values()) {
-                if (processingEnv.getTypeUtils().isSameType(existFieldValue, fieldType)) continue; // already exists
-                if (processingEnv.getTypeUtils().isSameType(existFieldValue, parentElement.asType())) continue; // already exists
-            }
+            if (alreadyExistsFieldType(processingEnv, fieldType)) continue;
 
             // Try name
             String fieldName = NameUtils.findBestName(usedNames, StringUtils.uncapitalize(NameUtils.getClassSimpleName(fieldType.toString())));
@@ -214,6 +221,7 @@ public class MapperClassInfo {
         Type type = TypeUtils.findType(processingEnv, (Type) parentElement.asType(), field);
         // Authomatically ignored same mapper
         if (TypeUtils.isSame(processingEnv, type, parentElement.asType())) return;
+        if (alreadyExistsFieldType(processingEnv, type)) return;
 
         allFieldsTypes.put(field.getSimpleName().toString(), type);
         List<ExecutableElement> methods = ApiUtil.readElementApi(processingEnv, type);
