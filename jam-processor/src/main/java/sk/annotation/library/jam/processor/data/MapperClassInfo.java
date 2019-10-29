@@ -12,6 +12,7 @@ import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
+import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.*;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
@@ -222,6 +223,8 @@ public class MapperClassInfo {
     }
 
     private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, Type fieldType, List<ExecutableElement> executableElements, MethodConfigKey topMmethodConfigKey) {
+        // cannot register own paths
+        if (TypeUtils.isSame(processingEnv, fieldType, parentElement.asType())) return;
 
         // we need to find out, what can be given field used for
         for (ExecutableElement method : executableElements) {
@@ -246,6 +249,37 @@ public class MapperClassInfo {
     public List<MethodApiFullSyntax> resolveMyUsableMethods(MethodConfigKey topMmethodConfigKey) {
         return _myUsableMethods.
                 computeIfAbsent(topMmethodConfigKey == null ? "*" : topMmethodConfigKey.getForTopMethod(), a -> new LinkedList<>());
+    }
+
+    public List<MethodCallApi> getAllInterceptors(SourceGeneratorContext ctx, TypeMirror srcType, TypeMirror dstType) {
+        List<MethodCallApi> interceptors = new LinkedList<>();
+        for (MethodApiFullSyntax methodApiFullSyntax : resolveMyUsableMethods(null)) {
+            MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
+            if (methodApiKey.isApiWithReturnType()) continue;
+
+            ExecutableType testMethodType = methodApiKey.createMethodExecutableType(ctx.processingEnv, this.parentElement);
+            if (TypeMethodUtils.isMethodCallableForInterceptor(ctx.processingEnv, srcType, dstType, testMethodType)) {
+                // Function is OK, thay can be call
+                interceptors.add(MethodCallApi.createFrom("", methodApiFullSyntax, null));
+                continue;
+            }
+        }
+        Map<String, List<MethodApiFullSyntax>> extUsableMethods = resolveExtUsableMethods(null);
+        for (Map.Entry<String, List<MethodApiFullSyntax>> e : extUsableMethods.entrySet()) {
+            for (MethodApiFullSyntax methodApiFullSyntax : e.getValue()) {
+                MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
+                if (methodApiKey.isApiWithReturnType()) continue;
+
+                ExecutableType testMethodType = methodApiKey.createMethodExecutableType(ctx.processingEnv, this.parentElement);
+                if (TypeMethodUtils.isMethodCallableForInterceptor(ctx.processingEnv, srcType, dstType, testMethodType)) {
+                    // Function is OK, thay can be call
+                    interceptors.add(MethodCallApi.createFrom(e.getKey()+".", methodApiFullSyntax, null));
+                    continue;
+                }
+            }
+        }
+
+        return interceptors;
     }
 
     private Map<String, Map<String, List<MethodApiFullSyntax>>> _extUsableMethods = new LinkedHashMap<>();

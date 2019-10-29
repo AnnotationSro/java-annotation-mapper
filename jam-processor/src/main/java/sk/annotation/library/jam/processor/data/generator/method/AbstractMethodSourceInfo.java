@@ -20,11 +20,9 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.NameUtils;
-import sk.annotation.library.jam.processor.utils.TypeMethodUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
@@ -204,19 +202,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         TypeMirror dstType = varRet.getVariableType().getType(ctx.processingEnv);
 
 
-        List<MethodCallApi> interceptors = new LinkedList<>();
-        for (MethodApiFullSyntax methodApiFullSyntax : ownerClassInfo.resolveMyUsableMethods(null)) {
-            MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
-            if (methodApiKey.isApiWithReturnType()) continue;
-
-            ExecutableType testMethodType = methodApiKey.createMethodExecutableType(ctx.processingEnv, ownerClassInfo.parentElement);
-            if (TypeMethodUtils.isMethodCallableForInterceptor(ctx.processingEnv, srcType, dstType, testMethodType)) {
-                // Function is OK, thay can be call
-                interceptors.add(MethodCallApi.createFrom("", methodApiFullSyntax, null));
-                continue;
-            }
-        }
-
+        List<MethodCallApi> interceptors = ownerClassInfo.getAllInterceptors(ctx, srcType, dstType);
         if (!interceptors.isEmpty()) {
             List<TypeWithVariableInfo> otherVariables = methodApiFullSyntax.getParams();
 
