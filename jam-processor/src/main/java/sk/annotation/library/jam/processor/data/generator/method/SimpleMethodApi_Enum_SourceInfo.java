@@ -23,9 +23,16 @@ public class SimpleMethodApi_Enum_SourceInfo extends EmptyMethodSourceInfo {
     protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
     }
 
+    @Override
     protected void writeSourceCodeBodyReturn(SourceGeneratorContext ctx) {
         // nothing :)
     }
+
+    @Override
+    protected boolean canCallInterceptors() {
+        return false;
+    }
+
 
     @Override
     protected void writeSourceCodeBody(SourceGeneratorContext ctx) {

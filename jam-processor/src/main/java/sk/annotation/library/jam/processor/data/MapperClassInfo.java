@@ -12,7 +12,6 @@ import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
-import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.*;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
@@ -236,7 +235,6 @@ public class MapperClassInfo {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, methodSyntax.getErrorsMapping().toString(), method);
                 continue;
             }
-            if (methodSyntax.getReturnType() == null) continue;
 
             resolveExtUsableMethods(topMmethodConfigKey)
                     .computeIfAbsent(pathApi, a -> new LinkedList<>()).add(methodSyntax);
@@ -251,14 +249,14 @@ public class MapperClassInfo {
                 computeIfAbsent(topMmethodConfigKey == null ? "*" : topMmethodConfigKey.getForTopMethod(), a -> new LinkedList<>());
     }
 
-    public List<MethodCallApi> getAllInterceptors(SourceGeneratorContext ctx, TypeMirror srcType, TypeMirror dstType) {
+    public List<MethodCallApi> getAllInterceptors(ProcessingEnvironment processingEnv, TypeMirror srcType, TypeMirror dstType) {
         List<MethodCallApi> interceptors = new LinkedList<>();
         for (MethodApiFullSyntax methodApiFullSyntax : resolveMyUsableMethods(null)) {
             MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
             if (methodApiKey.isApiWithReturnType()) continue;
 
-            ExecutableType testMethodType = methodApiKey.createMethodExecutableType(ctx.processingEnv, this.parentElement);
-            if (TypeMethodUtils.isMethodCallableForInterceptor(ctx.processingEnv, srcType, dstType, testMethodType)) {
+            ExecutableType testMethodType = methodApiKey.createMethodExecutableType(processingEnv, this.parentElement);
+            if (TypeMethodUtils.isMethodCallableForInterceptor(processingEnv, srcType, dstType, testMethodType)) {
                 // Function is OK, thay can be call
                 interceptors.add(MethodCallApi.createFrom("", methodApiFullSyntax, null));
                 continue;
@@ -270,10 +268,11 @@ public class MapperClassInfo {
                 MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
                 if (methodApiKey.isApiWithReturnType()) continue;
 
-                ExecutableType testMethodType = methodApiKey.createMethodExecutableType(ctx.processingEnv, this.parentElement);
-                if (TypeMethodUtils.isMethodCallableForInterceptor(ctx.processingEnv, srcType, dstType, testMethodType)) {
+                ExecutableType testMethodType = methodApiKey.createMethodExecutableType(processingEnv, this.parentElement);
+                if (TypeMethodUtils.isMethodCallableForInterceptor(processingEnv, srcType, dstType, testMethodType)) {
                     // Function is OK, thay can be call
                     interceptors.add(MethodCallApi.createFrom(e.getKey()+".", methodApiFullSyntax, null));
+                    usedField.add(e.getKey()); // mark field as used
                     continue;
                 }
             }

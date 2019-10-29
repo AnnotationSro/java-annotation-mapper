@@ -124,6 +124,11 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 	}
 
 	@Override
+	public boolean canCallInterceptors() {
+		return false;
+	}
+
+	@Override
 	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		if (this.requiredMethods.size() == 1 && this.requiredMethods.get(0).getRowFieldGenerator()!=null) {
 			methodApiFullSyntax.getRequiredParams().get(0);

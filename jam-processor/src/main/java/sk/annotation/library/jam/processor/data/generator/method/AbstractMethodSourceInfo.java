@@ -43,14 +43,29 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
     }
 
+
+    private List<MethodCallApi> interceptors = null;
     final private Set<MethodApiFullSyntax> usedByMethods = new HashSet<>();
+
     final protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig, AbstractMethodSourceInfo parentMethod) {
-        if (parentMethod!=null && parentMethod.getMethodApiFullSyntax()!=null) {
+        if (interceptors == null && canCallInterceptors() && methodApiFullSyntax.getReturnType() != null) {
+            List<TypeWithVariableInfo> requiredParams = this.methodApiFullSyntax.getRequiredParams();
+            if (requiredParams.size() > 0) {
+                //Call find interceptors (mark as used fields)
+                interceptors = ownerClassInfo.getAllInterceptors(processingEnv, requiredParams.get(0).getVariableType().getType(processingEnv), methodApiFullSyntax.getReturnType().getType(processingEnv));
+                if (interceptors == null) interceptors = Collections.emptyList();
+            }
+        }
+
+
+        if (parentMethod != null && parentMethod.getMethodApiFullSyntax() != null) {
             usedByMethods.add(parentMethod.methodApiFullSyntax);
         }
-    	analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
-	}
+        analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
+    }
+
     abstract protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig);
+
     public boolean hasMultipleVariants(ProcessingEnvironment processingEnv) {
         return false;
     }
@@ -71,31 +86,31 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
         List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
         if (!requiredParams.isEmpty()) {
-        	boolean hasPrimitiveInput = false;
-			for (TypeWithVariableInfo requiredParam : requiredParams) {
-				if (requiredParam.getVariableType().getType(ctx.processingEnv).getKind().isPrimitive()) {
-					hasPrimitiveInput = true;
-					break;
-				}
-			}
+            boolean hasPrimitiveInput = false;
+            for (TypeWithVariableInfo requiredParam : requiredParams) {
+                if (requiredParam.getVariableType().getType(ctx.processingEnv).getKind().isPrimitive()) {
+                    hasPrimitiveInput = true;
+                    break;
+                }
+            }
 
-			if (!hasPrimitiveInput) {
-				ctx.pw.print("\n// check null inputs ");
-				ctx.pw.print("\nif (");
-				boolean addAnd = false;
-				for (TypeWithVariableInfo requiredParam : requiredParams) {
-					if (requiredParam.isMarkedAsReturn()) continue;
-					if (addAnd) ctx.pw.print(" && ");
-					addAnd = true;
-					ctx.pw.print(requiredParam.getVariableName());
-					ctx.pw.print("==" + TypeUtils.createNullValue(requiredParam.getVariableType().getType(ctx.processingEnv)));
-				}
-				ctx.pw.print(") return");
-				if (methodApiFullSyntax.getReturnType() != null) {
-					ctx.pw.print(" " + TypeUtils.createNullValue(methodApiFullSyntax.getReturnType().getType(ctx.processingEnv)));
-				}
-				ctx.pw.print(";\n");
-			}
+            if (!hasPrimitiveInput) {
+                ctx.pw.print("\n// check null inputs ");
+                ctx.pw.print("\nif (");
+                boolean addAnd = false;
+                for (TypeWithVariableInfo requiredParam : requiredParams) {
+                    if (requiredParam.isMarkedAsReturn()) continue;
+                    if (addAnd) ctx.pw.print(" && ");
+                    addAnd = true;
+                    ctx.pw.print(requiredParam.getVariableName());
+                    ctx.pw.print("==" + TypeUtils.createNullValue(requiredParam.getVariableType().getType(ctx.processingEnv)));
+                }
+                ctx.pw.print(") return");
+                if (methodApiFullSyntax.getReturnType() != null) {
+                    ctx.pw.print(" " + TypeUtils.createNullValue(methodApiFullSyntax.getReturnType().getType(ctx.processingEnv)));
+                }
+                ctx.pw.print(";\n");
+            }
         }
 
 
@@ -106,20 +121,20 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
         varCtxMethodId = MethodCallApi.ctx_findVariable(Constants.methodParamInfo_ctxForMethodId, methodApiFullSyntax.getParams());
         if (varCtxMethodId != null) usedNames.add(varCtxMethodId.getVariableName());
-		else if (ownerClassInfo.getFeatures().isRequiredInputWithMethodId()) {
-			if (!(this instanceof DeclaredMethodSourceInfo)) {
-				throw new IllegalStateException("Problem with required variable!");
-			}
-		}
+        else if (ownerClassInfo.getFeatures().isRequiredInputWithMethodId()) {
+            if (!(this instanceof DeclaredMethodSourceInfo)) {
+                throw new IllegalStateException("Problem with required variable!");
+            }
+        }
         varCtxVariable = MethodCallApi.ctx_findVariable(Constants.methodParamInfo_ctxForRunData, methodApiFullSyntax.getParams());
         if (varCtxVariable != null) usedNames.add(varCtxVariable.getVariableName());
-		else if (ownerClassInfo.getFeatures().isRequiredInputWithContextData()) {
-			if (!(this instanceof DeclaredMethodSourceInfo)) {
-				throw new IllegalStateException("Problem with required variable!");
-			}
-		}
+        else if (ownerClassInfo.getFeatures().isRequiredInputWithContextData()) {
+            if (!(this instanceof DeclaredMethodSourceInfo)) {
+                throw new IllegalStateException("Problem with required variable!");
+            }
+        }
 
-		varRet = null;
+        varRet = null;
         if (methodApiFullSyntax.getReturnType() != null) {
             for (TypeWithVariableInfo param : methodApiFullSyntax.getParams()) {
                 if (param.isMarkedAsReturn()) {
@@ -144,8 +159,12 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         return true;
     }
 
+    protected boolean canCallInterceptors() {
+        return true;
+    }
+
     protected void writeSourceCodeBodyReturn(SourceGeneratorContext ctx) {
-        if (varRet!=null) {
+        if (varRet != null) {
             List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
             if (requiredParams.size() > 0) {
                 writeInterceptors(ctx, requiredParams.get(0), varRet);
@@ -176,7 +195,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
             ctx.pw.print("\n");
             if (this.methodApiFullSyntax.isGenerateReturnParamRequired())
-                ctx.pw.print("if (" + varRet.getVariableName() + "=="+TypeUtils.createNullValue(varRet.getVariableType().getType(ctx.processingEnv))+") \n\t");
+                ctx.pw.print("if (" + varRet.getVariableName() + "==" + TypeUtils.createNullValue(varRet.getVariableType().getType(ctx.processingEnv)) + ") \n\t");
             ctx.pw.print("if (cacheValue.isRegisteredAnyValue()) return cacheValue.getValue();");
             ctx.pw.print("\n");
             if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
@@ -198,12 +217,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         if (varSrc == null || varRet == null) return;
 
         // Find all interceptors
-        TypeMirror srcType = varSrc.getVariableType().getType(ctx.processingEnv);
-        TypeMirror dstType = varRet.getVariableType().getType(ctx.processingEnv);
-
-
-        List<MethodCallApi> interceptors = ownerClassInfo.getAllInterceptors(ctx, srcType, dstType);
-        if (!interceptors.isEmpty()) {
+        if (interceptors!=null && !interceptors.isEmpty()) {
             List<TypeWithVariableInfo> otherVariables = methodApiFullSyntax.getParams();
 
             List<String> params = new ArrayList<>(2);
@@ -222,11 +236,11 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
     protected void writeConstructor(SourceGeneratorContext ctx, TypeWithVariableInfo field) {
         MethodApiKey constructorApiKey = new MethodApiKey(field.getVariableType(), Collections.emptyList());
-        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(ctx.processingEnv, constructorApiKey,null /*TODO: This constructore has to be created during analyzes */);
+        MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(ctx.processingEnv, constructorApiKey, null /*TODO: This constructore has to be created during analyzes */);
         if (methodCallApi != null) {
             if (StringUtils.isNotEmpty(methodCallApi.getPathToSyntax())) {
                 ctx.pw.print(methodCallApi.getPathToSyntax());
-                if (!StringUtils.endsWith(methodCallApi.getPathToSyntax(),".")) ctx.pw.print(".");
+                if (!StringUtils.endsWith(methodCallApi.getPathToSyntax(), ".")) ctx.pw.print(".");
                 ctx.pw.print(methodCallApi.getMethodSyntax().getName());
                 ctx.pw.print("()");
                 return;
@@ -302,8 +316,8 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         TypeInfo retType = new TypeInfo(destinationType);
 
         List<TypeWithVariableInfo> subMethodParams = new LinkedList<>();
-		subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
-		subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
+        subMethodParams.add(Constants.methodParamInfo_ctxForMethodId);
+        subMethodParams.add(Constants.methodParamInfo_ctxForRunData);
         subMethodParams.add(new TypeWithVariableInfo("in", inType, null, false));
         subMethodParams.add(new TypeWithVariableInfo("out", retType, null, true));
         MethodApiKey transformApiKey = new MethodApiKey(retType, subMethodParams);
@@ -321,7 +335,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
 
         AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, sourceType, destinationType);
-        if (rowFieldGenerator!=null) {
+        if (rowFieldGenerator != null) {
             return MethodCallApi.createFrom(sourceType, destinationType, rowFieldGenerator);
         }
 
@@ -363,8 +377,8 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
 
         AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, types[0], types[1]);
-        if (rowFieldGenerator!=null) {
-            return  new SimpleMethodApi_RowTransform_SourceInfo(ownerClassInfo,subMethodApiSyntax, rowFieldGenerator);
+        if (rowFieldGenerator != null) {
+            return new SimpleMethodApi_RowTransform_SourceInfo(ownerClassInfo, subMethodApiSyntax, rowFieldGenerator);
         }
 
         // Defautl generator ...
