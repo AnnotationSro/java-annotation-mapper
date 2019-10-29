@@ -215,8 +215,6 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 			ctx.pw.print(";");
 		}
 
-		this.writeInterceptors(ctx, inputParams.get(0), varRet);
-
 		ctx.pw.print("\nreturn " + varRet.getVariableName() + ";");
 
 		// clear context ...
