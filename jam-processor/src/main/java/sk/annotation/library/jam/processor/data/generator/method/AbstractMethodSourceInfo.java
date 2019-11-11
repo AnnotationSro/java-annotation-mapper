@@ -106,8 +106,24 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
                     ctx.pw.print("==" + TypeUtils.createNullValue(requiredParam.getVariableType().getType(ctx.processingEnv)));
                 }
                 ctx.pw.print(") return");
+
                 if (methodApiFullSyntax.getReturnType() != null) {
-                    ctx.pw.print(" " + TypeUtils.createNullValue(methodApiFullSyntax.getReturnType().getType(ctx.processingEnv)));
+                    varRet = null;
+                    if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+                        for (TypeWithVariableInfo param : methodApiFullSyntax.getParams()) {
+                            if (param.isMarkedAsReturn() && this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+                                varRet = param;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (varRet != null) {
+                        ctx.pw.print(" " + varRet.getVariableName());
+                    }
+                    else {
+                        ctx.pw.print(" " + TypeUtils.createNullValue(methodApiFullSyntax.getReturnType().getType(ctx.processingEnv)));
+                    }
                 }
                 ctx.pw.print(";\n");
             }
