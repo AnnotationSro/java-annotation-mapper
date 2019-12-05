@@ -47,6 +47,7 @@ abstract public class ApiUtil {
 //		if (element.getAnnotation(IgnoredByJamMapper.class) != null) return true;
 
         // Private methods or fields can not be used
+        if (element.getModifiers().contains(Modifier.STATIC)) return true;  // static fields are default ignored
         if (element.getModifiers().contains(Modifier.PRIVATE)) return true;
         // Abstract metody sa nemozu pouzivat priamo - vyuzivat sa mozu iba extendovane sub implementacie
         if (element.getModifiers().contains(Modifier.ABSTRACT) && elementIsMy) return true;
