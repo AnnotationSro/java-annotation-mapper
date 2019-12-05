@@ -57,6 +57,11 @@ abstract public class AnnotationValueExtractUtil {
 			if (val instanceof Type) {
 				return (Type) val;
 			}
+
+			// Compilation error
+			if (val == null || "<error>".equalsIgnoreCase(val.toString())) {
+				return null;
+			}
 			throw new IllegalStateException("Unknown type value " + val.toString());
 		});
 
