@@ -12,10 +12,13 @@ import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.utils.MapperRunCtxData;
 
 import javax.tools.Diagnostic;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -184,47 +187,59 @@ public class FieldMappingData {
 		return true;
 	}
 
-
-
-	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData, String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
-		ctx.pw.print("\n");
+	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData, 
+			String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
 		String[] eee = mappingData.getDst().getSourceForSetter(varDestName);
 		
 		List<String> params = new ArrayList<>(2);
-		
-		String variableName = mappingData.getSrc().getFieldName() + "_src";
-		
-		if (mappingData.getMethodCallApi().getMethodSyntax() != null) {
-			ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getMethodSyntax().getReturnType().type) + " " + variableName + " = ");	
-		} else {
-			ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getDestinationType()) + " " + variableName + " = ");
-		}
-		
 		params.add(mappingData.getSrc().getSourceForGetter(varSrcName));
 		params.add(mappingData.getDst().getSourceForGetter(varDestName));
-		mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
-		ctx.pw.print(";");
-		ctx.pw.print("\n");
-
-		boolean isPrimitiveMapping = mappingData.getMethodCallApi().getDestinationType() == null ? false : 
-			mappingData.getMethodCallApi().getDestinationType().getKind().isPrimitive();
 		
-		if (!isPrimitiveMapping) {
-			ctx.pw.print("if (" + variableName + " != null || !java.lang.Boolean.FALSE.equals(ctx.getMapNullValues())) {");
-			ctx.pw.levelSpaceUp();
-			ctx.pw.print("\n");
+		Optional<TypeWithVariableInfo> ctxParam = Optional.empty();
+		if (ownerMethod.getMethodApiFullSyntax().getParams() != null) {
+			ctxParam = ownerMethod.getMethodApiFullSyntax().getParams().stream().
+				filter(p -> {
+					String paramClass = TypeUtils.getClassSimpleName(p.getVariableType().getType(ctx.processingEnv));
+					return MapperRunCtxData.class.getSimpleName().equalsIgnoreCase(paramClass);
+				}).findAny();
 		}
-		
-		ctx.pw.print(eee[0]);
-		ctx.pw.print(eee[1]);
-		ctx.pw.print(variableName);
-		ctx.pw.print(eee[2]);
-		ctx.pw.print(";");
-		
-		if (!isPrimitiveMapping) {
-			ctx.pw.levelSpaceDown();
-			ctx.pw.print("\n}\n");
+		ctx.pw.print("\n");
+		if (ctxParam.isPresent()) {
+			String variableName = mappingData.getSrc().getFieldName() + "_src_" + mappingData.getDst().getFieldName();
+			if (mappingData.getMethodCallApi().getDestinationType() != null) {
+				ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getDestinationType()) + " " + variableName + " = ");
+			} else {
+				ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getMethodSyntax().getReturnType().type) + " " + variableName + " = ");
+			}
+			mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
+			ctx.pw.print(";");
+			ctx.pw.print("\n");
+
+			boolean isPrimitiveMapping = mappingData.getMethodCallApi().getDestinationType() == null ? false : 
+				mappingData.getMethodCallApi().getDestinationType().getKind().isPrimitive();
+			
+			if (!isPrimitiveMapping) {
+				ctx.pw.print("if (" + variableName + " != null || !java.lang.Boolean.FALSE.equals("+ 
+						ctxParam.get().getVariableName() + ".getMapNullValues())) {");
+				ctx.pw.levelSpaceUp();
+				ctx.pw.print("\n");
+			}
+			ctx.pw.print(eee[0]);
+			ctx.pw.print(eee[1]);
+			ctx.pw.print(variableName);
+			ctx.pw.print(eee[2]);
+			ctx.pw.print(";");
+
+			if (!isPrimitiveMapping && ctxParam.isPresent()) {
+				ctx.pw.levelSpaceDown();
+				ctx.pw.print("\n}\n");
+			}
+		} else {
+			ctx.pw.print(eee[0]);
+			ctx.pw.print(eee[1]);
+			mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
+			ctx.pw.print(eee[2]);
+			ctx.pw.print(";");
 		}
 	}
-
 }
