@@ -189,14 +189,42 @@ public class FieldMappingData {
 	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData, String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
 		ctx.pw.print("\n");
 		String[] eee = mappingData.getDst().getSourceForSetter(varDestName);
-		ctx.pw.print(eee[0]);
-		ctx.pw.print(eee[1]);
+		
 		List<String> params = new ArrayList<>(2);
+		
+		String variableName = mappingData.getSrc().getFieldName() + "_src";
+		
+		if (mappingData.getMethodCallApi().getMethodSyntax() != null) {
+			ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getMethodSyntax().getReturnType().type) + " " + variableName + " = ");	
+		} else {
+			ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getDestinationType()) + " " + variableName + " = ");
+		}
+		
 		params.add(mappingData.getSrc().getSourceForGetter(varSrcName));
 		params.add(mappingData.getDst().getSourceForGetter(varDestName));
 		mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
+		ctx.pw.print(";");
+		ctx.pw.print("\n");
+
+		boolean isPrimitiveMapping = mappingData.getMethodCallApi().getDestinationType() == null ? false : 
+			mappingData.getMethodCallApi().getDestinationType().getKind().isPrimitive();
+		
+		if (!isPrimitiveMapping) {
+			ctx.pw.print("if (" + variableName + " != null || !java.lang.Boolean.FALSE.equals(ctx.getMapNullValues())) {");
+			ctx.pw.levelSpaceUp();
+			ctx.pw.print("\n");
+		}
+		
+		ctx.pw.print(eee[0]);
+		ctx.pw.print(eee[1]);
+		ctx.pw.print(variableName);
 		ctx.pw.print(eee[2]);
 		ctx.pw.print(";");
+		
+		if (!isPrimitiveMapping) {
+			ctx.pw.levelSpaceDown();
+			ctx.pw.print("\n}\n");
+		}
 	}
 
 }

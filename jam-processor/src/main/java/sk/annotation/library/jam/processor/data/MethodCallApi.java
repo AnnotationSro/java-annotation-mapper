@@ -77,8 +77,10 @@ public class MethodCallApi {
 		}
 		genSourceForCallWithStringParam(ctx, newMethodParams, newOtherVariables, method);
 	}
-	public void genSourceForCallWithStringParam(SourceGeneratorContext ctx, List<String> methodParams, List<TypeWithVariableInfo> otherVariables, AbstractMethodSourceInfo method) {
-		if (rowFieldGenerator!=null) {
+	public void genSourceForCallWithStringParam(SourceGeneratorContext ctx, List<String> methodParams, 
+			List<TypeWithVariableInfo> otherVariables, AbstractMethodSourceInfo method) {
+		
+		if (rowFieldGenerator != null) {
 			ctx.pw.print(rowFieldGenerator.generateRowTransform(ctx, sourceType, destinationType, methodParams.get(0)));
 			return;
 		}
@@ -86,7 +88,7 @@ public class MethodCallApi {
 		ctx.pw.print(pathToSyntax);
 		ctx.pw.print(methodSyntax.getName());
 		ctx.pw.print("(");
-
+		
 		int i=0;
 		boolean addSeparator = false;
 		for (TypeWithVariableInfo param : methodSyntax.getParams()) {
