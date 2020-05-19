@@ -5,12 +5,13 @@ import lombok.Setter;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
+import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
+import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
-import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
-import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 
 import javax.tools.Diagnostic;
@@ -25,6 +26,8 @@ public class FieldMappingData {
 
 	private boolean srcIgnored = false;
 	private boolean dstIgnored = false;
+
+	private ApplyFieldStrategy fieldStrategy = ApplyFieldStrategy.ALWAYS;
 
 	// If missing SOURCE or DESTINATION
 	private ConfigErrorReporting srcConfigErrorReportingLevel;
@@ -184,10 +187,37 @@ public class FieldMappingData {
 		return true;
 	}
 
+	protected boolean resolveWrapFunction(FieldMappingData mappingData, ApplyFieldStrategy testStrategy) {
+		if (testStrategy != this.fieldStrategy) return false;
 
+		if (fieldStrategy == ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL) {
+			// nemoze nastat, ak zdroj je primitivny typ
+			boolean isPrimitiveMapping = mappingData.getMethodCallApi().getSourceType() != null && mappingData.getMethodCallApi().getSourceType().getKind().isPrimitive();
+			return !isPrimitiveMapping;
+		}
+		if (fieldStrategy == ApplyFieldStrategy.OLDVALUE_IS_NULL) {
+			// nemoze nastat, ak ciel je primitivny typ
+			boolean isPrimitiveMapping = mappingData.getMethodCallApi().getDestinationType() != null && mappingData.getMethodCallApi().getDestinationType().getKind().isPrimitive();
+			return !isPrimitiveMapping;
+		}
+		return false;
+	}
 
-	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData, String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
+	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData,
+		String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
+
 		ctx.pw.print("\n");
+
+		if (resolveWrapFunction(mappingData, ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL)) {
+			ctx.pw.print("if (");
+			ctx.pw.print(mappingData.getSrc().getSourceForGetter(varSrcName));
+			ctx.pw.print("!=null) ");
+		}
+		if (resolveWrapFunction(mappingData, ApplyFieldStrategy.OLDVALUE_IS_NULL)) {
+			ctx.pw.print("if (");
+			ctx.pw.print(mappingData.getDst().getSourceForGetter(varDestName));
+			ctx.pw.print("==null) ");
+		}
 		String[] eee = mappingData.getDst().getSourceForSetter(varDestName);
 		ctx.pw.print(eee[0]);
 		ctx.pw.print(eee[1]);
@@ -198,5 +228,4 @@ public class FieldMappingData {
 		ctx.pw.print(eee[2]);
 		ctx.pw.print(";");
 	}
-
 }

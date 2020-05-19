@@ -3,6 +3,7 @@ package sk.annotation.library.jam.processor.utils.annotations.data;
 import com.sun.tools.javac.code.Type;
 import lombok.Getter;
 import lombok.Setter;
+import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldIgnore;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldMapping;
 
@@ -19,4 +20,6 @@ public class AnnotationMapperConfig {
 	final private List<AnnotationConfigGenerator> config = new LinkedList<>();
 	final private List<Type> immutable = new LinkedList<>();
 	final private List<Type> withCustom = new LinkedList<>();
+
+	final private List<ApplyFieldStrategy> applyWhen = new LinkedList<>();
 }

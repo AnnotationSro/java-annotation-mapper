@@ -5,6 +5,7 @@ import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import sk.annotation.library.jam.annotations.Mapper;
+import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.annotations.enums.IgnoreType;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
@@ -173,6 +174,7 @@ public class FieldConfigurationResolver {
                 mappingData.setSrcConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeFrom, srcName, true));
                 mappingData.setDstConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeTo, dstName, false));
             }
+            mappingData.setFieldStrategy(findFieldStrategyForMapping(processingEnv, typeFrom, srcFieldPathList, typeTo, dstFieldPathList));
             group.fieldMappingData.add(mappingData);
         }
 
@@ -189,12 +191,16 @@ public class FieldConfigurationResolver {
 //                mappingData.setDstIgnored(isIgnoredKey(dstFieldConfigMap, orderedUnusedKey));
                 mappingData.setSrc(srcFields.get(orderedUnusedKey));
                 mappingData.setDst(dstFields.get(orderedUnusedKey));
-				mappingData.setSrcIgnored(isIgnoredPath(processingEnv, typeFrom, Collections.singletonList(mappingData.getSrc()), false));
-				mappingData.setDstIgnored(isIgnoredPath(processingEnv, typeTo, Collections.singletonList(mappingData.getDst()), true));
+
+                List<FieldValueAccessData> srcFieldPathList = Collections.singletonList(mappingData.getSrc());
+                List<FieldValueAccessData> dstFieldPathList = Collections.singletonList(mappingData.getDst());
+				mappingData.setSrcIgnored(isIgnoredPath(processingEnv, typeFrom, srcFieldPathList, false));
+				mappingData.setDstIgnored(isIgnoredPath(processingEnv, typeTo, dstFieldPathList, true));
                 if (!mappingData.isWithoutProblemOrNotIgnored()) {
                     mappingData.setSrcConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeFrom, orderedUnusedKey, true));
                     mappingData.setDstConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeTo, orderedUnusedKey, false));
                 }
+                mappingData.setFieldStrategy(findFieldStrategyForMapping(processingEnv, typeFrom, srcFieldPathList, typeTo, dstFieldPathList));
                 group.fieldMappingData.add(mappingData);
             }
         }
@@ -321,6 +327,44 @@ public class FieldConfigurationResolver {
     	return false;
 	}
 
+	private ApplyFieldStrategy findFieldStrategyForMapping(ProcessingEnvironment processingEnv, Type srcType, List<FieldValueAccessData> srcFieldPathList, Type dstType, List<FieldValueAccessData> dstFieldPathList) {
+        if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return ApplyFieldStrategy.ALWAYS;
+        if (dstFieldPathList == null || dstFieldPathList.isEmpty() || dstFieldPathList.get(0) == null) return ApplyFieldStrategy.ALWAYS;
+
+        List<ApplyFieldStrategy> values = null;
+        for (AnnotationMapperConfig fieldConfig : mapperConfigs) {
+
+            // Finding from field mapping
+            for (AnnotationFieldMapping fieldMapping : fieldConfig.getFieldMapping()) {
+                if (!fieldMapping.isIgnoreDirectionS2D() && fieldMapping.getS().isAcceptableTypeAndName(processingEnv, srcType, srcFieldPathList)
+                    && fieldMapping.getD().isAcceptableTypeAndName(processingEnv, dstType, dstFieldPathList)) {
+                    values = fieldMapping.getApplyWhenS2D();
+                    if (values!=null && !values.isEmpty()) break;
+                }
+                else if (!fieldMapping.isIgnoreDirectionD2S() && fieldMapping.getD().isAcceptableTypeAndName(processingEnv, srcType, srcFieldPathList)
+                        && fieldMapping.getS().isAcceptableTypeAndName(processingEnv, dstType, dstFieldPathList)) {
+                    values = fieldMapping.getApplyWhenD2S();
+                    if (values!=null && !values.isEmpty()) break;
+                }
+            }
+
+            if (values!=null && !values.isEmpty()) break;
+
+            // Mapping from methodOrMapperConfig
+            if (fieldConfig.getApplyWhen()!=null && !fieldConfig.getApplyWhen().isEmpty()) {
+                values = fieldConfig.getApplyWhen();
+                break;
+            }
+        }
+
+        if (values!=null && !values.isEmpty()) {
+            if (values.contains(ApplyFieldStrategy.ALWAYS)) return ApplyFieldStrategy.ALWAYS;
+            if (values.contains(ApplyFieldStrategy.OLDVALUE_IS_NULL)) return ApplyFieldStrategy.OLDVALUE_IS_NULL;
+            if (values.contains(ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL)) return ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL;
+        }
+
+        return ApplyFieldStrategy.ALWAYS;
+    }
 
 
 

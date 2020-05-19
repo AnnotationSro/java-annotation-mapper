@@ -1,5 +1,7 @@
 package sk.annotation.library.jam.annotations;
 
+import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -20,4 +22,8 @@ public @interface FieldMapping {
 
 	String methodNameS2D() default "";
 	String methodNameD2S() default "";
+
+	// Features for not null
+	ApplyFieldStrategy[] applyWhenS2D() default {};
+	ApplyFieldStrategy[] applyWhenD2S() default {};
 }

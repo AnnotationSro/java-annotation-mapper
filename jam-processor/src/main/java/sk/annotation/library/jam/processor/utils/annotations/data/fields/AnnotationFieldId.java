@@ -3,6 +3,8 @@ package sk.annotation.library.jam.processor.utils.annotations.data.fields;
 import com.sun.tools.javac.code.Type;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
+import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -17,6 +19,14 @@ public class AnnotationFieldId {
 
 	public boolean isTypeAcceptable(ProcessingEnvironment processingEnv, Type type) {
 		return isTypeAcceptable_type(processingEnv, type) && isTypeAcceptable_package(processingEnv, type);
+	}
+	public boolean isAcceptableTypeAndName(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> fieldPath) {
+		if (isTypeAcceptable_type(processingEnv, type) || isTypeAcceptable_package(processingEnv, type)) {
+			if (getValue()==null) return true;
+			if (StringUtils.equals(getValue(), fieldPath.get(0).getFieldName())) return true;
+			return false;
+		}
+		return false;
 	}
 
 	private boolean isTypeAcceptable_package(ProcessingEnvironment processingEnv, Type type) {
@@ -46,4 +56,5 @@ public class AnnotationFieldId {
 		}
 		return false;
 	}
+
 }

@@ -1,5 +1,7 @@
 package sk.annotation.library.jam.annotations;
 
+import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,4 +16,6 @@ public @interface MapperConfig {
 	ConfigGenerator[] config() default {};
     Class[] immutable() default {};
 	Class[] withCustom() default {};
+
+	ApplyFieldStrategy[] applyWhen() default {};
 }

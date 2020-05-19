@@ -14,3 +14,5 @@
 /java-object-mapper-benchmark/*.plt
 /java-object-mapper-benchmark/readme.md
 /java-object-mapper-benchmark/*.ods
+*.project
+*.classpath
