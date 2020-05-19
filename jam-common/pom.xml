@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sk.annotation.library.jam</groupId>
 		<artifactId>jam-root</artifactId>
-		<version>0.9.10</version>
+		<version>0.9.11-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>jam-common</artifactId>
