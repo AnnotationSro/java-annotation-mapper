@@ -5,20 +5,18 @@ import lombok.Setter;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
+import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
+import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
-import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
-import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
-import sk.annotation.library.jam.processor.utils.TypeUtils;
-import sk.annotation.library.jam.utils.MapperRunCtxData;
 
 import javax.tools.Diagnostic;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -28,6 +26,8 @@ public class FieldMappingData {
 
 	private boolean srcIgnored = false;
 	private boolean dstIgnored = false;
+
+	private ApplyFieldStrategy fieldStrategy = ApplyFieldStrategy.ALWAYS;
 
 	// If missing SOURCE or DESTINATION
 	private ConfigErrorReporting srcConfigErrorReportingLevel;
@@ -187,59 +187,45 @@ public class FieldMappingData {
 		return true;
 	}
 
-	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData, 
-			String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
+	protected boolean resolveWrapFunction(FieldMappingData mappingData, ApplyFieldStrategy testStrategy) {
+		if (testStrategy != this.fieldStrategy) return false;
+
+		if (fieldStrategy == ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL) {
+			// nemoze nastat, ak zdroj je primitivny typ
+			boolean isPrimitiveMapping = mappingData.getMethodCallApi().getSourceType() != null && mappingData.getMethodCallApi().getSourceType().getKind().isPrimitive();
+			return !isPrimitiveMapping;
+		}
+		if (fieldStrategy == ApplyFieldStrategy.OLDVALUE_IS_NULL) {
+			// nemoze nastat, ak ciel je primitivny typ
+			boolean isPrimitiveMapping = mappingData.getMethodCallApi().getDestinationType() != null && mappingData.getMethodCallApi().getDestinationType().getKind().isPrimitive();
+			return !isPrimitiveMapping;
+		}
+		return false;
+	}
+
+	protected void writeMethod(SourceGeneratorContext ctx, AbstractMethodSourceInfo ownerMethod, FieldMappingData mappingData,
+		String varSrcName, String varDestName, List<TypeWithVariableInfo> otherVariables) {
+
+		ctx.pw.print("\n");
+
+		if (resolveWrapFunction(mappingData, ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL)) {
+			ctx.pw.print("if (");
+			ctx.pw.print(mappingData.getSrc().getSourceForGetter(varSrcName));
+			ctx.pw.print("!=null) ");
+		}
+		if (resolveWrapFunction(mappingData, ApplyFieldStrategy.OLDVALUE_IS_NULL)) {
+			ctx.pw.print("if (");
+			ctx.pw.print(mappingData.getDst().getSourceForGetter(varDestName));
+			ctx.pw.print("==null) ");
+		}
 		String[] eee = mappingData.getDst().getSourceForSetter(varDestName);
-		
+		ctx.pw.print(eee[0]);
+		ctx.pw.print(eee[1]);
 		List<String> params = new ArrayList<>(2);
 		params.add(mappingData.getSrc().getSourceForGetter(varSrcName));
 		params.add(mappingData.getDst().getSourceForGetter(varDestName));
-		
-		Optional<TypeWithVariableInfo> ctxParam = Optional.empty();
-		if (ownerMethod.getMethodApiFullSyntax().getParams() != null) {
-			ctxParam = ownerMethod.getMethodApiFullSyntax().getParams().stream().
-				filter(p -> {
-					String paramClass = TypeUtils.getClassSimpleName(p.getVariableType().getType(ctx.processingEnv));
-					return MapperRunCtxData.class.getSimpleName().equalsIgnoreCase(paramClass);
-				}).findAny();
-		}
-		ctx.pw.print("\n");
-		if (ctxParam.isPresent()) {
-			String variableName = mappingData.getSrc().getFieldName() + "_src_" + mappingData.getDst().getFieldName();
-			if (mappingData.getMethodCallApi().getDestinationType() != null) {
-				ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getDestinationType()) + " " + variableName + " = ");
-			} else {
-				ctx.pw.print(ctx.javaClassWriter.imports.resolveType(mappingData.getMethodCallApi().getMethodSyntax().getReturnType().type) + " " + variableName + " = ");
-			}
-			mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
-			ctx.pw.print(";");
-			ctx.pw.print("\n");
-
-			boolean isPrimitiveMapping = mappingData.getMethodCallApi().getDestinationType() == null ? false : 
-				mappingData.getMethodCallApi().getDestinationType().getKind().isPrimitive();
-			
-			if (!isPrimitiveMapping) {
-				ctx.pw.print("if (" + variableName + " != null || !java.lang.Boolean.FALSE.equals("+ 
-						ctxParam.get().getVariableName() + ".getMapNullValues())) {");
-				ctx.pw.levelSpaceUp();
-				ctx.pw.print("\n");
-			}
-			ctx.pw.print(eee[0]);
-			ctx.pw.print(eee[1]);
-			ctx.pw.print(variableName);
-			ctx.pw.print(eee[2]);
-			ctx.pw.print(";");
-
-			if (!isPrimitiveMapping && ctxParam.isPresent()) {
-				ctx.pw.levelSpaceDown();
-				ctx.pw.print("\n}\n");
-			}
-		} else {
-			ctx.pw.print(eee[0]);
-			ctx.pw.print(eee[1]);
-			mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
-			ctx.pw.print(eee[2]);
-			ctx.pw.print(";");
-		}
+		mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
+		ctx.pw.print(eee[2]);
+		ctx.pw.print(";");
 	}
 }

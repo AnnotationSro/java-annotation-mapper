@@ -99,6 +99,11 @@ abstract public class AnnotationValueExtractUtil {
 
 	static <T extends Enum> T getAnnotationValue_enum(ProcessingEnvironment processingEnv, AnnotationValue value, Class<T> cls) {
 		if (value == null) return null;
+		return getAnnotationValue_enumList(processingEnv, value, cls).get(0);
+	}
+
+	static <T extends Enum> List<T> getAnnotationValue_enumList(ProcessingEnvironment processingEnv, AnnotationValue value, Class<T> cls) {
+		if (value == null) return null;
 		return getAnnotationValue_common(processingEnv, value, val -> {
 			if (val instanceof Symbol.VarSymbol) {
 				Symbol.VarSymbol symbol = (Symbol.VarSymbol)val;
@@ -110,8 +115,18 @@ abstract public class AnnotationValueExtractUtil {
 				}
 				return null;
 			}
+			if (val instanceof Attribute.Enum) {
+				Attribute.Enum symbol = (Attribute.Enum)val;
+				String enumName = symbol.value.getSimpleName().toString();
+				for (T e : cls.getEnumConstants()) {
+					if (e.name().equals(enumName)) {
+						return e;
+					}
+				}
+				return null;
+			}
 			return (T) val;
-		}).get(0);
+		});
 	}
 
 	private static <T> List<T> getAnnotationValue_common(ProcessingEnvironment processingEnv, AnnotationValue value, Function<Object, T> acceptType) {

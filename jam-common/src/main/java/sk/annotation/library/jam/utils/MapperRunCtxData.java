@@ -7,30 +7,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapperRunCtxData {
-    
-	public static final String MAP_NULL_VALUES = "map-null-values"; 
-	
-	private Map<String, Object> ctxVals = new HashMap<>();
-    
+
+    private Map<String, Object> ctxVals = new HashMap<>();
+
     public void putContextValue(String ctxKey, Object ctxVal) {
         if (ctxVals == null) ctxVals = new HashMap<>();
         ctxVals.put(ctxKey, ctxVal);
     }
-    
+
     public <T> T getContextValue(String ctxKey) {
         if (ctxVals == null) return null;
         return (T) ctxVals.get(ctxKey);
     }
 
-    public void setMapNullValues(Boolean mapNullValues) {
-    	this.putContextValue(MAP_NULL_VALUES, mapNullValues);
-    }
-    
-    public Boolean getMapNullValues () {
-    	return getContextValue(MAP_NULL_VALUES);
-    }
-    
     protected InstanceCache instanceCache = null;
+
     public InstanceCache getInstanceCache() {
         if (instanceCache == null) instanceCache = new DefaultInstanceCache();
         return instanceCache;

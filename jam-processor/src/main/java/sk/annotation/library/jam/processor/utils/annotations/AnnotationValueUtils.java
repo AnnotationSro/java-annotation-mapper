@@ -2,6 +2,7 @@ package sk.annotation.library.jam.processor.utils.annotations;
 
 import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.MapperConfig;
+import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
 import sk.annotation.library.jam.annotations.enums.IgnoreType;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
@@ -55,6 +56,7 @@ abstract public class AnnotationValueUtils {
 
         annotationMapperConfig.getImmutable().addAll(getAnnotationValue_ClassList(processingEnv, valuesWithDefaults.get("immutable")));
         annotationMapperConfig.getWithCustom().addAll(getAnnotationValue_ClassList(processingEnv, valuesWithDefaults.get("withCustom")));
+        annotationMapperConfig.getApplyWhen().addAll(AnnotationValueExtractUtil.getAnnotationValue_enumList(processingEnv, valuesWithDefaults.get("applyWhen"), ApplyFieldStrategy.class));
 
         for (Map<String, AnnotationValue> configMap : AnnotationValueExtractUtil.getAnnotationValue_innerValueMapList(processingEnv, valuesWithDefaults.get("config"))) {
 
@@ -130,6 +132,9 @@ abstract public class AnnotationValueUtils {
             fieldMappingData.setMethodNameD2S(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("methodNameD2S")));
             fieldMappingData.setIgnoreDirectionS2D(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("ignoreDirectionS2D")));
             fieldMappingData.setIgnoreDirectionD2S(AnnotationValueExtractUtil.getAnnotationValue_constant(processingEnv, fieldMappingMap.get("ignoreDirectionD2S")));
+
+            fieldMappingData.getApplyWhenS2D().addAll(AnnotationValueExtractUtil.getAnnotationValue_enumList(processingEnv, fieldMappingMap.get("applyWhenS2D"), ApplyFieldStrategy.class));
+            fieldMappingData.getApplyWhenD2S().addAll(AnnotationValueExtractUtil.getAnnotationValue_enumList(processingEnv, fieldMappingMap.get("applyWhenD2S"), ApplyFieldStrategy.class));
 
             ret.add(fieldMappingData);
         }
