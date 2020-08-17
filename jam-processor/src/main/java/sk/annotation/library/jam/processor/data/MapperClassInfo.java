@@ -158,9 +158,9 @@ public class MapperClassInfo {
         }
 
         // analyze 2 - check delegatedTopMethods
-        for (DeclaredMethodSourceInfo analyzedMethodSourceInfo : topMethods) {
-            analyzedMethodSourceInfo.tryUnwrapMethods(processingEnv);
-        }
+        tryUnwrapDeclaredMethods(processingEnv);
+
+
 
         // clear unused custom fields
         List<FieldInfo> notUsedFields = new LinkedList<>();
@@ -179,6 +179,40 @@ public class MapperClassInfo {
 //		// END: testing data
 //		//////////////////////////////
 
+    }
+
+    protected void tryUnwrapDeclaredMethods(ProcessingEnvironment processingEnv) {
+        // analyze 2 - check delegatedTopMethods
+        if (getFeatures().isRequiredInputWithMethodId()) return;
+        if (getFeatures().isRequiredInputWithContextData()) return;
+        if (!getFeatures().isDisabled_SHARED_CONTEXT_DATA_IN_SUB_MAPPER()) return;
+        if (!getFeatures().isDisabled_CYCLIC_MAPPING()) return;
+
+        Map<MethodApiKey, List<DeclaredMethodSourceInfo>> findBestMethod = new HashMap<>();
+        for (DeclaredMethodSourceInfo analyzedMethodSourceInfo : topMethods) {
+            MethodApiKey methodApiKey = analyzedMethodSourceInfo.getMethodApiFullSyntax().getApiKey();
+            if (methodApiKey.isApiWithReturnType()) {
+                methodApiKey = MethodApiKey.createWithoutReturnTypeInParam(methodApiKey);
+            }
+            findBestMethod.computeIfAbsent(methodApiKey, (a)->new LinkedList<>()).add(analyzedMethodSourceInfo);
+        }
+        for (List<DeclaredMethodSourceInfo> values : findBestMethod.values()) {
+            // Hladame najskor metodu, s return type na vstupe
+            tryUnwrapDeclaredMethods(processingEnv, values);
+        }
+    }
+    protected boolean tryUnwrapDeclaredMethods(ProcessingEnvironment processingEnv, List<DeclaredMethodSourceInfo> methods) {
+        for (DeclaredMethodSourceInfo declaredMethodSourceInfo : methods) {
+            if (declaredMethodSourceInfo.getMethodApiFullSyntax().isReturnLastParam()) {
+                if (declaredMethodSourceInfo.tryUnwrapMethods(processingEnv)) return true;
+            }
+        }
+        for (DeclaredMethodSourceInfo declaredMethodSourceInfo : methods) {
+            if (!declaredMethodSourceInfo.getMethodApiFullSyntax().isReturnLastParam()) {
+                if (declaredMethodSourceInfo.tryUnwrapMethods(processingEnv)) return true;
+            }
+        }
+        return false;
     }
 
 
@@ -352,6 +386,9 @@ public class MapperClassInfo {
                 myMethod = findBestMatchMethodApiFullSyntax(processingEnv, myUsableMethods, apiKey);
                 if (myMethod != null) {
                     for (AbstractMethodSourceInfo abstractMethodSourceInfo : methodsToImplement) {
+                        if (abstractMethodSourceInfo instanceof DeclaredMethodSourceInfo) {
+                            continue; // cannot find own direct declared method
+                        }
                         if (Objects.equals(abstractMethodSourceInfo.getMethodApiFullSyntax().getApiKey(), apiKey)) {
                             return MethodCallApi.createFrom("", myMethod, abstractMethodSourceInfo);
                         }

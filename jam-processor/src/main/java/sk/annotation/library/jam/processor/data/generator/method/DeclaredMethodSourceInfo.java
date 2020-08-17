@@ -72,7 +72,9 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 	}
 
 	public void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv) {
-		if (!requiredMethods.isEmpty()) return;
+		if (!requiredMethods.isEmpty()) {
+			return;
+		}
 		if (methodApiFullSyntax.getReturnType() == null) return; // body will be empty
 
 		////////////////////////////////////////////////////////
@@ -261,9 +263,11 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 		// if unwrapped methods has multiple variants or using!
 		if (methodCallApi.getOutGeneratedMethod().hasMultipleVariants(processingEnv)) return false;
 		if (methodCallApi.getOutGeneratedMethod() instanceof DeclaredMethodSourceInfo) {
-			if (!((DeclaredMethodSourceInfo)methodCallApi.getOutGeneratedMethod()).canUnwrapMethod(processingEnv)) return false;
+//			if (methodCallApi.getOutGeneratedMethod() == this) return false;
+//			if (!((DeclaredMethodSourceInfo)methodCallApi.getOutGeneratedMethod()).canUnwrapMethod(processingEnv)) return false;
 		}
 
+		// todo: Mali by sme testovat, ci je potrebne definovat typ metody na vstupe, lebo obsahuje @MapperConfig()
 
 //        if (!Objects.equals(methodCallApi.getMethodSyntax().getApiKey(), this.methodApiFullSyntax.getApiKey()))
 //            return;//ApiKey is the same
@@ -273,10 +277,10 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 		return true;
 	}
 
-	public void tryUnwrapMethods(ProcessingEnvironment processingEnv) {
-		if (this.requiredMethods.size() == 1 && this.requiredMethods.get(0).getRowFieldGenerator()!=null) return;
+	public boolean tryUnwrapMethods(ProcessingEnvironment processingEnv) {
+		if (this.requiredMethods.size() == 1 && this.requiredMethods.get(0).getRowFieldGenerator()!=null) return false;
 
-		if (!canUnwrapMethod(processingEnv)) return;
+		if (!canUnwrapMethod(processingEnv)) return false;
 
 		this.unwrapModeEnabled = true;
 		MethodCallApi methodCallApi = requiredMethods.get(0);
@@ -301,5 +305,6 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 //				}
 //			}
 //		}
+		return true;
 	}
 }
