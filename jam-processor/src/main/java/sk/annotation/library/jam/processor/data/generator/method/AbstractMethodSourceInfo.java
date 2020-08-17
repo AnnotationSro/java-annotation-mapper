@@ -269,7 +269,6 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             return;
         }
 
-        // Todo - check Collections & Interfaces & Default Public Constructors !!!
         new TypeConstructorInfo(varRet.getVariableType(), false).writeSourceCode(ctx);
     }
 

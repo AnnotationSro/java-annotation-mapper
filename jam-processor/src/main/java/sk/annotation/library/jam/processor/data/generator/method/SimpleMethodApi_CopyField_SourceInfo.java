@@ -12,6 +12,7 @@ import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.NameUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -21,6 +22,7 @@ import java.util.*;
 
 public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo {
 
+	protected String bodyError = null;
 	public SimpleMethodApi_CopyField_SourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams) {
 		super(ownerClassInfo, methodApiParams);
 	}
@@ -41,19 +43,25 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		}
 
 		// if this is default call and default call is in analyzed data, we can stop immediate
-			if (!forMethodConfig.isWithCustomConfig()) {
-				for (MethodConfigKey methodConfigKey : this.analyzedDataMap.keySet()) {
-					if (!methodConfigKey.isWithCustomConfig()) {
-						return;
-					}
+		if (!forMethodConfig.isWithCustomConfig()) {
+			for (MethodConfigKey methodConfigKey : this.analyzedDataMap.keySet()) {
+				if (!methodConfigKey.isWithCustomConfig()) {
+					return;
 				}
 			}
+		}
 
 
 		// remember Source / Destination
 		List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
 		Type typeFrom = (Type) requiredParams.get(0).getVariableType().getType(null);
 		Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
+
+		if (!ElementUtils.hasDefaultConstructor(processingEnv, typeTo)) {
+			bodyError = "Default public constructor is not found!";
+			return;
+		}
+
 
 		/////////////////////////
 		// 1) Collect all information ...
@@ -108,9 +116,26 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 	}
 
 	@Override
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
+		if (bodyError!=null) {
+			methodApiFullSyntax.writeMethodDeclaration(ctx);
+
+			ctx.pw.print(" {");
+			ctx.pw.levelSpaceUp();
+			ctx.pw.print("\nthrow new IllegalStateException(\"" + bodyError + "\");");
+			ctx.pw.levelSpaceDown();
+			ctx.pw.print("\n}");
+			return true;
+		}
+
+		return super.writeSourceCode(ctx);
+	}
+
+	@Override
 	protected void writeSourceCodeBody(SourceGeneratorContext ctx) {
 		List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
 		TypeWithVariableInfo varSrc = requiredParams.get(0);
+
 		String inputVarSrcName = varSrc.getVariableName();
 		String inputVarDstName = varRet.getVariableName();
 		this.usedNames.add(inputVarDstName);
