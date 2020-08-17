@@ -5,6 +5,7 @@ import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
+import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -33,6 +34,13 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 		return true;
 	}
 	public void writeSourceCodeWithParams(SourceGeneratorContext ctx, String... sourceAsParams) {
+		// Todo - check Collections & Interfaces & Default Public Constructors !!!
+		if (!ElementUtils.hasDefaultConstructor(ctx.processingEnv, typeConstructor.getType(ctx.processingEnv))) {
+			ctx.pw.print("null /*NO DEFAULT CONSTRUCTOR*/");
+			return;
+		}
+
+
 		boolean withParams = sourceAsParams!=null && sourceAsParams.length>0;
 
 		if (!withParams && constructorReference) {

@@ -11,11 +11,8 @@ import sk.annotation.library.jam.utils.MapperUtil;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-import javax.lang.model.util.SimpleElementVisitor6;
-import javax.lang.model.util.SimpleTypeVisitor6;
 import javax.tools.Diagnostic;
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -163,6 +160,23 @@ abstract public class ElementUtils {
 		}
 	}
 
+	public static boolean hasDefaultConstructor(ProcessingEnvironment processingEnv, TypeMirror typeFrom) {
+		try {
+			TypeMirror typeFromConstructor = TypeUtils._resolveConstructorType(processingEnv, typeFrom);
+			List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((Type) typeFromConstructor).asElement());
+			for (Element member : allMembers) {
+				if (member instanceof Symbol.MethodSymbol) {
+					Symbol.MethodSymbol method = (Symbol.MethodSymbol) member;
+					if (method.isConstructor() && member.getModifiers().contains(Modifier.PUBLIC)) return true;
+				}
+			}
+		}
+		catch (Exception e) {
+			//warninr
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	static private final Map<Type, Map<String, FieldValueAccessData>> cachedValues = new HashMap<>();
 	public static Map<String, FieldValueAccessData> findAllAccesableFields(ProcessingEnvironment processingEnv, Type typeFrom) {

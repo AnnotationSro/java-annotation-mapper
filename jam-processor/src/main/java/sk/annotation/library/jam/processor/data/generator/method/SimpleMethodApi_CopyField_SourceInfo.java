@@ -3,6 +3,7 @@ package sk.annotation.library.jam.processor.data.generator.method;
 import com.sun.tools.javac.code.Type;
 import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
+import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldConfigurationResolver;
@@ -11,6 +12,7 @@ import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessDat
 import sk.annotation.library.jam.processor.data.constructors.TypeConstructorInfo;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
+import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.NameUtils;
@@ -58,8 +60,13 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
 
 		if (!ElementUtils.hasDefaultConstructor(processingEnv, typeTo)) {
-			bodyError = "Default public constructor is not found!";
-			return;
+
+			MethodApiKey constructorApiKey = new MethodApiKey(requiredParams.get(1).getVariableType(), Collections.emptyList());
+			MethodCallApi methodCallApi = ownerClassInfo.findMethodApiToCall(processingEnv, constructorApiKey, null /*TODO: This constructore has to be created during analyzes */);
+			if (methodCallApi==null) {
+//				bodyError = "Default public constructor is not found!";
+//				return;
+			}
 		}
 
 
