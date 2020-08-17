@@ -34,6 +34,8 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 		return true;
 	}
 	public void writeSourceCodeWithParams(SourceGeneratorContext ctx, String... sourceAsParams) {
+		TypeInfo typeConstructor = getTypeConstructor(ctx.processingEnv);
+
 		// Todo - check Collections & Interfaces & Default Public Constructors !!!
 		if (!ElementUtils.hasDefaultConstructor(ctx.processingEnv, typeConstructor.getType(ctx.processingEnv))) {
 			ctx.pw.print("null /*NO DEFAULT CONSTRUCTOR*/");
@@ -44,7 +46,7 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 		boolean withParams = sourceAsParams!=null && sourceAsParams.length>0;
 
 		if (!withParams && constructorReference) {
-			getTypeConstructor(ctx.processingEnv).writeSourceCode(ctx);
+			typeConstructor.writeSourceCode(ctx);
 			ctx.pw.print("::new");
 			return;
 		}
@@ -54,7 +56,7 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 		}
 
 		ctx.pw.print("new ");
-		getTypeConstructor(ctx.processingEnv).writeSourceCode(ctx);
+		typeConstructor.writeSourceCode(ctx);
 		ctx.pw.print("(");
 		if (withParams) {
 			for (int i = 0; i < sourceAsParams.length; i++) {
