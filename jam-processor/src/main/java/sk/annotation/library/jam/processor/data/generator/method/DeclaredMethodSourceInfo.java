@@ -261,9 +261,9 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 			return false;
 
 		// if unwrapped methods has multiple variants or using!
+		if (methodCallApi.getOutGeneratedMethod() == this) return false;
 		if (methodCallApi.getOutGeneratedMethod().hasMultipleVariants(processingEnv)) return false;
 		if (methodCallApi.getOutGeneratedMethod() instanceof DeclaredMethodSourceInfo) {
-//			if (methodCallApi.getOutGeneratedMethod() == this) return false;
 //			if (!((DeclaredMethodSourceInfo)methodCallApi.getOutGeneratedMethod()).canUnwrapMethod(processingEnv)) return false;
 		}
 

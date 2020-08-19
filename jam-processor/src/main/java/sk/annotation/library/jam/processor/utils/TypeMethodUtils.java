@@ -76,7 +76,7 @@ public class TypeMethodUtils {
         }
         if (testParamType instanceof Type.TypeVar) {
             Type.TypeVar tstType = (Type.TypeVar) testParamType;
-            if (!testRequiredType(tstType.bound, requiredParamType, TypCompareValue.REQUIRED_VALUE_AS_PARENT)) return false;
+            if (!testRequiredType(tstType.getUpperBound(), requiredParamType, TypCompareValue.REQUIRED_VALUE_AS_PARENT)) return false;
 
             String typeVarName = tstType.tsym.toString();
             if (!resolvedParametrizedTypes.containsKey(typeVarName)) {
