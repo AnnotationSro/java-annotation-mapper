@@ -54,7 +54,7 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
 
         // call reference for type ...
         if (methodCallApi != null && methodCallApi.getOutGeneratedMethod() != null) {
-            methodCallApi.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig);
+            methodCallApi.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig, this);
         }
     }
 
