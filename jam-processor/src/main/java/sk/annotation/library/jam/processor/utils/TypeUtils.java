@@ -9,6 +9,7 @@ import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
+import javax.tools.Diagnostic;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
@@ -310,6 +311,10 @@ abstract public class TypeUtils {
         // same
         for (TypeMirror typeMirror : _cls2) {
             if (processingEnv.getTypeUtils().isSameType(source, typeMirror)) return true;
+            if (Objects.equals(source+"", typeMirror+"")) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type equals  " + source + " / " + typeMirror);
+                return true;
+            }
         }
 
         for (TypeMirror typeMirror : _cls1) {
@@ -321,9 +326,20 @@ abstract public class TypeUtils {
     }
 
     public static boolean isKnownImmutableType(ProcessingEnvironment processingEnv, TypeMirror inType) {
-        if (inType == null) return true;
-        if (isBaseOrPrimitiveType(processingEnv, inType)) return true;
-        if (isEnunType(processingEnv, new TypeInfo(inType))) return true;
+        if (inType == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "unknown type  - NULL!");
+            return true;
+        }
+        if (isBaseOrPrimitiveType(processingEnv, inType)) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type " + inType);
+            return true;
+        }
+        if (isEnunType(processingEnv, new TypeInfo(inType))) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "imutable type " + inType);
+            return true;
+        }
+
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "unknown type " + inType);
         return false;
     }
 
