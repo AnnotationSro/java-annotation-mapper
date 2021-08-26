@@ -312,7 +312,7 @@ abstract public class TypeUtils {
         for (TypeMirror typeMirror : _cls2) {
             if (processingEnv.getTypeUtils().isSameType(source, typeMirror)) return true;
             if (Objects.equals(source+"", typeMirror+"")) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type equals  " + source + " / " + typeMirror);
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type equals  " + source + "("+source.getClass().getCanonicalName()+")" + " / " + typeMirror+"("+typeMirror.getClass().getCanonicalName()+")");
                 return true;
             }
         }
