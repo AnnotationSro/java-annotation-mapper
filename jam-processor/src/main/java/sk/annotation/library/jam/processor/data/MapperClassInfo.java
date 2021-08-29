@@ -222,8 +222,8 @@ public class MapperClassInfo {
 
     protected boolean alreadyExistsFieldType(ProcessingEnvironment processingEnv, Type fieldType) {
         for (Type existFieldValue : allFieldsTypes.values()) {
-            if (processingEnv.getTypeUtils().isSameType(existFieldValue, fieldType)) return true; // already exists
-            if (processingEnv.getTypeUtils().isSameType(existFieldValue, parentElement.asType())) return true; // already exists
+            if (TypeUtils.isSameType(processingEnv,existFieldValue, fieldType)) return true; // already exists
+            if (TypeUtils.isSameType(processingEnv,existFieldValue, parentElement.asType())) return true; // already exists
         }
 
         return false;

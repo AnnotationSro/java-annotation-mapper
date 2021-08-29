@@ -119,13 +119,25 @@ abstract public class TypeUtils {
         return true;
     }
 
+    public static boolean isSameType(ProcessingEnvironment processingEnv, TypeMirror var1, TypeMirror var2) {
+        if (processingEnv.getTypeUtils().isSameType(var1, var2)) return true;
+
+        // temporary detection same type - TypeUtils.isSameType is sometimes not working in kotlin
+        if (Objects.equals(var1+"", var2+"")) {
+            boolean eq = processingEnv.getTypeUtils().isSameType(processingEnv.getTypeUtils().erasure(var1), processingEnv.getTypeUtils().erasure(var2));
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type equals("+eq+")  " + var1 + "("+var1.getClass().getCanonicalName()+")" + " / " + var2+"("+var2.getClass().getCanonicalName()+")");
+            return true;
+        }
+
+        return false;
+    }
 
     public static boolean isSameTypes(ProcessingEnvironment processingEnv, Class clsType, Type... types) {
         if (types == null || types.length == 0) return false;
 
         TypeMirror type = processingEnv.getElementUtils().getTypeElement(clsType.getCanonicalName()).asType();
         for (Type tp : types) {
-            if (!processingEnv.getTypeUtils().isSameType(type, tp)) return false;
+            if (!TypeUtils.isSameType(processingEnv,type, tp)) return false;
         }
 
         return true;
@@ -139,7 +151,7 @@ abstract public class TypeUtils {
     static public boolean isSame(ProcessingEnvironment processingEnv, TypeMirror type1, TypeMirror type2) {
         if (type1 == null && type2 == null) return true;
         if (type1 == null || type2 == null) return false;
-        return processingEnv.getTypeUtils().isSameType(type1, type2);
+        return TypeUtils.isSameType(processingEnv,type1, type2);
     }
 
     static public boolean isAssignable(ProcessingEnvironment processingEnv, TypeMirror type1, TypeMirror type2) {
@@ -310,7 +322,7 @@ abstract public class TypeUtils {
 
         // same
         for (TypeMirror typeMirror : _cls2) {
-            if (processingEnv.getTypeUtils().isSameType(source, typeMirror)) return true;
+            if (TypeUtils.isSameType(processingEnv,source, typeMirror)) return true;
             if (Objects.equals(source+"", typeMirror+"")) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type equals  " + source + "("+source.getClass().getCanonicalName()+")" + " / " + typeMirror+"("+typeMirror.getClass().getCanonicalName()+")");
                 return true;
@@ -327,19 +339,19 @@ abstract public class TypeUtils {
 
     public static boolean isKnownImmutableType(ProcessingEnvironment processingEnv, TypeMirror inType) {
         if (inType == null) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "unknown type  - NULL!");
+//            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "unknown type  - NULL!");
             return true;
         }
         if (isBaseOrPrimitiveType(processingEnv, inType)) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type " + inType);
+//            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type " + inType);
             return true;
         }
         if (isEnunType(processingEnv, new TypeInfo(inType))) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "imutable type " + inType);
+//            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "imutable type " + inType);
             return true;
         }
 
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "unknown type " + inType);
+//        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "unknown type " + inType);
         return false;
     }
 

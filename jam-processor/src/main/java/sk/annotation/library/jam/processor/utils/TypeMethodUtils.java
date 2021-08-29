@@ -7,16 +7,15 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TypeMethodUtils {
-    final Types typeUtils;
+    final ProcessingEnvironment processingEnv;
     final Map<String, TypeMirror> resolvedParametrizedTypes = new HashMap<>();
     private TypeMethodUtils(ProcessingEnvironment processingEnv) {
-        typeUtils = processingEnv.getTypeUtils();
+        this.processingEnv = processingEnv;
     }
 
     private static enum TypCompareValue {SAME, REQUIRED_VALUE_AS_PARENT, REQUIRED_VALUE_AS_CHILD}
@@ -85,7 +84,7 @@ public class TypeMethodUtils {
             }
 
             // resolved parametrized types has to be same
-            return typeUtils.isSameType(requiredParamType, resolvedParametrizedTypes.get(typeVarName));
+            return TypeUtils.isSameType(processingEnv, requiredParamType, resolvedParametrizedTypes.get(typeVarName));
         }
 
         if (hasTypeArguments(testParamType) && hasTypeArguments(requiredParamType)) {
@@ -103,13 +102,13 @@ public class TypeMethodUtils {
 
         switch (mode) {
             case SAME:
-                return typeUtils.isSameType(typeUtils.erasure(testParamType), typeUtils.erasure(requiredParamType));
+                return TypeUtils.isSameType(processingEnv, processingEnv.getTypeUtils().erasure(testParamType), processingEnv.getTypeUtils().erasure(requiredParamType));
 
             case REQUIRED_VALUE_AS_PARENT:
-                return typeUtils.isAssignable(typeUtils.erasure(requiredParamType), typeUtils.erasure(testParamType));
+                return TypeUtils.isAssignable(processingEnv, processingEnv.getTypeUtils().erasure(requiredParamType), processingEnv.getTypeUtils().erasure(testParamType));
 
             case REQUIRED_VALUE_AS_CHILD:
-                return typeUtils.isAssignable(typeUtils.erasure(testParamType), typeUtils.erasure(requiredParamType));
+                return TypeUtils.isAssignable(processingEnv, processingEnv.getTypeUtils().erasure(testParamType), processingEnv.getTypeUtils().erasure(requiredParamType));
         }
 
         throw new IllegalStateException("Unknown TYPE");

@@ -165,7 +165,7 @@ abstract public class AnnotationValueExtractUtil {
 		Type typeMapperFieldConfig = TypeUtils.convertToType(processingEnv, cls);
 
 		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
-			if (!processingEnv.getTypeUtils().isSameType(annotationMirror.getAnnotationType(), typeMapperFieldConfig))
+			if (!TypeUtils.isSameType(processingEnv,annotationMirror.getAnnotationType(), typeMapperFieldConfig))
 				continue;
 			return annotationMirror;
 		}

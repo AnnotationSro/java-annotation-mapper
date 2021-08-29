@@ -11,6 +11,7 @@ import sk.annotation.library.jam.annotations.enums.IgnoreType;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
+import sk.annotation.library.jam.processor.utils.TypeUtils;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationConfigGenerator;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
@@ -67,17 +68,17 @@ public class FieldConfigurationResolver {
         this.ownerClassInfo = ownerClassInfo;
         this.jamMapper = ownerClassInfo.getJamMapperConfig();
 
-		mapperConfigs = AnnotationValueUtils.resolveMapperConfigData(processingEnv, forMethodConfig.getMethod());
+        mapperConfigs = AnnotationValueUtils.resolveMapperConfigData(processingEnv, forMethodConfig.getMethod());
 
         for (AnnotationMapperConfig mapperConf : mapperConfigs) {
             if (mapperConf == null) continue;
 
             // 1) Custom Fields !!!
-			for (AnnotationFieldMapping fieldMappingData : mapperConf.getFieldMapping()) {
-				MapperConfWrapper mapperConfWrapper = new MapperConfWrapper(fieldMappingData);
-				registerFieldMapperWrapper(mapperConfWrapper.directionFromSToD);
-				registerFieldMapperWrapper(mapperConfWrapper.directionFromDToS);
-			}
+            for (AnnotationFieldMapping fieldMappingData : mapperConf.getFieldMapping()) {
+                MapperConfWrapper mapperConfWrapper = new MapperConfWrapper(fieldMappingData);
+                registerFieldMapperWrapper(mapperConfWrapper.directionFromSToD);
+                registerFieldMapperWrapper(mapperConfWrapper.directionFromDToS);
+            }
         }
     }
 
@@ -124,14 +125,14 @@ public class FieldConfigurationResolver {
 
         Map<String, FieldValueAccessData> srcFields = ElementUtils.findAllAccesableFields(processingEnv, typeFrom);
         Map<String, FieldValueAccessData> dstFields = ElementUtils.findAllAccesableFields(processingEnv, typeTo);
-        boolean sameTypes = processingEnv.getTypeUtils().isSameType(typeFrom, typeTo);
+        boolean sameTypes = TypeUtils.isSameType(processingEnv, typeFrom, typeTo);
         Set<String> unusedSourceFields = new HashSet<>(srcFields.keySet());
         Set<String> unusedDestinationFields = new HashSet<>(dstFields.keySet());
 
         // Find custom fields
         for (FieldMapperWrapper customField : customFieldMapping) {
-			if (!customField.a.isTypeAcceptable(processingEnv, typeFrom)) continue; // ignore not appliable customFieldMapping
-			if (!customField.b.isTypeAcceptable(processingEnv, typeTo)) continue; // ignore not appliable customFieldMapping
+            if (!customField.a.isTypeAcceptable(processingEnv, typeFrom)) continue; // ignore not appliable customFieldMapping
+            if (!customField.b.isTypeAcceptable(processingEnv, typeTo)) continue; // ignore not appliable customFieldMapping
 
             if (sameTypes && !customField.directionSToD) continue;
 
@@ -139,14 +140,14 @@ public class FieldConfigurationResolver {
             List<FieldValueAccessData> srcFieldPathList = findFieldPath(processingEnv, typeFrom, srcFields, customField.a);
             String srcPathKey = createKeyForFieldPath(srcFieldPathList);
             if (srcFieldPathList == null || srcFieldPathList.isEmpty() || StringUtils.isEmpty(srcPathKey)) continue;
-			String srcName = srcFieldPathList.get(0).getFieldName();
-			unusedSourceFields.remove(srcName);
+            String srcName = srcFieldPathList.get(0).getFieldName();
+            unusedSourceFields.remove(srcName);
 
             List<FieldValueAccessData> dstFieldPathList = findFieldPath(processingEnv, typeTo, dstFields, customField.b);
             String dstPathKey = createKeyForFieldPath(dstFieldPathList);
             if (dstFieldPathList == null || dstFieldPathList.isEmpty() || StringUtils.isEmpty(dstPathKey)) continue;
-			String dstName = dstFieldPathList.get(0).getFieldName();
-			unusedDestinationFields.remove(dstName);
+            String dstName = dstFieldPathList.get(0).getFieldName();
+            unusedDestinationFields.remove(dstName);
 
             String key = createKeyConfig(srcFieldPathList, dstFieldPathList, true);
             if (resolvedCustomFields.contains(key)) continue;
@@ -154,8 +155,8 @@ public class FieldConfigurationResolver {
 
             // if it should be ignored, it needs to be checked
             if (customField.ignoreDirection) continue;
-			if (isIgnoredPath(processingEnv, typeFrom, srcFieldPathList, false)) continue;
-			if (isIgnoredPath(processingEnv, typeTo, dstFieldPathList, true)) continue;
+            if (isIgnoredPath(processingEnv, typeFrom, srcFieldPathList, false)) continue;
+            if (isIgnoredPath(processingEnv, typeTo, dstFieldPathList, true)) continue;
 //            if (isIgnoredKey(srcFieldConfigMap, srcPathKey)) continue;
 //            if (isIgnoredKey(dstFieldConfigMap, dstPathKey)) continue;
 
@@ -194,8 +195,8 @@ public class FieldConfigurationResolver {
 
                 List<FieldValueAccessData> srcFieldPathList = Collections.singletonList(mappingData.getSrc());
                 List<FieldValueAccessData> dstFieldPathList = Collections.singletonList(mappingData.getDst());
-				mappingData.setSrcIgnored(isIgnoredPath(processingEnv, typeFrom, srcFieldPathList, false));
-				mappingData.setDstIgnored(isIgnoredPath(processingEnv, typeTo, dstFieldPathList, true));
+                mappingData.setSrcIgnored(isIgnoredPath(processingEnv, typeFrom, srcFieldPathList, false));
+                mappingData.setDstIgnored(isIgnoredPath(processingEnv, typeTo, dstFieldPathList, true));
                 if (!mappingData.isWithoutProblemOrNotIgnored()) {
                     mappingData.setSrcConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeFrom, orderedUnusedKey, true));
                     mappingData.setDstConfigErrorReportingLevel(resolveReportPriority(processingEnv, typeTo, orderedUnusedKey, false));
@@ -310,24 +311,24 @@ public class FieldConfigurationResolver {
         return ConfigErrorReporting.WARNINGS_ONLY;
     }
 
-	private boolean isIgnoredPath(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> srcFieldPathList, boolean forUpdate) {
-    	if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return true;
+    private boolean isIgnoredPath(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> srcFieldPathList, boolean forUpdate) {
+        if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return true;
 
-		for (AnnotationMapperConfig fieldConfig : mapperConfigs) {
-			for (AnnotationFieldIgnore fieldIgnore : fieldConfig.getFieldIgnore()) {
-				if (!fieldIgnore.isTypeAcceptable(processingEnv, type)) continue;
-				if (!StringUtils.equals(fieldIgnore.getValue(), srcFieldPathList.get(0).getFieldName())) continue;
+        for (AnnotationMapperConfig fieldConfig : mapperConfigs) {
+            for (AnnotationFieldIgnore fieldIgnore : fieldConfig.getFieldIgnore()) {
+                if (!fieldIgnore.isTypeAcceptable(processingEnv, type)) continue;
+                if (!StringUtils.equals(fieldIgnore.getValue(), srcFieldPathList.get(0).getFieldName())) continue;
 
-				if (fieldIgnore.getIgnored() == IgnoreType.IGNORE_ALL) return true;
-				if (forUpdate) return fieldIgnore.getIgnored() == IgnoreType.IGNORE_WRITE;
-				return fieldIgnore.getIgnored() == IgnoreType.IGNORE_READ;
-			}
-		}
+                if (fieldIgnore.getIgnored() == IgnoreType.IGNORE_ALL) return true;
+                if (forUpdate) return fieldIgnore.getIgnored() == IgnoreType.IGNORE_WRITE;
+                return fieldIgnore.getIgnored() == IgnoreType.IGNORE_READ;
+            }
+        }
 
-    	return false;
-	}
+        return false;
+    }
 
-	private ApplyFieldStrategy findFieldStrategyForMapping(ProcessingEnvironment processingEnv, Type srcType, List<FieldValueAccessData> srcFieldPathList, Type dstType, List<FieldValueAccessData> dstFieldPathList) {
+    private ApplyFieldStrategy findFieldStrategyForMapping(ProcessingEnvironment processingEnv, Type srcType, List<FieldValueAccessData> srcFieldPathList, Type dstType, List<FieldValueAccessData> dstFieldPathList) {
         if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return ApplyFieldStrategy.ALWAYS;
         if (dstFieldPathList == null || dstFieldPathList.isEmpty() || dstFieldPathList.get(0) == null) return ApplyFieldStrategy.ALWAYS;
 
@@ -337,27 +338,26 @@ public class FieldConfigurationResolver {
             // Finding from field mapping
             for (AnnotationFieldMapping fieldMapping : fieldConfig.getFieldMapping()) {
                 if (!fieldMapping.isIgnoreDirectionS2D() && fieldMapping.getS().isAcceptableTypeAndName(processingEnv, srcType, srcFieldPathList)
-                    && fieldMapping.getD().isAcceptableTypeAndName(processingEnv, dstType, dstFieldPathList)) {
+                        && fieldMapping.getD().isAcceptableTypeAndName(processingEnv, dstType, dstFieldPathList)) {
                     values = fieldMapping.getApplyWhenS2D();
-                    if (values!=null && !values.isEmpty()) break;
-                }
-                else if (!fieldMapping.isIgnoreDirectionD2S() && fieldMapping.getD().isAcceptableTypeAndName(processingEnv, srcType, srcFieldPathList)
+                    if (values != null && !values.isEmpty()) break;
+                } else if (!fieldMapping.isIgnoreDirectionD2S() && fieldMapping.getD().isAcceptableTypeAndName(processingEnv, srcType, srcFieldPathList)
                         && fieldMapping.getS().isAcceptableTypeAndName(processingEnv, dstType, dstFieldPathList)) {
                     values = fieldMapping.getApplyWhenD2S();
-                    if (values!=null && !values.isEmpty()) break;
+                    if (values != null && !values.isEmpty()) break;
                 }
             }
 
-            if (values!=null && !values.isEmpty()) break;
+            if (values != null && !values.isEmpty()) break;
 
             // Mapping from methodOrMapperConfig
-            if (fieldConfig.getApplyWhen()!=null && !fieldConfig.getApplyWhen().isEmpty()) {
+            if (fieldConfig.getApplyWhen() != null && !fieldConfig.getApplyWhen().isEmpty()) {
                 values = fieldConfig.getApplyWhen();
                 break;
             }
         }
 
-        if (values!=null && !values.isEmpty()) {
+        if (values != null && !values.isEmpty()) {
             if (values.contains(ApplyFieldStrategy.ALWAYS)) return ApplyFieldStrategy.ALWAYS;
             if (values.contains(ApplyFieldStrategy.OLDVALUE_IS_NULL)) return ApplyFieldStrategy.OLDVALUE_IS_NULL;
             if (values.contains(ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL)) return ApplyFieldStrategy.NEWVALUE_IS_NOT_NULL;
@@ -365,7 +365,6 @@ public class FieldConfigurationResolver {
 
         return ApplyFieldStrategy.ALWAYS;
     }
-
 
 
     static private String createKeyForFieldPath(List<FieldValueAccessData> fields) {
@@ -418,17 +417,17 @@ public class FieldConfigurationResolver {
 
     static List<FieldValueAccessData> findFieldPath(ProcessingEnvironment processingEnv, Type type, Map<String, FieldValueAccessData> fieldsMap, AnnotationFieldId fieldId, boolean fieldNameRequired) {
         // check type is accepatble
-		if (!fieldId.isTypeAcceptable(processingEnv, type)) return null;
+        if (!fieldId.isTypeAcceptable(processingEnv, type)) return null;
 
-		// Try Prefix for fullClassName
-		String fieldNameInConfiguration = fieldId.getValue();
-		if (fieldNameInConfiguration == null) return null;
-		if (fieldNameRequired && StringUtils.isEmpty(fieldNameInConfiguration)) return null;
+        // Try Prefix for fullClassName
+        String fieldNameInConfiguration = fieldId.getValue();
+        if (fieldNameInConfiguration == null) return null;
+        if (fieldNameRequired && StringUtils.isEmpty(fieldNameInConfiguration)) return null;
 
-		if (fieldsMap.containsKey(fieldNameInConfiguration))
-			return Collections.singletonList(fieldsMap.get(fieldNameInConfiguration));
+        if (fieldsMap.containsKey(fieldNameInConfiguration))
+            return Collections.singletonList(fieldsMap.get(fieldNameInConfiguration));
 
-		String[] splitedFieldName = fieldNameInConfiguration.split(Pattern.quote("."));
+        String[] splitedFieldName = fieldNameInConfiguration.split(Pattern.quote("."));
 
         List<FieldValueAccessData> ret = new ArrayList<>(splitedFieldName.length);
         for (int i = 0; i < splitedFieldName.length; i++) {

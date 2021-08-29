@@ -405,7 +405,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 //
 //		if (StringUtils.isNotEmpty(fieldMapping.getMethodNameRequired())) return false;
 //
-//		if (!processingEnv.getTypeUtils().isSameType(source, destination)) return false;
+//		if (!TypeUtils.isSameType(processingEnv,source, destination)) return false;
 //
 //		if (TypeUtils.isKnownImmutableType(processingEnv, source)) return true;
 //
