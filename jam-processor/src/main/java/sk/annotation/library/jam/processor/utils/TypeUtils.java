@@ -125,7 +125,7 @@ abstract public class TypeUtils {
         // temporary detection same type - TypeUtils.isSameType is sometimes not working in kotlin
         if (Objects.equals(var1+"", var2+"")) {
             boolean eq = processingEnv.getTypeUtils().isSameType(processingEnv.getTypeUtils().erasure(var1), processingEnv.getTypeUtils().erasure(var2));
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "primitive type equals("+eq+")  " + var1 + "("+var1.getClass().getCanonicalName()+")" + " / " + var2+"("+var2.getClass().getCanonicalName()+")");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "DEBUG: type strings equals ("+eq+")  " + var1 + "("+var1.getClass().getCanonicalName()+")" + " / " + var2+"("+var2.getClass().getCanonicalName()+")");
             return true;
         }
 
