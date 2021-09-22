@@ -65,7 +65,7 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
 
                 TypeElement typeElementMapper = processingEnv.getElementUtils().getTypeElement(e.getKey());
                 if (typeElementMapper != null) {
-                    generateMapper(e.getKey(), typeElementMapper);
+                    generateMapper(typeElementMapper);
                     e.setValue(true);
                     continue;
                 }
@@ -77,12 +77,18 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
         return true;
     }
 
-    protected void generateMapper(String fullName, TypeElement element) {
+    static public Map<String, Boolean> cache = new HashMap<>();
+    protected void generateMapper(TypeElement element) {
+        String fullNamePath = ElementUtils.getQualifiedName(element);
+        if (cache.containsKey(fullNamePath)) return;
+        cache.put(fullNamePath, false);
 
         MapperClassInfo mapperInfo = MapperClassInfo.getOrCreate(processingEnv, element);
         if (mapperInfo == null) return;
 
         JavaClassWriter javaClassWriter = new JavaClassWriter(mapperInfo);
         javaClassWriter.writeSourceCode(processingEnv);
+
+        cache.put(fullNamePath, true);
     }
 }
