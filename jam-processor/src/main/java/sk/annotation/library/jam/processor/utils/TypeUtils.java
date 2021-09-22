@@ -9,7 +9,6 @@ import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
-import javax.tools.Diagnostic;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
@@ -124,8 +123,8 @@ abstract public class TypeUtils {
 
         // temporary detection same type - TypeUtils.isSameType is sometimes not working in kotlin
         if (Objects.equals(var1+"", var2+"")) {
-            boolean eq = processingEnv.getTypeUtils().isSameType(processingEnv.getTypeUtils().erasure(var1), processingEnv.getTypeUtils().erasure(var2));
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "DEBUG: type strings equals ("+eq+")  " + var1 + "("+var1.getClass().getCanonicalName()+")" + " / " + var2+"("+var2.getClass().getCanonicalName()+")");
+            //boolean eq = processingEnv.getTypeUtils().isSameType(processingEnv.getTypeUtils().erasure(var1), processingEnv.getTypeUtils().erasure(var2));
+            //processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "DEBUG: type strings equals ("+eq+")  " + var1 + "("+var1.getClass().getCanonicalName()+")" + " / " + var2+"("+var2.getClass().getCanonicalName()+")");
             return true;
         }
 
@@ -323,10 +322,6 @@ abstract public class TypeUtils {
         // same
         for (TypeMirror typeMirror : _cls2) {
             if (isSameType(processingEnv, source, typeMirror)) return true;
-            if (Objects.equals(source+"", typeMirror+"")) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "XXXXX type equals  " + source + "("+source.getClass().getCanonicalName()+")" + " / " + typeMirror+"("+typeMirror.getClass().getCanonicalName()+")");
-                return true;
-            }
         }
 
         for (TypeMirror typeMirror : _cls1) {

@@ -13,6 +13,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import java.util.*;
 
 
@@ -39,8 +40,17 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
 
     private Map<String, Boolean> foundMappersPerGeneratedState = new LinkedHashMap<>();
 
+    private boolean firstRun = true;
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+
+        if (firstRun) {
+            firstRun = false;
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Annotation processor " + this.getClass().getCanonicalName() + " - started!");
+        }
+
+
         // 1) Find All Mappers
         for (Element element : roundEnv.getElementsAnnotatedWith(Mapper.class)) {
             if (element instanceof TypeElement) {

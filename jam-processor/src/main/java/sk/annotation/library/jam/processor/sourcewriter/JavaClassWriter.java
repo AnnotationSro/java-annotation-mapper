@@ -50,7 +50,8 @@ public class JavaClassWriter implements SourceGenerator {
 					Writer w = sourceFile.openWriter();
 					PrintWriter pw = new PrintWriter(w);
 			) {
-				processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Generating mapper : " + sourceFile.getName() + " - depends on: " + originatingElements);
+				// processingEnv.getMessager().printMessage(Diagnostic.Kind.OTHER, "Generating mapper : " + sourceFile.getName());
+				processingEnv.getMessager().printMessage(Diagnostic.Kind.OTHER, "Generating mapper : " + sourceFile.getName());
 				writeSourceCode(new SourceGeneratorContext(processingEnv, this, pw));
 			}
 		} catch (Exception e) {
