@@ -14,6 +14,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import java.io.InputStream;
 import java.util.*;
 
 
@@ -42,12 +43,31 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
 
     private boolean firstRun = true;
 
+    protected static final String version = getVersion();
+    protected static String getVersion() {
+        try {
+            InputStream is = AnnotationJamMapperProcessor.class.getResourceAsStream("/META-INF/maven/sk.annotation.library.jam/jam-processor/pom.properties");
+            if (is != null) {
+                Properties p = new Properties();
+                p.load(is);
+                String version = p.getProperty("version");
+                if (version != null && version.trim().length()>0) {
+                    return " (version= " + version + ")";
+                }
+            }
+        }
+        catch (Exception e) {
+            // ignore error
+        }
+        return "";
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
         if (firstRun) {
             firstRun = false;
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Annotation processor " + this.getClass().getCanonicalName() + " - started!");
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Annotation processor " + this.getClass().getCanonicalName() + version + " - started!");
         }
 
 
