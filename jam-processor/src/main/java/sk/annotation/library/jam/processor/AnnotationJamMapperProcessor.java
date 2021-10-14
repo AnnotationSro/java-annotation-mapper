@@ -70,25 +70,37 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Annotation processor " + this.getClass().getCanonicalName() + version + " - started!");
         }
 
+        Set<String> newValues = new HashSet<>();
 
         // 1) Find All Mappers
         for (Element element : roundEnv.getElementsAnnotatedWith(Mapper.class)) {
             if (element instanceof TypeElement) {
-                this.foundMappersPerGeneratedState.putIfAbsent(ElementUtils.getQualifiedName(element), false);
+                String key = ElementUtils.getQualifiedName(element);
+                newValues.add(key);
+                this.foundMappersPerGeneratedState.putIfAbsent(key, false);
                 continue;
             }
 
             if (element instanceof Symbol.MethodSymbol) {
                 Symbol owner = ((Symbol.MethodSymbol) element).owner;
-                this.foundMappersPerGeneratedState.putIfAbsent(ElementUtils.getQualifiedName(owner), false);
+                String key = ElementUtils.getQualifiedName(owner);
+                newValues.add(key);
+                this.foundMappersPerGeneratedState.putIfAbsent(key, false);
                 continue;
             }
+
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Annotation processor " + this.getClass().getCanonicalName() + version + " - found unsupported element type " + element);
         }
 
         // 2) generate mappers:
         for (Map.Entry<String, Boolean> e : foundMappersPerGeneratedState.entrySet()) {
             // ignore generated ...
-            if (e.getValue()) continue;
+            if (e.getValue()) {
+                if (newValues.contains(e.getKey())) {
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "Was generated : " + e.getKey());
+                }
+                continue;
+            }
 
             Element rootElement = ElementUtils.findRootElementByQualifiedName(roundEnv, e.getKey());
             if (rootElement != null) {
@@ -99,7 +111,9 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
                     e.setValue(true);
                     continue;
                 }
+
             }
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "Cannot generate : " + e.getKey());
         }
 
 
@@ -107,18 +121,14 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
         return true;
     }
 
-    static public Map<String, Boolean> cache = new HashMap<>();
     protected void generateMapper(TypeElement element) {
-        String fullNamePath = ElementUtils.getQualifiedName(element);
-        if (cache.containsKey(fullNamePath)) return;
-        cache.put(fullNamePath, false);
-
         MapperClassInfo mapperInfo = MapperClassInfo.getOrCreate(processingEnv, element);
-        if (mapperInfo == null) return;
+        if (mapperInfo == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "Cannot create MapperClassInfo : " + ElementUtils.getQualifiedName(element));
+            return;
+        }
 
         JavaClassWriter javaClassWriter = new JavaClassWriter(mapperInfo);
         javaClassWriter.writeSourceCode(processingEnv);
-
-        cache.put(fullNamePath, true);
     }
 }

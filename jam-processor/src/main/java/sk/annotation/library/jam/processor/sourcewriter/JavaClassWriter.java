@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.processor.sourcewriter;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import sk.annotation.library.jam.processor.data.FieldInfo;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -50,12 +51,13 @@ public class JavaClassWriter implements SourceGenerator {
 					Writer w = sourceFile.openWriter();
 					PrintWriter pw = new PrintWriter(w);
 			) {
-				// processingEnv.getMessager().printMessage(Diagnostic.Kind.OTHER, "Generating mapper : " + sourceFile.getName());
 				processingEnv.getMessager().printMessage(Diagnostic.Kind.OTHER, "Generating mapper : " + sourceFile.getName());
 				writeSourceCode(new SourceGeneratorContext(processingEnv, this, pw));
 			}
 		} catch (Exception e) {
-			throw new IllegalStateException("Errror in " + mapperClassInfo.getFullClassName(), e);
+			IllegalStateException ee = new IllegalStateException("Error in " + mapperClassInfo.getFullClassName(), e);
+			processingEnv.getMessager().printMessage(Diagnostic.Kind.OTHER, "Generating mapper : " + ExceptionUtils.getMessage(ee));
+			throw ee;
 		}
 	}
 
