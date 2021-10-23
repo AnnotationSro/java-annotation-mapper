@@ -67,7 +67,7 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 		TypeMirror type = getType(ctx.processingEnv);
 		String resolvedType = ctx.javaClassWriter.imports.resolveType(type);
 		// https://github.com/AnnotationSro/java-annotation-mapper/issues/28 - remove not supported constructions "? extends "
-		resolvedType = StringUtils.replace(resolvedType, "? extends ", "");
+		resolvedType = StringUtils.replace(resolvedType, "? extends ", "").trim();
 		ctx.pw.print(resolvedType);
 		return true;
 	}
