@@ -1,6 +1,7 @@
 package sk.annotation.library.jam.processor.data;
 
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
@@ -65,6 +66,8 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	public boolean writeSourceCode(SourceGeneratorContext ctx) {
 		TypeMirror type = getType(ctx.processingEnv);
 		String resolvedType = ctx.javaClassWriter.imports.resolveType(type);
+		// https://github.com/AnnotationSro/java-annotation-mapper/issues/28 - remove not supported constructions "? extends "
+		resolvedType = StringUtils.replace(resolvedType, "? extends ", "");
 		ctx.pw.print(resolvedType);
 		return true;
 	}
