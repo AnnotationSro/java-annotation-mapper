@@ -60,6 +60,11 @@ abstract public class TypeUtils {
             return typeElement.asType();
         }
 
+        if (type instanceof Type.WildcardType) {
+            Type.WildcardType tp = (Type.WildcardType) type;
+            return _resolveConstructorType(processingEnv, tp.type);
+        }
+
         String newType = resolveConstructorName(type.toString());
         if (newType == null) return type;
         return processingEnv.getElementUtils().getTypeElement(newType).asType();
