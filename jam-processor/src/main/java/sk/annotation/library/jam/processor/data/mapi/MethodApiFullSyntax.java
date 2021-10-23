@@ -21,6 +21,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 import java.util.*;
 
@@ -181,6 +182,17 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		ctx.pw.print("\n");
 		if (modifiers.isEmpty() || modifiers.contains(Modifier.PROTECTED)) ctx.pw.print("protected ");
 		else if (modifiers.contains(Modifier.PUBLIC)) ctx.pw.print("public ");
+
+		// Declare Parametrized Types
+		if (returnType.getType(ctx.processingEnv) instanceof TypeVariable) {
+			TypeVariable varTypeReturnType = (TypeVariable) returnType.getType(ctx.processingEnv);
+			ctx.pw.print("<");
+			ctx.pw.print(varTypeReturnType.asElement().toString());
+			ctx.pw.print(" extends ");
+			TypeInfo typeInfoReal = new TypeInfo(varTypeReturnType.getUpperBound());
+			typeInfoReal.writeSourceCode(ctx);
+			ctx.pw.print("> ");
+		}
 
 		if (returnType!=null) {
 			returnType.writeSourceCode(ctx);

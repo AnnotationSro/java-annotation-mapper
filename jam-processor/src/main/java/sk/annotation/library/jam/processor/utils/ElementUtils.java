@@ -12,6 +12,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 import java.lang.annotation.Annotation;
@@ -182,6 +183,10 @@ abstract public class ElementUtils {
 	public static Map<String, FieldValueAccessData> findAllAccesableFields(ProcessingEnvironment processingEnv, Type typeFrom) {
 		if (typeFrom == null || typeFrom.getKind().isPrimitive()) {
 			return Collections.emptyMap();
+		}
+
+		if (typeFrom instanceof TypeVariable) {
+			return findAllAccesableFields(processingEnv, (Type) ((TypeVariable)typeFrom).getUpperBound());
 		}
 
 		return cachedValues.computeIfAbsent(typeFrom, (aaa) -> {
