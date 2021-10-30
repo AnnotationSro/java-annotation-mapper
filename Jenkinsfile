@@ -3,7 +3,7 @@ pipeline {
 
   properties(
     booleanParam(description: 'release to maven repository', name: 'doPublicRelease')
-  ),
+  )
   triggers {
       pollSCM 'H H * * *'
   }
