@@ -1,77 +1,29 @@
 pipeline {
-  agent any
+    agent any
+    parameters {
+        string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
 
-  triggers {
-      pollSCM 'H H * * *'
-  }
-  options {
-    disableConcurrentBuilds()
-    ansiColor('xterm')
-    buildDiscarder(logRotator(
-                artifactDaysToKeepStr: "5",
-                artifactNumToKeepStr: "5",
-                daysToKeepStr: "5",
-                numToKeepStr: "5"
-    ))
-    timeout(time: 5, unit: 'MINUTES')
-    timestamps()
-    properties(
-        booleanParam(description: 'release to maven repository', name: 'doPublicRelease')
-    )
-  }
+        text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
 
-  stages {
-    stage('Tests jdk-8') {
-      tools {
-        jdk "zulu-jdk-8"
-        maven 'Maven 3.6.1'
-      }
-      steps {
-        sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
-      }
-      post {
-        always {
-          junit '**/target/surefire-reports/**/*.xml'
-        }
-      }
-    }
-    stage('Tests jdk-11') {
-      tools {
-        jdk "zulu-jdk-11"
-        maven 'Maven 3.6.1'
-      }
-      steps {
-        sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
-      }
-      post {
-          always {
-              junit '**/target/surefire-reports/**/*.xml'
-          }
-      }
-    }
-    stage('Deploy jdk-8') {
-        tools {
-          jdk "zulu-jdk-8"
-          maven 'Maven 3.6.1'
-        }
-        steps {
-          sh script: 'mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ? ",release":""} -e'
-        }
-    }
-    stage('Deploy jdk-11') {
-        tools {
-          jdk "zulu-jdk-11"
-          maven 'Maven 3.6.1'
-        }
-        steps {
-          sh script: 'mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ? ",release":""} -e'
-        }
-    }
-  }
+        booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
 
-  post {
-      cleanup {
-          deleteDir() /* clean up our workspace */
-      }
-  }
+        choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+
+        password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+    }
+    stages {
+        stage('Example') {
+            steps {
+                echo "Hello ${params.PERSON}"
+
+                echo "Biography: ${params.BIOGRAPHY}"
+
+                echo "Toggle: ${params.TOGGLE}"
+
+                echo "Choice: ${params.CHOICE}"
+
+                echo "Password: ${params.PASSWORD}"
+            }
+        }
+    }
 }
