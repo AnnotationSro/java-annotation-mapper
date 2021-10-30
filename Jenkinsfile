@@ -65,7 +65,7 @@ pipeline {
             }
             steps {
               echo "mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
-//               sh script: "mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
+              sh script: "mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
       }
