@@ -24,11 +24,11 @@ pipeline {
         maven 'Maven 3.6.1'
       }
       steps {
-        try{
+//         try{
             sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
-        }catch (Exception e){
-            testPassed = false
-        }
+//         }catch (Exception e){
+//             testPassed = false
+//         }
       }
       post {
           success {
@@ -42,11 +42,11 @@ pipeline {
         maven 'Maven 3.6.1'
       }
       steps {
-        try{
+//         try{
             sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
-        }catch (Exception e){
-            testPassed = false
-        }
+//         } catch (Exception e){
+//             testPassed = false
+//         }
       }
       post {
           success {
