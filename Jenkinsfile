@@ -17,7 +17,7 @@ pipeline {
     timestamps()
   }
   stages {
-    stage('Run all tests jdk-8') {
+    stage('Tests jdk-8') {
       tools {
         jdk "zulu-jdk-8"
         maven 'Maven 3.6.1'
@@ -31,7 +31,7 @@ pipeline {
           }
       }
     }
-    stage('Run all tests jdk-11') {
+    stage('Tests jdk-11') {
       tools {
         jdk "zulu-jdk-11"
         maven 'Maven 3.6.1'
