@@ -17,7 +17,7 @@ pipeline {
     timestamps()
   }
   stages {
-    boolean testPassed = true
+//     boolean testPassed = true
     stage('Tests jdk-8') {
       tools {
         jdk "zulu-jdk-8"
@@ -55,7 +55,7 @@ pipeline {
       }
     }
     stage('Deploy jdk-8') {
-      if(testPassed){
+//       if(testPassed){
         tools {
           jdk "zulu-jdk-8"
           maven 'Maven 3.6.1'
@@ -63,10 +63,10 @@ pipeline {
         steps {
           sh script: 'mvn clean'
         }
-      }
+//       }
     }
     stage('Deploy jdk-11') {
-      if(testPassed){
+//       if(testPassed){
         tools {
           jdk "zulu-jdk-11"
           maven 'Maven 3.6.1'
@@ -74,7 +74,7 @@ pipeline {
         steps {
           sh script: 'mvn clean'
         }
-      }
+//       }
     }
   }
 
