@@ -15,10 +15,11 @@ pipeline {
     ))
     timeout(time: 5, unit: 'MINUTES')
     timestamps()
+    properties(
+        booleanParam(description: 'release to maven repository', name: 'doPublicRelease')
+    )
   }
-  properties(
-    booleanParam(description: 'release to maven repository', name: 'doPublicRelease')
-  )
+
   stages {
     stage('Tests jdk-8') {
       tools {
