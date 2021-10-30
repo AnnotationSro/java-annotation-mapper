@@ -18,6 +18,7 @@ abstract public class MapperWithGenerics {
     abstract public MyTypeObj<Long> convertLong(Long o);
     abstract public MyTypeObj<String> convertString(String o);
     abstract public MyTypeObj<String> convertUncompatible(Long o);
+//    abstract public <T extends MyTypeObj<String>> T myUpdate(Long o, T out);
 
     abstract public ObjOut convert(ObjIn o);
 

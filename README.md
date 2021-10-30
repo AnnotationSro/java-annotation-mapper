@@ -49,18 +49,37 @@ JAM library:
 
 First add library *jam-processor* as a *provided* dependency and *jam-common* as a *compile* dependency to your build.
 ```xml
-<dependency>
-    <groupId>sk.annotation.library.jam</groupId>
-    <artifactId>jam-common</artifactId>
-    <version>${jam.version}</version>
-</dependency>
-
-<dependency>
-    <groupId>sk.annotation.library.jam</groupId>
-    <artifactId>jam-processor</artifactId>
-    <scope>provided</scope>
-    <version>${jam.version}</version>
-</dependency>
+<dependencies>
+     <!-- VARIANT for JDK v 11+ -->
+     <dependency>
+         <groupId>sk.annotation.library.jam</groupId>
+         <artifactId>jam-common</artifactId>
+         <version>${jam.version}</version>
+     </dependency>
+     
+     <dependency>
+         <groupId>sk.annotation.library.jam</groupId>
+         <artifactId>jam-processor</artifactId>
+         <scope>provided</scope>
+         <version>${jam.version}</version>
+     </dependency>
+     
+     
+     <!-- VARIANT for old JDK (version 8-10) -->
+     <dependency>
+          <groupId>sk.annotation.library.jam</groupId>
+          <artifactId>jam-common</artifactId>
+          <version>${jam.version}</version>
+          <classifier>jdk8</classifier>
+     </dependency>
+     <dependency>
+          <groupId>sk.annotation.library.jam</groupId>
+          <artifactId>jam-processor</artifactId>
+          <version>${jam.version}</version>
+          <classifier>jdk8</classifier>
+          <scope>provided</scope>
+     </dependency>
+</dependencies>
 ```
 
 ## How to create a mapper?

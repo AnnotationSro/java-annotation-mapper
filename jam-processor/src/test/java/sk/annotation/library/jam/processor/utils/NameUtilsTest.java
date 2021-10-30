@@ -1,8 +1,7 @@
-package sk.annotation.library.jam.processor.sourcewriter;
+package sk.annotation.library.jam.processor.utils;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import sk.annotation.library.jam.processor.utils.NameUtils;
 
 public class NameUtilsTest {
 	@Test

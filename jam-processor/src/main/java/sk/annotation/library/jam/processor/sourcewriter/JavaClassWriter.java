@@ -1,11 +1,11 @@
 package sk.annotation.library.jam.processor.sourcewriter;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import sk.annotation.library.jam.processor.data.FieldInfo;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.utils.NameUtils;
+import sk.annotation.library.jam.processor.utils.commons.ExceptionUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;

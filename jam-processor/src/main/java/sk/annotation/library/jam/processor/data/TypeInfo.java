@@ -1,12 +1,11 @@
 package sk.annotation.library.jam.processor.data;
 
-import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.NoType;
@@ -15,8 +14,12 @@ import java.util.Objects;
 
 public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	public TypeMirror type;
-	@Getter
 	private Class clsType;
+
+	public Class getClsType() {
+		return clsType;
+	}
+
 	private String rawName;
 
 	public TypeInfo(ProcessingEnvironment processingEnv, String cls) {

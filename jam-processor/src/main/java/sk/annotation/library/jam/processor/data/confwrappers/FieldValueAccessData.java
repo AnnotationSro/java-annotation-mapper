@@ -1,7 +1,6 @@
 package sk.annotation.library.jam.processor.data.confwrappers;
 
 import com.sun.tools.javac.code.Type;
-import lombok.Getter;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.LombokUtil;
@@ -13,9 +12,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-@Getter
 public class FieldValueAccessData implements SourceRegisterImports {
-	@Getter
 	public static class AccessableTypeName {
 		final private String name;
 		final private boolean accessable;
@@ -29,6 +26,18 @@ public class FieldValueAccessData implements SourceRegisterImports {
 
 		static boolean isAccessable(AccessableTypeName value) {
 			return value!=null && value.accessable;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public boolean isAccessable() {
+			return accessable;
+		}
+
+		public TypeMirror getType() {
+			return type;
 		}
 	}
 
@@ -153,4 +162,20 @@ public class FieldValueAccessData implements SourceRegisterImports {
 //	public boolean isSourceSameAsDestination(FieldValueAccessData field) {
 //		return false;
 //	}
+
+	public String getFieldName() {
+		return fieldName;
+	}
+
+	public AccessableTypeName getField() {
+		return field;
+	}
+
+	public AccessableTypeName getSetter() {
+		return setter;
+	}
+
+	public AccessableTypeName getGetter() {
+		return getter;
+	}
 }

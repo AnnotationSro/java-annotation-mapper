@@ -1,12 +1,9 @@
 package sk.annotation.library.jam.processor.data.mapi;
 
 import com.sun.tools.javac.code.Type;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -16,17 +13,16 @@ import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-@Getter
-@EqualsAndHashCode
 public class MethodApiKey {
-	@Getter(AccessLevel.NONE)
 	final private String[] visibleStrTypes;		// first is return type
 	final private boolean apiWithReturnType;
+	public boolean isApiWithReturnType() {
+		return apiWithReturnType;
+	}
 
-	@EqualsAndHashCode.Exclude
 	final private TypeMirror[] visibleTypes;
-	@EqualsAndHashCode.Exclude
 	private ExecutableType methodType = null;
 
 	private MethodApiKey (boolean apiWithReturnType, String[] visibleStrTypes,TypeMirror[] visibleTypes) {
@@ -75,7 +71,22 @@ public class MethodApiKey {
                 '}';
     }
 
-    public MethodApiKey (TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		MethodApiKey that = (MethodApiKey) o;
+		return apiWithReturnType == that.apiWithReturnType && Arrays.equals(visibleTypes, that.visibleTypes);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = Objects.hash(apiWithReturnType);
+		result = 31 * result + Arrays.hashCode(visibleTypes);
+		return result;
+	}
+
+	public MethodApiKey (TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
 		this(detectApiWithReturnType(returnType, inputParams), merge(returnType, inputParams));
 	}
 
@@ -117,4 +128,7 @@ public class MethodApiKey {
 		return unwrapType(param.getVariableType());
 	}
 
+	public TypeMirror[] getVisibleTypes() {
+		return visibleTypes;
+	}
 }

@@ -1,6 +1,6 @@
 package sk.annotation.library.jam.processor.sourcewriter;
 
-import org.apache.commons.lang.StringUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import java.io.PrintWriter;
 

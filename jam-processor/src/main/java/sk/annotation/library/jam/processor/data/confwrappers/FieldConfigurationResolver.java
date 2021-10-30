@@ -1,9 +1,6 @@
 package sk.annotation.library.jam.processor.data.confwrappers;
 
 import com.sun.tools.javac.code.Type;
-import lombok.Data;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
@@ -18,6 +15,8 @@ import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapp
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldId;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldIgnore;
 import sk.annotation.library.jam.processor.utils.annotations.data.fields.AnnotationFieldMapping;
+import sk.annotation.library.jam.processor.utils.commons.ObjectUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import java.util.*;
@@ -88,7 +87,6 @@ public class FieldConfigurationResolver {
         customFieldMapping.add(field);
     }
 
-    @Data
     static public class ResolvedTransformation {
         final private String key;
 
@@ -100,6 +98,47 @@ public class FieldConfigurationResolver {
         List<FieldValueAccessData> pathTo;
 
         public List<FieldMappingData> fieldMappingData = new LinkedList<>();
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ResolvedTransformation that = (ResolvedTransformation) o;
+            return Objects.equals(key, that.key) && Objects.equals(pathFrom, that.pathFrom) && Objects.equals(pathTo, that.pathTo) && Objects.equals(fieldMappingData, that.fieldMappingData);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(key, pathFrom, pathTo, fieldMappingData);
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public List<FieldValueAccessData> getPathFrom() {
+            return pathFrom;
+        }
+
+        public void setPathFrom(List<FieldValueAccessData> pathFrom) {
+            this.pathFrom = pathFrom;
+        }
+
+        public List<FieldValueAccessData> getPathTo() {
+            return pathTo;
+        }
+
+        public void setPathTo(List<FieldValueAccessData> pathTo) {
+            this.pathTo = pathTo;
+        }
+
+        public List<FieldMappingData> getFieldMappingData() {
+            return fieldMappingData;
+        }
+
+        public void setFieldMappingData(List<FieldMappingData> fieldMappingData) {
+            this.fieldMappingData = fieldMappingData;
+        }
     }
 	/*
 	Obj1.d = Obj2.d

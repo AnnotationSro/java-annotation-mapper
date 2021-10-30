@@ -1,9 +1,8 @@
 package sk.annotation.library.jam.processor.sourcewriter;
 
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;

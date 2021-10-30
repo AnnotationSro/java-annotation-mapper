@@ -1,9 +1,6 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
 import com.sun.tools.javac.code.Type;
-import lombok.Getter;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.annotations.enums.MapperFeature;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
@@ -21,16 +18,24 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringEscapeUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
 abstract public class AbstractMethodSourceInfo implements SourceGenerator, SourceRegisterImports {
-    @Getter
     final protected MethodApiFullSyntax methodApiFullSyntax;
-    @Getter
+    public MethodApiFullSyntax getMethodApiFullSyntax() {
+        return methodApiFullSyntax;
+    }
+
     final protected MapperClassInfo ownerClassInfo;
+    public MapperClassInfo getOwnerClassInfo() {
+        return ownerClassInfo;
+    }
+
     final protected List<SourceRegisterImports> sourcesForImports = new LinkedList<>();
     final protected Set<String> usedNames = new HashSet<>(); // in method context !!!
 
@@ -70,12 +75,20 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         return false;
     }
 
-    @Getter
     protected TypeWithVariableInfo varCtxVariable;
-    @Getter
+    public TypeWithVariableInfo getVarCtxMethodId() {
+        return varCtxMethodId;
+    }
+
     protected TypeWithVariableInfo varCtxMethodId;
-    @Getter
+    public TypeWithVariableInfo getVarCtxVariable() {
+        return varCtxVariable;
+    }
+
     protected TypeWithVariableInfo varRet;
+    public TypeWithVariableInfo getVarRet() {
+        return varRet;
+    }
 
     @Override
     public boolean writeSourceCode(SourceGeneratorContext ctx) {

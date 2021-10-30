@@ -1,10 +1,5 @@
 package sk.annotation.library.jam.processor.data.confwrappers;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
@@ -13,13 +8,14 @@ import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodS
 import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.commons.ExceptionUtils;
+import sk.annotation.library.jam.processor.utils.commons.ObjectUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.tools.Diagnostic;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
 public class FieldMappingData {
 	private FieldValueAccessData src;
 	private FieldValueAccessData dst;
@@ -101,7 +97,7 @@ public class FieldMappingData {
 
 		} catch (Exception ee) {
 			ee.printStackTrace();
-			ctx.processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, ExceptionUtils.getFullStackTrace(ee));
+			ctx.processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, ExceptionUtils.getStackTrace(ee));
 		}
 	}
 
@@ -227,5 +223,85 @@ public class FieldMappingData {
 		mappingData.getMethodCallApi().genSourceForCallWithStringParam(ctx, params, otherVariables, ownerMethod);
 		ctx.pw.print(eee[2]);
 		ctx.pw.print(";");
+	}
+
+	public FieldValueAccessData getSrc() {
+		return src;
+	}
+
+	public void setSrc(FieldValueAccessData src) {
+		this.src = src;
+	}
+
+	public FieldValueAccessData getDst() {
+		return dst;
+	}
+
+	public void setDst(FieldValueAccessData dst) {
+		this.dst = dst;
+	}
+
+	public boolean isSrcIgnored() {
+		return srcIgnored;
+	}
+
+	public void setSrcIgnored(boolean srcIgnored) {
+		this.srcIgnored = srcIgnored;
+	}
+
+	public boolean isDstIgnored() {
+		return dstIgnored;
+	}
+
+	public void setDstIgnored(boolean dstIgnored) {
+		this.dstIgnored = dstIgnored;
+	}
+
+	public ApplyFieldStrategy getFieldStrategy() {
+		return fieldStrategy;
+	}
+
+	public void setFieldStrategy(ApplyFieldStrategy fieldStrategy) {
+		this.fieldStrategy = fieldStrategy;
+	}
+
+	public ConfigErrorReporting getSrcConfigErrorReportingLevel() {
+		return srcConfigErrorReportingLevel;
+	}
+
+	public void setSrcConfigErrorReportingLevel(ConfigErrorReporting srcConfigErrorReportingLevel) {
+		this.srcConfigErrorReportingLevel = srcConfigErrorReportingLevel;
+	}
+
+	public ConfigErrorReporting getDstConfigErrorReportingLevel() {
+		return dstConfigErrorReportingLevel;
+	}
+
+	public void setDstConfigErrorReportingLevel(ConfigErrorReporting dstConfigErrorReportingLevel) {
+		this.dstConfigErrorReportingLevel = dstConfigErrorReportingLevel;
+	}
+
+	public String getMethodNameRequired() {
+		return methodNameRequired;
+	}
+
+	public void setMethodNameRequired(String methodNameRequired) {
+		this.methodNameRequired = methodNameRequired;
+	}
+
+	public AbstractRowValueTransformator getRowValueTransformator() {
+		return rowValueTransformator;
+	}
+
+	public void setRowValueTransformator(AbstractRowValueTransformator rowValueTransformator) {
+		this.rowValueTransformator = rowValueTransformator;
+	}
+
+	public MethodCallApi getMethodCallApi() {
+		return methodCallApi;
+	}
+
+	public void setMethodCallApi(MethodCallApi methodCallApi) {
+		this.methodCallApi = methodCallApi;
 	}
 }

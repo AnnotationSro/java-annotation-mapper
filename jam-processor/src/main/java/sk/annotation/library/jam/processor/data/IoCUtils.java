@@ -1,12 +1,12 @@
 package sk.annotation.library.jam.processor.data;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.annotations.EnableCDI;
 import sk.annotation.library.jam.annotations.EnableSpring;
 import sk.annotation.library.jam.annotations.enums.IocScope;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueExtractUtil;
+import sk.annotation.library.jam.processor.utils.commons.ExceptionUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
@@ -41,13 +41,13 @@ abstract public class IoCUtils {
         try {
             resolveSpringMapperAnnotation(processingEnv, val, element.getAnnotation(EnableSpring.class));
         } catch (RuntimeException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getFullStackTrace(e), element, AnnotationValueExtractUtil.findAnnotationMirror(processingEnv, element, EnableSpring.class));
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getStackTrace(e), element, AnnotationValueExtractUtil.findAnnotationMirror(processingEnv, element, EnableSpring.class));
             throw e;
         }
         try {
             resolveCdiMapperAnnotation(processingEnv, val, element.getAnnotation(EnableCDI.class));
         } catch (RuntimeException e) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getFullStackTrace(e), element, AnnotationValueExtractUtil.findAnnotationMirror(processingEnv, element, EnableCDI.class));
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getStackTrace(e), element, AnnotationValueExtractUtil.findAnnotationMirror(processingEnv, element, EnableCDI.class));
             throw e;
         }
         return val;

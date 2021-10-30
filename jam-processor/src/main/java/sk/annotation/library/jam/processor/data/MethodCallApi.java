@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data;
 
-import lombok.Data;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
 import sk.annotation.library.jam.processor.data.generator.row.AbstractRowValueTransformator;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
@@ -11,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-@Data
 public class MethodCallApi {
 
 	private String pathToSyntax = null;
@@ -180,4 +178,66 @@ public class MethodCallApi {
 //
 //		ctx.pw.print(")");
 //	}
+
+
+	public String getPathToSyntax() {
+		return pathToSyntax;
+	}
+
+	public void setPathToSyntax(String pathToSyntax) {
+		this.pathToSyntax = pathToSyntax;
+	}
+
+	public MethodApiFullSyntax getMethodSyntax() {
+		return methodSyntax;
+	}
+
+	public void setMethodSyntax(MethodApiFullSyntax methodSyntax) {
+		this.methodSyntax = methodSyntax;
+	}
+
+	public AbstractMethodSourceInfo getOutGeneratedMethod() {
+		return outGeneratedMethod;
+	}
+
+	public void setOutGeneratedMethod(AbstractMethodSourceInfo outGeneratedMethod) {
+		this.outGeneratedMethod = outGeneratedMethod;
+	}
+
+	public AbstractRowValueTransformator getRowFieldGenerator() {
+		return rowFieldGenerator;
+	}
+
+	public void setRowFieldGenerator(AbstractRowValueTransformator rowFieldGenerator) {
+		this.rowFieldGenerator = rowFieldGenerator;
+	}
+
+	public TypeMirror getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(TypeMirror sourceType) {
+		this.sourceType = sourceType;
+	}
+
+	public TypeMirror getDestinationType() {
+		return destinationType;
+	}
+
+	public void setDestinationType(TypeMirror destinationType) {
+		this.destinationType = destinationType;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof MethodCallApi)) return false;
+		MethodCallApi that = (MethodCallApi) o;
+		return Objects.equals(pathToSyntax, that.pathToSyntax) && Objects.equals(methodSyntax, that.methodSyntax) && Objects.equals(outGeneratedMethod, that.outGeneratedMethod) && Objects.equals(rowFieldGenerator, that.rowFieldGenerator) && Objects.equals(sourceType, that.sourceType) && Objects.equals(destinationType, that.destinationType);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(pathToSyntax, methodSyntax, outGeneratedMethod, rowFieldGenerator, sourceType, destinationType);
+	}
 }

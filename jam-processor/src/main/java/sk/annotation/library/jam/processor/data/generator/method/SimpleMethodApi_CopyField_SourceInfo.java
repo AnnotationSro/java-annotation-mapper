@@ -1,7 +1,6 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
 import com.sun.tools.javac.code.Type;
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -16,6 +15,7 @@ import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.NameUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.TypeMirror;

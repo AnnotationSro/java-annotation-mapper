@@ -1,13 +1,17 @@
 package sk.annotation.library.jam.utils.tests;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class SimpleFastDataHolder<T> {
     public static class Entry<T> {
         protected int key;
-        @Setter @Getter
         protected T value;
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
+        }
 
         protected Entry<T> before = null;
         protected Entry<T> after = null;

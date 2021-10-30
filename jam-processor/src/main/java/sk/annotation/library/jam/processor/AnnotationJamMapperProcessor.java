@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor;
 
-import com.google.auto.service.AutoService;
 import com.sun.tools.javac.code.Symbol;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
@@ -8,7 +7,6 @@ import sk.annotation.library.jam.processor.sourcewriter.JavaClassWriter;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -18,14 +16,14 @@ import java.io.InputStream;
 import java.util.*;
 
 
-@AutoService(Processor.class)
+//@AutoService(Processor.class)
 public class AnnotationJamMapperProcessor extends AbstractProcessor {
 
     private Set<String> supportedAnnotationTypes = null;
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.latest();
+        return SourceVersion.latestSupported();
     }
 
     @Override

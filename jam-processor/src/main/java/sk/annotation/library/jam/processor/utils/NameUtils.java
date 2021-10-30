@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.processor.utils;
 
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.lang.model.type.TypeMirror;
 import java.util.List;

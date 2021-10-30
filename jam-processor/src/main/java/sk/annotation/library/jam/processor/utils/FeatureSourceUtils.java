@@ -1,11 +1,11 @@
 package sk.annotation.library.jam.processor.utils;
 
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.annotations.DisableMapperFeature;
 import sk.annotation.library.jam.annotations.enums.MapperFeature;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.TypeWithVariableInfo;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import java.util.Collections;
 import java.util.HashSet;

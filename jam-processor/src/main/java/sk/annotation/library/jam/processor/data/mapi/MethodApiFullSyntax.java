@@ -1,10 +1,6 @@
 package sk.annotation.library.jam.processor.data.mapi;
 
 import com.sun.tools.javac.code.Type;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.annotations.Context;
 import sk.annotation.library.jam.annotations.Return;
 import sk.annotation.library.jam.processor.data.AnnotationsInfo;
@@ -15,6 +11,8 @@ import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
 import sk.annotation.library.jam.processor.utils.MsgConstants;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.processor.utils.commons.ExceptionUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -25,19 +23,36 @@ import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 import java.util.*;
 
-@Getter
 public class MethodApiFullSyntax implements SourceRegisterImports {
-	@Setter
 	private String name;
+
+	public String getName() {
+		return name;
+	}
+
 	private final Set<Modifier> modifiers = new HashSet<>();
 	final AnnotationsInfo annotations = new AnnotationsInfo();
 
 	// contains full api of Method
 	private List<TypeWithVariableInfo> params;
-	@Setter
 	private boolean returnLastParam = false;
-	@Setter
+	public void setReturnLastParam(boolean returnLastParam) {
+		this.returnLastParam = returnLastParam;
+	}
+
+	public boolean isReturnLastParam() {
+		return returnLastParam;
+	}
+
 	private boolean returnLastParamRequired = false;			//
+	public void setReturnLastParamRequired(boolean returnLastParamRequired) {
+		this.returnLastParamRequired = returnLastParamRequired;
+	}
+
+	public boolean isReturnLastParamRequired() {
+		return returnLastParamRequired;
+	}
+
 	private TypeInfo returnType;
 
 	final private MethodApiKey apiKey;
@@ -46,8 +61,10 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		return isReturnLastParam() && isReturnLastParamRequired();
 	}
 
-	@Getter
-	private Set<String> errorsMapping = new LinkedHashSet<>();
+	final private Set<String> errorsMapping = new LinkedHashSet<>();
+	public Set<String> getErrorsMapping() {
+		return errorsMapping;
+	}
 
 	public MethodApiFullSyntax(ProcessingEnvironment processingEnv, String methodName, TypeInfo returnType, List<TypeWithVariableInfo> params, boolean returnLastParamRequired) {
 		this.name = methodName;
@@ -145,7 +162,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, ExceptionUtils.getFullStackTrace(e), method);
+			processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, ExceptionUtils.getStackTrace(e), method);
 		}
 
 		/*try {
@@ -164,7 +181,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getFullStackTrace(e), method);
+			processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getStackTrace(e), method);
 			return null;
 		}*/
 		return null;
@@ -220,4 +237,27 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		ctx.pw.print(")");
 	}
 
+	public List<TypeWithVariableInfo> getParams() {
+		return params;
+	}
+
+	public Set<Modifier> getModifiers() {
+		return modifiers;
+	}
+
+	public AnnotationsInfo getAnnotations() {
+		return annotations;
+	}
+
+	public TypeInfo getReturnType() {
+		return returnType;
+	}
+
+	public MethodApiKey getApiKey() {
+		return apiKey;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }

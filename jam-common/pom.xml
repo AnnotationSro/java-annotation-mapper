@@ -4,18 +4,36 @@
 	<parent>
 		<groupId>sk.annotation.library.jam</groupId>
 		<artifactId>jam-root</artifactId>
-		<version>0.9.15-SNAPSHOT</version>
+		<version>0.9.16-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>jam-common</artifactId>
 	<packaging>jar</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.2</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+	<profiles>
+		<profile>
+			<id>jdk11</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>add-source</goal>
+								</goals>
+								<configuration>
+									<sources>
+										<source>src/main/java-jdk11plus</source>
+									</sources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

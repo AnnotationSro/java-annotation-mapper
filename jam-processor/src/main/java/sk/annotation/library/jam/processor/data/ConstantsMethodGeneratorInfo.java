@@ -1,10 +1,10 @@
 package sk.annotation.library.jam.processor.data;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
 import sk.annotation.library.jam.processor.sourcewriter.SourceRegisterImports;
+import sk.annotation.library.jam.processor.utils.commons.StringEscapeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;

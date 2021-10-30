@@ -1,9 +1,9 @@
 package sk.annotation.library.jam.processor.data;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import sk.annotation.library.jam.annotations.Context;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGenerator;
 import sk.annotation.library.jam.processor.sourcewriter.SourceGeneratorContext;
+import sk.annotation.library.jam.processor.utils.commons.StringEscapeUtils;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

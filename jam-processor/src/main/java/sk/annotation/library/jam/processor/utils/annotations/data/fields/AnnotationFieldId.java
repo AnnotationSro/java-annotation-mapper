@@ -1,17 +1,13 @@
 package sk.annotation.library.jam.processor.utils.annotations.data.fields;
 
 import com.sun.tools.javac.code.Type;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import java.util.List;
 
-@Getter
-@Setter
 public class AnnotationFieldId {
 	private List<String> packages;
 	private List<Type> types;
@@ -57,4 +53,28 @@ public class AnnotationFieldId {
 		return false;
 	}
 
+
+	public List<String> getPackages() {
+		return packages;
+	}
+
+	public void setPackages(List<String> packages) {
+		this.packages = packages;
+	}
+
+	public List<Type> getTypes() {
+		return types;
+	}
+
+	public void setTypes(List<Type> types) {
+		this.types = types;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
 }

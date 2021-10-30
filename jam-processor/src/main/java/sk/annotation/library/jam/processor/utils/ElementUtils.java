@@ -2,10 +2,10 @@ package sk.annotation.library.jam.processor.utils;
 
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;

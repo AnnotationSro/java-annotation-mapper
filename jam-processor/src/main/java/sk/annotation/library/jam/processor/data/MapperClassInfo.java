@@ -1,9 +1,6 @@
 package sk.annotation.library.jam.processor.data;
 
 import com.sun.tools.javac.code.Type;
-import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
@@ -15,6 +12,8 @@ import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.utils.*;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
+import sk.annotation.library.jam.processor.utils.commons.ExceptionUtils;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -25,10 +24,8 @@ import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 import java.util.*;
 
-@Getter
 public class MapperClassInfo {
 
-    @Getter
     final protected Set<String> usedNames = new HashSet<>(); // in method context !!!
 
     static public Map<String, Optional<MapperClassInfo>> cache = new HashMap<>();
@@ -46,7 +43,7 @@ public class MapperClassInfo {
                 ofRet = Optional.of(new MapperClassInfo(processingEnv, element));
             } catch (Exception e) {
                 ofRet = Optional.empty();
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getFullStackTrace(e));
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, ExceptionUtils.getStackTrace(e));
             }
         }
 
@@ -68,7 +65,6 @@ public class MapperClassInfo {
 
     final public AnnotationsInfo generateAnnotations;
 
-    @Getter
     final protected FeatureSourceUtils features;
 
 
@@ -330,7 +326,6 @@ public class MapperClassInfo {
                 .computeIfAbsent(topMmethodConfigKey == null ? "*" : topMmethodConfigKey.getForTopMethod(), a -> new HashMap<>());
     }
 
-    @Getter
     private List<AbstractMethodSourceInfo> methodsToImplement = new LinkedList<>();
     private List<DeclaredMethodSourceInfo> topMethods = new LinkedList<>();
 
@@ -362,7 +357,6 @@ public class MapperClassInfo {
         return NameUtils.findBestName(usedNames, sb.toString());
     }
 
-    @Getter
     private Set<String> usedField = new HashSet<>();
 
     public MethodCallApi findMethodApiToCall(ProcessingEnvironment processingEnv, MethodApiKey _apiKey, MethodConfigKey topMethodConfigKey) {
@@ -509,4 +503,88 @@ public class MapperClassInfo {
                 '}';
     }
 
+
+    public Set<String> getUsedNames() {
+        return usedNames;
+    }
+
+    public static Map<String, Optional<MapperClassInfo>> getCache() {
+        return cache;
+    }
+
+    public String getFullClassName() {
+        return fullClassName;
+    }
+
+    public String getSimpleClassName() {
+        return simpleClassName;
+    }
+
+    public List<AnnotationMapperConfig> getClassAndPackageConfigurations() {
+        return classAndPackageConfigurations;
+    }
+
+    public TypeElement getParentElement() {
+        return parentElement;
+    }
+
+    public Mapper getJamMapperConfig() {
+        return jamMapperConfig;
+    }
+
+    public boolean isParentTypeAsAbstractClass() {
+        return parentTypeAsAbstractClass;
+    }
+
+    public List<Element> getCanUseInCustomer() {
+        return canUseInCustomer;
+    }
+
+    public ImportsTypeDefinitions getImports() {
+        return imports;
+    }
+
+    public Set<Modifier> getMapperModifiers() {
+        return mapperModifiers;
+    }
+
+    public List<FieldInfo> getFieldsToImplement() {
+        return fieldsToImplement;
+    }
+
+    public ConstantsMethodGeneratorInfo getTopMethodsRegistrator() {
+        return topMethodsRegistrator;
+    }
+
+    public AnnotationsInfo getGenerateAnnotations() {
+        return generateAnnotations;
+    }
+
+    public FeatureSourceUtils getFeatures() {
+        return features;
+    }
+
+    public Map<String, Type> getAllFieldsTypes() {
+        return allFieldsTypes;
+    }
+
+    public Map<String, List<MethodApiFullSyntax>> get_myUsableMethods() {
+        return _myUsableMethods;
+    }
+
+    public Map<String, Map<String, List<MethodApiFullSyntax>>> get_extUsableMethods() {
+        return _extUsableMethods;
+    }
+
+    public List<AbstractMethodSourceInfo> getMethodsToImplement() {
+        return methodsToImplement;
+    }
+
+    public List<DeclaredMethodSourceInfo> getTopMethods() {
+        return topMethods;
+    }
+
+    public Set<String> getUsedField() {
+        return usedField;
+    }
 }

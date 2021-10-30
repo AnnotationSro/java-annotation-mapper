@@ -1,7 +1,7 @@
 package sk.annotation.library.jam.processor.utils;
 
-import org.apache.commons.lang.StringUtils;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueExtractUtil;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationValue;

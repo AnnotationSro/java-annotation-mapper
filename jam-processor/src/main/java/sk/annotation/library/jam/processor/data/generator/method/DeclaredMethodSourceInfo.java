@@ -1,7 +1,5 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
-import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
@@ -14,6 +12,7 @@ import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
 import sk.annotation.library.jam.processor.utils.annotations.data.AnnotationMapperConfig;
+import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 import sk.annotation.library.jam.utils.MapperRunCtxData;
 import sk.annotation.library.jam.utils.MapperRunCtxDataHolder;
 
@@ -43,10 +42,15 @@ public class DeclaredMethodSourceInfo extends AbstractMethodSourceInfo {
 
 	final protected List<MethodCallApi> requiredMethods = new LinkedList<>();
 	final protected ExecutableElement method;
-	@Getter
 	final protected MethodConfigKey methodConfigKey;
-	@Getter
+	public MethodConfigKey getMethodConfigKey() {
+		return methodConfigKey;
+	}
+
 	final protected AnnotationMapperConfig customMethodConfig;
+	public AnnotationMapperConfig getCustomMethodConfig() {
+		return customMethodConfig;
+	}
 
 	public DeclaredMethodSourceInfo(MapperClassInfo ownerClassInfo, MethodApiFullSyntax methodApiParams, ProcessingEnvironment processingEnv, ExecutableElement method) {
 		super(ownerClassInfo, methodApiParams);
