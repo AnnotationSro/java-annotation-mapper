@@ -50,7 +50,10 @@ JAM library:
 First add library *jam-processor* as a *provided* dependency and *jam-common* as a *compile* dependency to your build.
 ```xml
 <dependencies>
-     <!-- VARIANT for JDK v 11+ -->
+     <!-- 
+     last version for JDK v 11+  is 0.9.16-SNAPSHOT
+     last version for JDK v 8-10 is 0.9.16-jdk8-SNAPSHOT 
+     -->
      <dependency>
          <groupId>sk.annotation.library.jam</groupId>
          <artifactId>jam-common</artifactId>
@@ -62,22 +65,6 @@ First add library *jam-processor* as a *provided* dependency and *jam-common* as
          <artifactId>jam-processor</artifactId>
          <scope>provided</scope>
          <version>${jam.version}</version>
-     </dependency>
-     
-     
-     <!-- VARIANT for old JDK (version 8-10) -->
-     <dependency>
-          <groupId>sk.annotation.library.jam</groupId>
-          <artifactId>jam-common</artifactId>
-          <version>${jam.version}</version>
-          <classifier>jdk8</classifier>
-     </dependency>
-     <dependency>
-          <groupId>sk.annotation.library.jam</groupId>
-          <artifactId>jam-processor</artifactId>
-          <version>${jam.version}</version>
-          <classifier>jdk8</classifier>
-          <scope>provided</scope>
      </dependency>
 </dependencies>
 ```
