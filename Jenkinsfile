@@ -1,6 +1,13 @@
 pipeline {
   agent any
 
+  properties(
+    [
+        parameters([
+            booleanParam(description: 'release to maven repository', name: 'doPublicRelease')
+        ])
+    ]
+  ),
   triggers {
       pollSCM 'H H * * *'
   }
@@ -17,23 +24,18 @@ pipeline {
     timestamps()
   }
   stages {
-//     boolean testPassed = true
     stage('Tests jdk-8') {
       tools {
         jdk "zulu-jdk-8"
         maven 'Maven 3.6.1'
       }
       steps {
-//         try{
-            sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
-//         }catch (Exception e){
-//             testPassed = false
-//         }
+        sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
       }
       post {
-          success {
-              junit '**/target/surefire-reports/**/*.xml'
-          }
+        always {
+          junit '**/target/surefire-reports/**/*.xml'
+        }
       }
     }
     stage('Tests jdk-11') {
@@ -42,39 +44,31 @@ pipeline {
         maven 'Maven 3.6.1'
       }
       steps {
-//         try{
-            sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
-//         } catch (Exception e){
-//             testPassed = false
-//         }
+        sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
       }
       post {
-          success {
+          always {
               junit '**/target/surefire-reports/**/*.xml'
           }
       }
     }
     stage('Deploy jdk-8') {
-//       if(testPassed){
         tools {
           jdk "zulu-jdk-8"
           maven 'Maven 3.6.1'
         }
         steps {
-          sh script: 'mvn clean'
+          sh script: 'mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ? ",release":""} -e'
         }
-//       }
     }
     stage('Deploy jdk-11') {
-//       if(testPassed){
         tools {
           jdk "zulu-jdk-11"
           maven 'Maven 3.6.1'
         }
         steps {
-          sh script: 'mvn clean'
+          sh script: 'mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ? ",release":""} -e'
         }
-//       }
     }
   }
 
