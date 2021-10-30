@@ -54,7 +54,7 @@ pipeline {
               maven 'Maven 3.6.1'
             }
             steps {
-              sh script: 'mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ? ",release":""} -e'
+              sh script: "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
         stage('Deploy jdk-11') {
@@ -63,7 +63,7 @@ pipeline {
               maven 'Maven 3.6.1'
             }
             steps {
-              sh script: 'mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ? ",release":""} -e'
+              sh script: "mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
       }
