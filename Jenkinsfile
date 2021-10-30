@@ -17,13 +17,18 @@ pipeline {
     timestamps()
   }
   stages {
+    boolean testPassed = true
     stage('Tests jdk-8') {
       tools {
         jdk "zulu-jdk-8"
         maven 'Maven 3.6.1'
       }
       steps {
-        sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
+        try{
+            sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
+        }catch (Exception e){
+            testPassed = false
+        }
       }
       post {
           success {
@@ -37,12 +42,38 @@ pipeline {
         maven 'Maven 3.6.1'
       }
       steps {
-        sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
+        try{
+            sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
+        }catch (Exception e){
+            testPassed = false
+        }
       }
       post {
           success {
               junit '**/target/surefire-reports/**/*.xml'
           }
+      }
+    }
+    stage('Deploy jdk-8') {
+      if(testPassed){
+        tools {
+          jdk "zulu-jdk-8"
+          maven 'Maven 3.6.1'
+        }
+        steps {
+          sh script: 'mvn clean'
+        }
+      }
+    }
+    stage('Deploy jdk-11') {
+      if(testPassed){
+        tools {
+          jdk "zulu-jdk-11"
+          maven 'Maven 3.6.1'
+        }
+        steps {
+          sh script: 'mvn clean'
+        }
       }
     }
   }
