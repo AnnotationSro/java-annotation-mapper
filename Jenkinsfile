@@ -11,6 +11,19 @@ pipeline {
 
         password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
+      options {
+        disableConcurrentBuilds()
+        ansiColor('xterm')
+        buildDiscarder(logRotator(
+                    artifactDaysToKeepStr: "5",
+                    artifactNumToKeepStr: "5",
+                    daysToKeepStr: "5",
+                    numToKeepStr: "5"
+        ))
+        timeout(time: 5, unit: 'MINUTES')
+        timestamps()
+      }
+
     stages {
         stage('Example') {
             steps {
