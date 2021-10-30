@@ -2,11 +2,7 @@ pipeline {
   agent any
 
   properties(
-    [
-        parameters([
-            booleanParam(description: 'release to maven repository', name: 'doPublicRelease')
-        ])
-    ]
+    booleanParam(description: 'release to maven repository', name: 'doPublicRelease')
   ),
   triggers {
       pollSCM 'H H * * *'
