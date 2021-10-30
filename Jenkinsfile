@@ -12,8 +12,8 @@ pipeline {
         buildDiscarder(logRotator(
                     artifactDaysToKeepStr: "5",
                     artifactNumToKeepStr: "5",
-                    daysToKeepStr: "5",
-                    numToKeepStr: "5"
+                    daysToKeepStr: "20",
+                    numToKeepStr: "10"
         ))
         timeout(time: 5, unit: 'MINUTES')
         timestamps()
@@ -55,7 +55,7 @@ pipeline {
             }
             steps {
               echo "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
-//               sh script: "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
+              sh script: "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
         stage('Deploy jdk-11') {
