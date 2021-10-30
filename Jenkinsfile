@@ -20,7 +20,7 @@ pipeline {
     stage('Run all tests jdk-8') {
       tools {
         jdk "zulu-jdk-8"
-        maven 'apache-maven-3.6.1'
+        maven 'Maven 3.6.1'
       }
       steps {
         sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
@@ -34,7 +34,7 @@ pipeline {
     stage('Run all tests jdk-11') {
       tools {
         jdk "zulu-jdk-11"
-        maven 'apache-maven-3.6.1'
+        maven 'Maven 3.6.1'
       }
       steps {
         sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
