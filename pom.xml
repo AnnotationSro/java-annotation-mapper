@@ -4,7 +4,7 @@
 
   <groupId>sk.annotation.library.jam</groupId>
   <artifactId>jam-root</artifactId>
-  <version>0.9.16-SNAPSHOT</version>
+  <version>0.9.16${version-variant}-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>jam-root</name>
@@ -331,32 +331,10 @@
     <profile>
       <id>jdk8</id>
       <properties>
-        <version-variant>jdk8</version-variant>
+        <version-variant>-jdk8</version-variant>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
       </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-              <classifier>jdk8</classifier>
-            </configuration>
-          </plugin>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <classifier>jdk8-javadoc</classifier>
-            </configuration>
-          </plugin>
-          <plugin>
-            <artifactId>maven-source-plugin</artifactId>
-            <configuration>
-              <classifier>jdk8-sources</classifier>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
     <profile>
       <id>jdk11</id>
