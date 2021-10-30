@@ -26,7 +26,7 @@ pipeline {
         sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
       }
       post {
-          always {
+          success {
               junit 'target/surefire-reports/**/*.xml'
           }
       }
@@ -40,7 +40,7 @@ pipeline {
         sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
       }
       post {
-          always {
+          success {
               junit 'target/surefire-reports/**/*.xml'
           }
       }
