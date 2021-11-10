@@ -232,7 +232,12 @@ abstract public class ElementUtils {
 
 					if (getterForField != null) {
 						MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, typeFrom, method);
-						if (methodSyntax == null || !methodSyntax.getErrorsMapping().isEmpty()) {
+						if (methodSyntax == null) {
+							// Ignore bad API
+							processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "MethodSyntax is unknown ???", method);
+							continue;
+						}
+						else if (!methodSyntax.getErrorsMapping().isEmpty()) {
 							// Ignore bad API
 							processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, methodSyntax.getErrorsMapping().toString(), method);
 							continue;
