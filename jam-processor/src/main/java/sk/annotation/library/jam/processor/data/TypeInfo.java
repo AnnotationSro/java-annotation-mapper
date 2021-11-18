@@ -41,7 +41,7 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	}
 	public TypeInfo(Class cls, TypeMirror type) {
 		this.clsType = cls;
-		this.type = type;
+		this.type = TypeUtils.unwrapWildCardType(type);
 		if (type!=null) rawName = type.toString();
 		else if (clsType != null) rawName = clsType.getCanonicalName();
 	}

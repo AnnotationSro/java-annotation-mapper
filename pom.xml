@@ -323,9 +323,9 @@
     </profile>
     <profile>
       <id>run-jam-custom-module-for-debug-test</id>
-      <modules>
-        <module>jam-processor-debug-test</module>
-      </modules>
+<!--      <modules>-->
+<!--        <module>jam-processor-debug-test</module>-->
+<!--      </modules>-->
     </profile>
 
     <profile>

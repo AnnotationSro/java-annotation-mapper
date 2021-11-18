@@ -27,13 +27,14 @@
             <list>
               <option value="clean" />
               <option value="test" />
+              <option value="-X" />
             </list>
           </option>
           <option name="pomFileName" value="pom.xml" />
           <option name="profilesMap">
             <map>
-              <entry key="jdk8" value="true" />
-              <entry key="jdk11" value="false" />
+              <entry key="jdk8" value="false" />
+              <entry key="jdk11" value="true" />
               <entry key="run-jam-custom-module-for-debug-test" value="true" />
               <entry key="run-jam-tests" value="true" />
             </map>

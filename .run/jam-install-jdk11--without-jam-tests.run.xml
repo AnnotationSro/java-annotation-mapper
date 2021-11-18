@@ -7,7 +7,7 @@
           <option name="delegateBuildToMaven" value="false" />
           <option name="environmentProperties">
             <map>
-              <entry key="JAVA_HOME" value="/usr/lib/jvm/zulu11" />
+              <entry key="JAVA_HOME" value="$USER_HOME$/.sdkman/candidates/java/11.0.13-zulu/zulu-11.jdk/Contents/Home" />
             </map>
           </option>
           <option name="jreName" value="azul-11" />

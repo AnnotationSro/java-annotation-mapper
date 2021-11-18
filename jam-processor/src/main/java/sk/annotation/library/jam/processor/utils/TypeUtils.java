@@ -91,11 +91,21 @@ abstract public class TypeUtils {
             Symbol.TypeSymbol tp = (Symbol.TypeSymbol) type;
             return tp.asType();
         }
+        type = unwrapWildCardType(type);
         if (type instanceof Type) return (Type) type;
         return null;
     }
 
+    static public TypeMirror unwrapWildCardType(TypeMirror type) {
+        if (type instanceof Type.WildcardType) {
+            Type.WildcardType tp = (Type.WildcardType) type;
+            return unwrapWildCardType(tp.type);
+        }
+        return type;
+    }
+
     static public List<Type> getParametrizedTypes(TypeMirror type) {
+        type = unwrapWildCardType(type);
         if (type instanceof Type.ClassType) {
             Type.ClassType tp = (Type.ClassType) type;
             return tp.allparams();

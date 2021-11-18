@@ -398,18 +398,18 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
             return new SimpleMethodApi_Collection_SourceInfo(ownerClassInfo, subMethodApiSyntax);
         }
 
-        //
-        if (areEnums(processingEnv, types)) {
-            return new SimpleMethodApi_Enum_SourceInfo(ownerClassInfo, subMethodApiSyntax);
-        }
-
-
+        // Mapping simple structures ...
         AbstractRowValueTransformator rowFieldGenerator = AbstractRowValueTransformator.findRowFieldGenerator(processingEnv, ownerClassInfo, types[0], types[1]);
         if (rowFieldGenerator != null) {
             return new SimpleMethodApi_RowTransform_SourceInfo(ownerClassInfo, subMethodApiSyntax, rowFieldGenerator);
         }
 
-        // Defautl generator ...
+        // Mapping expected types ...
+        if (areEnums(processingEnv, types)) {
+            return new SimpleMethodApi_Enum_SourceInfo(ownerClassInfo, subMethodApiSyntax);
+        }
+
+        // Default generator (copy object) ...
         return new SimpleMethodApi_CopyField_SourceInfo(ownerClassInfo, subMethodApiSyntax);
     }
 

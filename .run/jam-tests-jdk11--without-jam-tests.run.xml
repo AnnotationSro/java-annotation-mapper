@@ -6,7 +6,9 @@
         <MavenRunnerSettings>
           <option name="delegateBuildToMaven" value="false" />
           <option name="environmentProperties">
-            <map />
+            <map>
+              <entry key="JAVA_HOME" value="$USER_HOME$/.sdkman/candidates/java/11.0.13-zulu/zulu-11.jdk/Contents/Home" />
+            </map>
           </option>
           <option name="jreName" value="azul-11" />
           <option name="mavenProperties">
@@ -32,8 +34,8 @@
           <option name="pomFileName" value="pom.xml" />
           <option name="profilesMap">
             <map>
-              <entry key="jdk8" value="true" />
-              <entry key="jdk11" value="false" />
+              <entry key="jdk8" value="false" />
+              <entry key="jdk11" value="true" />
               <entry key="run-jam-custom-module-for-debug-test" value="true" />
             </map>
           </option>
