@@ -50,6 +50,9 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
 
 
     private List<MethodCallApi> interceptors = null;
+    protected boolean hasInterceptors() {
+        return interceptors!=null && !interceptors.isEmpty();
+    }
     final private Set<MethodApiFullSyntax> usedByMethods = new HashSet<>();
 
     final protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig, AbstractMethodSourceInfo parentMethod) {

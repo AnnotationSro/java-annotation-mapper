@@ -101,7 +101,12 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
 
     @Override
     public boolean writeSourceCode(SourceGeneratorContext ctx) {
-        writeSourceCode(ctx, this.inlineMode, true);
+        writeSourceCode(ctx,true);
+        return true;
+    }
+
+    public boolean writeSourceCode(SourceGeneratorContext ctx, boolean writeAnnotation) {
+        writeSourceCode(ctx, this.inlineMode, writeAnnotation);
         return true;
     }
 

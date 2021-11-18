@@ -60,7 +60,21 @@ public class SimpleMethodApi_RowTransform_SourceInfo extends EmptyMethodSourceIn
 		TypeMirror srcType = varSrc.getVariableType().getType(ctx.processingEnv);
 		TypeMirror dstType = methodApiFullSyntax.getReturnType().getType(ctx.processingEnv);
 
-		varRet.writeSourceCode(ctx);
+		if (!hasInterceptors()) {
+			ctx.pw.print("return ");
+			ctx.pw.print(rowFieldGenerator.generateRowTransform(ctx, srcType, dstType, varSrc.getVariableName()));
+			ctx.pw.print(";");
+			return;
+		}
+
+		if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+			ctx.pw.print(varRet.getVariableName());
+		}
+		else {
+			// Declare variable ...
+			ctx.pw.print("\n");
+			varRet.writeSourceCode(ctx, true, false);
+		}
 		ctx.pw.print(" = ");
 		ctx.pw.print(rowFieldGenerator.generateRowTransform(ctx, srcType, dstType, varSrc.getVariableName()));
 		ctx.pw.print(";");
