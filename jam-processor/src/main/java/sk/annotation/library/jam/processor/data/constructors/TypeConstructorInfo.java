@@ -37,15 +37,16 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 		TypeInfo typeConstructor = getTypeConstructor(ctx.processingEnv);
 
 		// Todo - check Collections & Interfaces & Default Public Constructors !!!
-		if (!ElementUtils.hasDefaultConstructor(ctx.processingEnv, typeConstructor.getType(ctx.processingEnv))) {
+		if (!ElementUtils.hasDefaultConstructor(ctx.processingEnv, typeOriginal.getType(ctx.processingEnv))) {
 			ctx.pw.print("null /*NO DEFAULT CONSTRUCTOR*/");
 			return;
 		}
 
 
 		boolean withParams = sourceAsParams!=null && sourceAsParams.length>0;
+		boolean isArray = typeOriginal.isArray(ctx.processingEnv);
 
-		if (!withParams && constructorReference) {
+		if (constructorReference && !withParams && !isArray) {
 			typeConstructor.writeSourceCode(ctx);
 			ctx.pw.print("::new");
 			return;
@@ -56,15 +57,19 @@ public class TypeConstructorInfo implements SourceGenerator, SourceRegisterImpor
 		}
 
 		ctx.pw.print("new ");
-		typeConstructor.writeSourceCode(ctx);
-		ctx.pw.print("(");
+//		if (typeOriginal.isArray(ctx.processingEnv)) {
+//
+//		} else {
+			typeConstructor.writeSourceCode(ctx);
+//		}
+		ctx.pw.print(isArray ? "[" : "(");
 		if (withParams) {
 			for (int i = 0; i < sourceAsParams.length; i++) {
 				if (i>0) ctx.pw.print(",");
 				ctx.pw.print(sourceAsParams[i]);
 			}
 		}
-		ctx.pw.print(")");
+		ctx.pw.print(isArray ? "]" : ")");
 	}
 
 	@Override

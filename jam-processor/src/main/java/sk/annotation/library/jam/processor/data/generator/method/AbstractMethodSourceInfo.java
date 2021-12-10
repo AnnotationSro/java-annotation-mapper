@@ -397,7 +397,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         }
 
         // Implemented List
-        if (TypeUtils.isAssignableTypes(processingEnv, Collection.class, types)) {
+        if (TypeUtils.isArrayOrCollection(processingEnv, types)) {
             return new SimpleMethodApi_Collection_SourceInfo(ownerClassInfo, subMethodApiSyntax);
         }
 

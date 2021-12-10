@@ -163,6 +163,8 @@ abstract public class ElementUtils {
 
 	public static boolean hasDefaultConstructor(ProcessingEnvironment processingEnv, TypeMirror typeFrom) {
 		try {
+			if (TypeUtils.isArrayType(processingEnv, typeFrom)) return true;
+
 			TypeMirror typeFromConstructor = TypeUtils._resolveConstructorType(processingEnv, typeFrom);
 			List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((Type) typeFromConstructor).asElement());
 			for (Element member : allMembers) {

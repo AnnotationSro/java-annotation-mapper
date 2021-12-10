@@ -14,6 +14,8 @@ import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +41,13 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
             listConstructorType = new TypeConstructorInfo(methodApiFullSyntax.getReturnType(), false);
 
             // Find source and destination types
-            List<Type> dstTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getReturnType().getType(processingEnv));
-            List<Type> srcTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getRequiredParams().get(0).getVariableType().getType(processingEnv));
+            dstType = findType(processingEnv, this.methodApiFullSyntax.getReturnType());
+            srcType = findType(processingEnv, this.methodApiFullSyntax.getRequiredParams().get(0).getVariableType());
 
-			if (dstTypeList == null || srcTypeList == null || dstTypeList.size() != 1 || srcTypeList.size() != 1) {
-				return;	// unknown definition !!!
-			}
-			srcType = srcTypeList.get(0);
-			dstType = dstTypeList.get(0);
+            if (srcType == null || dstType == null) {
+                return;	// unknown definition !!!
+            }
+
 
             /* Maybe it will be needed to find out context of this method */
             methodCallApi = findOrCreateOwnMethod(processingEnv, forMethodConfig, null, srcType, dstType);
@@ -56,6 +57,22 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
         if (methodCallApi != null && methodCallApi.getOutGeneratedMethod() != null) {
             methodCallApi.getOutGeneratedMethod().analyzeAndGenerateDependMethods(processingEnv, forMethodConfig, this);
         }
+    }
+
+    private Type findType(ProcessingEnvironment processingEnv, TypeInfo typeInfo) {
+        TypeMirror type = typeInfo.getType(processingEnv);
+        if (TypeUtils.isArrayType(processingEnv, type)) {
+            ArrayType arrayType = (ArrayType) type;
+            if (arrayType.getComponentType() instanceof Type){
+                return (Type) arrayType.getComponentType();
+            }
+            return null;
+        }
+        List<Type> types = TypeUtils.getParametrizedTypes(type);
+        if (types == null || types.size() != 1 ) {
+            return null;	// unknown definition !!!
+        }
+        return types.get(0);
     }
 
     @Override
@@ -72,10 +89,13 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
         String srcVarName = varSrc.getVariableName();
         String dstVarName = this.varRet.getVariableName();
 
+        boolean srcIsArray = varSrc.getVariableType().isArray(ctx.processingEnv);
+        boolean dstIsArray = this.varRet.getVariableType().isArray(ctx.processingEnv);
+
 
         writeSourceInstanceCacheLoad(ctx, varSrc, varRet);
 
-        if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+        if (this.methodApiFullSyntax.isGenerateReturnParamRequired() && !dstIsArray) {
             ctx.pw.print("\nif (");
             ctx.pw.print(dstVarName);
             ctx.pw.print(" == null) {");
@@ -88,10 +108,15 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
             ctx.pw.print(" ");
         }
         ctx.pw.print(" = ");
-        listConstructorType.writeSourceCodeWithParams(ctx, srcVarName + ".size()");
+        if (srcIsArray) {
+            listConstructorType.writeSourceCodeWithParams(ctx, srcVarName + ".length");
+        }
+        else {
+            listConstructorType.writeSourceCodeWithParams(ctx, srcVarName + ".size()");
+        }
         ctx.pw.print(";");
 
-        if (this.methodApiFullSyntax.isGenerateReturnParamRequired()) {
+        if (this.methodApiFullSyntax.isGenerateReturnParamRequired() && !dstIsArray) {
             ctx.pw.print("\n}");
             ctx.pw.print("\nelse {\n\t" + dstVarName + ".clear();\n}");
         }
@@ -102,9 +127,11 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
         String name = NameUtils.findBestName(this.usedNames, "s");
         this.usedNames.add(name);
 
+        if (dstIsArray) {
+            ctx.pw.print("\nint iii_"+srcVarName+" = 0;");
+        }
         ctx.pw.print("\nfor (");
-        List<Type> srcTypeList = TypeUtils.getParametrizedTypes(this.methodApiFullSyntax.getRequiredParams().get(0).getVariableType().getType(ctx.processingEnv));
-        new TypeInfo(srcTypeList.get(0)).writeSourceCode(ctx);
+        new TypeInfo(srcType).writeSourceCode(ctx);
         ctx.pw.print(" ");
         ctx.pw.print(name);
         ctx.pw.print(" : ");
@@ -112,7 +139,12 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
         ctx.pw.print(") {");
         ctx.pw.print("\n\t");
         ctx.pw.print(dstVarName);
-        ctx.pw.print(".add(");
+        if (dstIsArray) {
+            ctx.pw.print("[iii_"+srcVarName+"++] = ");
+        }
+        else {
+            ctx.pw.print(".add(");
+        }
 
         if (methodCallApi != null) {
             List<String> params = new ArrayList<>(2);
@@ -123,7 +155,12 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
 			ctx.pw.print(name);
         }
 
-        ctx.pw.print(");");
+        if (dstIsArray) {
+            ctx.pw.print(";");
+        }
+        else {
+            ctx.pw.print(");");
+        }
 
 
         ctx.pw.print("\n}");

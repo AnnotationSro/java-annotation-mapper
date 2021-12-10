@@ -60,6 +60,15 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 		return type;
 	}
 
+	private Boolean _isArray = null;
+	public boolean isArray(ProcessingEnvironment processingEnv) {
+		if (_isArray == null) {
+		 _isArray = TypeUtils.isArrayType(processingEnv, getType(processingEnv));
+		}
+		return _isArray;
+	}
+
+
 	@Override
 	public void registerImports(ProcessingEnvironment processingEnv, ImportsTypeDefinitions imports) {
 		imports.registerImports(processingEnv, getType(processingEnv));

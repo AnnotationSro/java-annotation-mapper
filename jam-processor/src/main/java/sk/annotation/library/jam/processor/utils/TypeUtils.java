@@ -45,6 +45,10 @@ abstract public class TypeUtils {
     static public TypeMirror _resolveConstructorType(ProcessingEnvironment processingEnv, TypeMirror type) {
         // List|Collection -> LinkedList or ArrayList
         if (type == null) return type;
+        if (isArrayType(processingEnv, type)) {
+            ArrayType arrayType = (ArrayType) type;
+            return arrayType.getComponentType();
+        }
 
         if (type instanceof Type.ClassType) {
             Type.ClassType tp = (Type.ClassType) type;
@@ -185,6 +189,18 @@ abstract public class TypeUtils {
 
 		return true;
 	}
+    public static boolean isArrayType(ProcessingEnvironment processingEnv, TypeMirror type) {
+        TypeMirror erasureTP = processingEnv.getTypeUtils().erasure(type);
+        return erasureTP instanceof ArrayType;
+    }
+    public static boolean isArrayOrCollection(ProcessingEnvironment processingEnv, Type... types) {
+        TypeMirror type = processingEnv.getTypeUtils().erasure(processingEnv.getElementUtils().getTypeElement(Collection.class.getCanonicalName()).asType());
+        for (Type tp : types) {
+            TypeMirror erasureTP = processingEnv.getTypeUtils().erasure(tp);
+            if (!processingEnv.getTypeUtils().isAssignable(erasureTP, type) && !(erasureTP instanceof ArrayType)) return false;
+        }
+        return true;
+    }
 
     static public ExecutableType findType(ProcessingEnvironment processingEnv, Type owner, ExecutableElement element) {
         return (ExecutableType) processingEnv.getTypeUtils().asMemberOf((DeclaredType) owner, element);
