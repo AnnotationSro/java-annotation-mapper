@@ -130,7 +130,7 @@
           <tagNameFormat>release-@{project.version}</tagNameFormat>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <releaseProfiles>release</releaseProfiles>
-          <arguments>-Prelease</arguments>
+          <arguments>-Pjdk11,-jdk8</arguments>
         </configuration>
         <dependencies>
           <dependency>
