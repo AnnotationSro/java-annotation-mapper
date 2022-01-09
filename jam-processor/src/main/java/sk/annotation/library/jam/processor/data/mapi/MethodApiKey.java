@@ -13,7 +13,6 @@ import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class MethodApiKey {
 	final private String[] visibleStrTypes;		// first is return type
@@ -75,15 +74,15 @@ public class MethodApiKey {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		MethodApiKey that = (MethodApiKey) o;
-		return apiWithReturnType == that.apiWithReturnType && Arrays.equals(visibleTypes, that.visibleTypes);
+//		MethodApiKey that = (MethodApiKey) o;
+		return this.toString().equals(o.toString());
 	}
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(apiWithReturnType);
-		result = 31 * result + Arrays.hashCode(visibleTypes);
-		return result;
+//		int result = Objects.hash(apiWithReturnType);
+//		result = 31 * result + Arrays.hashCode(visibleTypes);
+		return this.toString().hashCode();
 	}
 
 	public MethodApiKey (TypeInfo returnType, List<TypeWithVariableInfo> inputParams) {
