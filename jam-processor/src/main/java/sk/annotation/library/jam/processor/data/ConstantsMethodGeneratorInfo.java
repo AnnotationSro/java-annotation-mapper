@@ -17,7 +17,7 @@ public class ConstantsMethodGeneratorInfo implements SourceGenerator, SourceRegi
 	final public Map<String, String> constanctsForTopMethods = new LinkedHashMap<>();
 
 	public String registerTopMethod (ExecutableElement method, MapperClassInfo ownerClassInfo) {
-		String constantFieldName = "__constantMethod" + (constanctsForTopMethods.size() + 1) + "_" + method.getSimpleName();
+		String constantFieldName = String.format("__constantMethod_%02d_%s", constanctsForTopMethods.size() + 1, method.getSimpleName());
 		constanctsForTopMethods.put(constantFieldName, method.toString());
 		return constantFieldName;
 	}

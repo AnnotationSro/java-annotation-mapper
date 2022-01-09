@@ -214,6 +214,17 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 		});
 //		for (Map.Entry<MethodConfigKey, List<FieldConfigurationResolver.ResolvedTransformation>> e : analyzedDataMap.entrySet()) {
 		boolean genElse = false;
+
+		Collections.sort(methodConfigKeyList, new Comparator<MethodConfigKey>() {
+			private String getOrderKey(MethodConfigKey o) {
+				if (o.isWithCustomConfig()) return "0-"+o.getForTopMethod();
+				return "1-"+o.getForTopMethod();
+			}
+			@Override
+			public int compare(MethodConfigKey o1, MethodConfigKey o2) {
+				return getOrderKey(o1).compareTo(getOrderKey(o2));
+			}
+		});
 		for (MethodConfigKey methodConfigKey : methodConfigKeyList) {
 			List<FieldConfigurationResolver.ResolvedTransformation> groups = analyzedDataMap.get(methodConfigKey);
 
@@ -222,7 +233,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 			if (methodContextValue != null) cacheOfFoundPaths.clear();
 
 			if (methodContextValue != null) {
-				if (hasMultipleVariants(ctx.processingEnv)) {
+				if (hasMultipleVariants(ctx.processingEnv) && methodConfigKey.isWithCustomConfig()) {
 					ctx.pw.print("\n\n// Copy Fields - for method custom configuration: ");
 					ctx.pw.print(methodConfigKey.getForTopMethod());
 				}
@@ -237,7 +248,7 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 				genElse = true;
 
 //				if (methodConfigKey.isWithCustomConfig()) {
-				if (hasMultipleVariants(ctx.processingEnv)) {
+				if (hasMultipleVariants(ctx.processingEnv) && methodConfigKey.isWithCustomConfig()) {
 					ctx.pw.print("if (");
 					ctx.pw.print(methodContextValue);
 					ctx.pw.print(" == ");
