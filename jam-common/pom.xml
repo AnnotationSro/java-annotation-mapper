@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>sk.annotation.library.jam</groupId>
 		<artifactId>jam-root</artifactId>
-		<version>0.9.17</version>
+		<version>0.9.18-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>jam-common</artifactId>
 	<packaging>jar</packaging>
-	<version>0.9.17</version>
+	<version>0.9.18-SNAPSHOT</version>
 
 	<profiles>
 		<profile>
