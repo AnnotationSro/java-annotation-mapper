@@ -62,11 +62,15 @@ abstract public class ElementUtils {
 				return null;
 			}
 			String pckParentName = pckName.substring(0, dot);
-			Iterator<? extends PackageElement> iterator = processingEnv.getElementUtils().getAllPackageElements(pckParentName).iterator();
-			if (iterator.hasNext()) {
-				return iterator.next();
+			PackageElement parentPackage = processingEnv.getElementUtils().getPackageElement(pckParentName);
+			if (parentPackage != null) {
+				return parentPackage;
 			}
-		}
+
+			PackageElement parentPackage2 = JdkPackageUtils.getPackageElement(processingEnv, pckParentName);
+			if (parentPackage2 != null) {
+				return parentPackage2;
+			}		}
 		return element.getEnclosingElement();
 	}
 
