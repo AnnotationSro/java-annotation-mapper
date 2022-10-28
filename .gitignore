@@ -36,6 +36,10 @@ out/
 /*/target
 /*/*/target
 
+/.flattened-pom.xml
+/*/.flattened-pom.xml
+/*/*/.flattened-pom.xml
+
 /*.iml
 /*/*.iml
 /*/*/*.iml

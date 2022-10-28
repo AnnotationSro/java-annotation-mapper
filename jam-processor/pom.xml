@@ -4,7 +4,8 @@
   <parent>
     <groupId>sk.annotation.library.jam</groupId>
     <artifactId>jam-root</artifactId>
-    <version>0.9.18${version-variant}-SNAPSHOT</version>
+    <version>${jam.version}</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>jam-processor</artifactId>
