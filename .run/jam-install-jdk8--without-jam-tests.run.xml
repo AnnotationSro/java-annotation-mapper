@@ -5,10 +5,7 @@
       <option name="myRunnerSettings">
         <MavenRunnerSettings>
           <option name="delegateBuildToMaven" value="false" />
-          <option name="environmentProperties">
-            <map />
-          </option>
-          <option name="jreName" value="zulu-1.8" />
+          <option name="jreName" value="azul-1.8" />
           <option name="mavenProperties">
             <map />
           </option>
@@ -34,8 +31,8 @@
           <option name="pomFileName" value="pom.xml" />
           <option name="profilesMap">
             <map>
-              <entry key="jdk8" value="true" />
               <entry key="jdk11" value="false" />
+              <entry key="jdk8" value="true" />
               <entry key="run-jam-custom-module-for-debug-test" value="false" />
             </map>
           </option>

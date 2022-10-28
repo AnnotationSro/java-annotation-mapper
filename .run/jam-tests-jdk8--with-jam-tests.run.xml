@@ -5,10 +5,7 @@
       <option name="myRunnerSettings">
         <MavenRunnerSettings>
           <option name="delegateBuildToMaven" value="false" />
-          <option name="environmentProperties">
-            <map />
-          </option>
-          <option name="jreName" value="zulu-1.8" />
+          <option name="jreName" value="azul-1.8" />
           <option name="mavenProperties">
             <map />
           </option>
