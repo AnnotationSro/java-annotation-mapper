@@ -51,8 +51,8 @@ First add library *jam-processor* as a *provided* dependency and *jam-common* as
 ```xml
 <dependencies>
      <!-- 
-     last version for JDK v 11+  is 0.9.16-SNAPSHOT
-     last version for JDK v 8-10 is 0.9.16-jdk8-SNAPSHOT 
+     last version for JDK v 11+  is 0.9.18
+     last version for JDK v 8-10 is 0.9.18-jdk8 
      -->
      <dependency>
          <groupId>sk.annotation.library.jam</groupId>
