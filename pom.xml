@@ -121,24 +121,24 @@
           <scmBranchPropertyName>build.branch</scmBranchPropertyName>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <localCheckout>true</localCheckout>
-          <tagNameFormat>release-@{project.version}</tagNameFormat>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-          <releaseProfiles>release</releaseProfiles>
-          <arguments>-Pjdk11,-jdk8,release</arguments>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.scm</groupId>
-            <artifactId>maven-scm-provider-gitexe</artifactId>
-            <version>1.8.1</version>
-          </dependency>
-        </dependencies>
-      </plugin>
+  <!--      <plugin>-->
+  <!--        <groupId>org.apache.maven.plugins</groupId>-->
+  <!--        <artifactId>maven-release-plugin</artifactId>-->
+  <!--        <configuration>-->
+  <!--          <localCheckout>true</localCheckout>-->
+  <!--          <tagNameFormat>release-@{project.version}</tagNameFormat>-->
+  <!--          <autoVersionSubmodules>true</autoVersionSubmodules>-->
+  <!--          <releaseProfiles>release</releaseProfiles>-->
+  <!--          <arguments>-Pjdk11,-jdk8,release</arguments>-->
+  <!--        </configuration>-->
+  <!--        <dependencies>-->
+  <!--          <dependency>-->
+  <!--            <groupId>org.apache.maven.scm</groupId>-->
+  <!--            <artifactId>maven-scm-provider-gitexe</artifactId>-->
+  <!--            <version>1.8.1</version>-->
+  <!--          </dependency>-->
+  <!--        </dependencies>-->
+  <!--      </plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -330,7 +330,6 @@
     <profile>
       <id>jdk8</id>
       <properties>
-        <version-variant>-jdk8</version-variant>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
       </properties>

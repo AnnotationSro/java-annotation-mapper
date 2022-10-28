@@ -68,7 +68,7 @@ pipeline {
               maven 'Maven 3.6.1'
             }
             steps {
-              echo "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -Dversion-variant=jdk8 -e"
+              echo "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -Dversion-variant=-jdk8 -e"
 // TODO(MAKLERIO-79)               sh script: "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
