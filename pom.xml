@@ -3,7 +3,7 @@
 
   <groupId>sk.annotation.library.jam</groupId>
   <artifactId>jam-root</artifactId>
-  <version>0.9.18-SNAPSHOT</version>
+  <version>0.9.18${version-variant}-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>jam-root</name>
