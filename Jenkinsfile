@@ -69,7 +69,7 @@ pipeline {
             }
             steps {
               echo "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
-// TODO(MAKLERIO-79)               sh script: "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
+              sh script: "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
         stage('Deploy jdk-11') {
