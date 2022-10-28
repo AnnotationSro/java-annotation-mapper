@@ -106,11 +106,14 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
     }
 
     public boolean writeSourceCode(SourceGeneratorContext ctx, boolean writeAnnotation) {
-        writeSourceCode(ctx, this.inlineMode, writeAnnotation);
+        writeSourceCode(ctx, this.inlineMode, writeAnnotation, false);
         return true;
     }
 
     public void writeSourceCode(SourceGeneratorContext ctx, boolean inlineMode, boolean writeAnnotation) {
+        writeSourceCode(ctx, inlineMode, writeAnnotation, false);
+    }
+    public void writeSourceCode(SourceGeneratorContext ctx, boolean inlineMode, boolean writeAnnotation, boolean writeSourceDeclaration) {
         if (writeAnnotation) {
             annotations.setInline(inlineMode);
             annotations.writeSourceCode(ctx);
@@ -121,7 +124,7 @@ public class TypeWithVariableInfo implements SourceGenerator, SourceRegisterImpo
                     ctx.pw.print("protected ");
             }
         }
-        type.writeSourceCode(ctx);
+        type.writeSourceCode(ctx, writeSourceDeclaration);
         ctx.pw.print(" ");
         ctx.pw.print(name);
     }

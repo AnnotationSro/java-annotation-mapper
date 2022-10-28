@@ -1,22 +1,23 @@
 package sk.annotation.library.jam.processor.utils.annotations.data.fields;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 public class AnnotationFieldId {
 	private List<String> packages;
-	private List<Type> types;
+	private List<DeclaredType> types;
 	private String value;
 
-	public boolean isTypeAcceptable(ProcessingEnvironment processingEnv, Type type) {
+	public boolean isTypeAcceptable(ProcessingEnvironment processingEnv, TypeMirror type) {
 		return isTypeAcceptable_type(processingEnv, type) && isTypeAcceptable_package(processingEnv, type);
 	}
-	public boolean isAcceptableTypeAndName(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> fieldPath) {
+	public boolean isAcceptableTypeAndName(ProcessingEnvironment processingEnv, TypeMirror type, List<FieldValueAccessData> fieldPath) {
 		if (isTypeAcceptable_type(processingEnv, type) || isTypeAcceptable_package(processingEnv, type)) {
 			if (getValue()==null) return true;
 			if (StringUtils.equals(getValue(), fieldPath.get(0).getFieldName())) return true;
@@ -25,7 +26,7 @@ public class AnnotationFieldId {
 		return false;
 	}
 
-	private boolean isTypeAcceptable_package(ProcessingEnvironment processingEnv, Type type) {
+	private boolean isTypeAcceptable_package(ProcessingEnvironment processingEnv, TypeMirror type) {
 		// Type check
 		if (packages == null || packages.isEmpty()) {
 			return true;
@@ -40,12 +41,12 @@ public class AnnotationFieldId {
 		return false;
 	}
 
-	private boolean isTypeAcceptable_type(ProcessingEnvironment processingEnv, Type type) {
+	private boolean isTypeAcceptable_type(ProcessingEnvironment processingEnv, TypeMirror type) {
 		// Type check
 		if (types == null || types.isEmpty()) {
 			return true;
 		}
-		for (Type tp : types) {
+		for (TypeMirror tp : types) {
 			if (TypeUtils.isAssignable(processingEnv, type, tp)) {
 				return true;
 			}
@@ -62,11 +63,11 @@ public class AnnotationFieldId {
 		this.packages = packages;
 	}
 
-	public List<Type> getTypes() {
+	public List<DeclaredType> getTypes() {
 		return types;
 	}
 
-	public void setTypes(List<Type> types) {
+	public void setTypes(List<DeclaredType> types) {
 		this.types = types;
 	}
 

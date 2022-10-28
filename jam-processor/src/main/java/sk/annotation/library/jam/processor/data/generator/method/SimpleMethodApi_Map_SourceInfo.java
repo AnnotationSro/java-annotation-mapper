@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -15,6 +14,7 @@ import sk.annotation.library.jam.processor.utils.NameUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +32,8 @@ public class SimpleMethodApi_Map_SourceInfo extends AbstractMethodSourceInfo {
 
     private TypeConstructorInfo mapConstructorType = null;
     private boolean analyzeRequired = true;
-	private List<Type> dstTypeList = null;
-    private List<Type> srcTypeList = null;
+	private List<TypeMirror> dstTypeList = null;
+    private List<TypeMirror> srcTypeList = null;
 
     @Override
     protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {

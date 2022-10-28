@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data.confwrappers;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
 import sk.annotation.library.jam.annotations.enums.ConfigErrorReporting;
@@ -19,6 +18,8 @@ import sk.annotation.library.jam.processor.utils.commons.ObjectUtils;
 import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -157,7 +158,7 @@ public class FieldConfigurationResolver {
 		fieldMappingData=[position=position, *=*]}
 	*/
 
-    public List<ResolvedTransformation> findTransformationGroups(ProcessingEnvironment processingEnv, Type typeFrom, Type typeTo) {
+    public List<ResolvedTransformation> findTransformationGroups(ProcessingEnvironment processingEnv, TypeMirror typeFrom, TypeMirror typeTo) {
         List<ResolvedTransformation> retValues = new LinkedList<>();
 
         Set<String> resolvedCustomFields = new HashSet<>();
@@ -287,7 +288,7 @@ public class FieldConfigurationResolver {
     };
 
 
-    private AnnotationConfigGenerator findConfigGenerator(ProcessingEnvironment processingEnv, Type type, String key) {
+    private AnnotationConfigGenerator findConfigGenerator(ProcessingEnvironment processingEnv, TypeMirror type, String key) {
         if (type == null || key == null) return null;
         Map<String, FieldValueAccessData> fields = ElementUtils.findAllAccesableFields(processingEnv, type);
 
@@ -331,7 +332,7 @@ public class FieldConfigurationResolver {
         return null;
     }
 
-    private ConfigErrorReporting resolveReportPriority(ProcessingEnvironment processingEnv, Type type, String key, boolean asSrc) {
+    private ConfigErrorReporting resolveReportPriority(ProcessingEnvironment processingEnv, TypeMirror type, String key, boolean asSrc) {
         if (type == null || key == null) return findDefautlReport();
 
         AnnotationConfigGenerator confGenerator = findConfigGenerator(processingEnv, type, key);
@@ -350,7 +351,7 @@ public class FieldConfigurationResolver {
         return ConfigErrorReporting.WARNINGS_ONLY;
     }
 
-    private boolean isIgnoredPath(ProcessingEnvironment processingEnv, Type type, List<FieldValueAccessData> srcFieldPathList, boolean forUpdate) {
+    private boolean isIgnoredPath(ProcessingEnvironment processingEnv, TypeMirror type, List<FieldValueAccessData> srcFieldPathList, boolean forUpdate) {
         if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return true;
 
         for (AnnotationMapperConfig fieldConfig : mapperConfigs) {
@@ -367,7 +368,7 @@ public class FieldConfigurationResolver {
         return false;
     }
 
-    private ApplyFieldStrategy findFieldStrategyForMapping(ProcessingEnvironment processingEnv, Type srcType, List<FieldValueAccessData> srcFieldPathList, Type dstType, List<FieldValueAccessData> dstFieldPathList) {
+    private ApplyFieldStrategy findFieldStrategyForMapping(ProcessingEnvironment processingEnv, TypeMirror srcType, List<FieldValueAccessData> srcFieldPathList, TypeMirror dstType, List<FieldValueAccessData> dstFieldPathList) {
         if (srcFieldPathList == null || srcFieldPathList.isEmpty() || srcFieldPathList.get(0) == null) return ApplyFieldStrategy.ALWAYS;
         if (dstFieldPathList == null || dstFieldPathList.isEmpty() || dstFieldPathList.get(0) == null) return ApplyFieldStrategy.ALWAYS;
 
@@ -450,11 +451,11 @@ public class FieldConfigurationResolver {
       "org.data.Object1.NestedObject.fieldName.subObject";			// composite fieldName with ObjectOwner for nestedObject (with package)
 
     */
-    static List<FieldValueAccessData> findFieldPath(ProcessingEnvironment processingEnv, Type type, Map<String, FieldValueAccessData> fieldsMap, AnnotationFieldId fieldNameInConfiguration) {
+    static List<FieldValueAccessData> findFieldPath(ProcessingEnvironment processingEnv, TypeMirror type, Map<String, FieldValueAccessData> fieldsMap, AnnotationFieldId fieldNameInConfiguration) {
         return findFieldPath(processingEnv, type, fieldsMap, fieldNameInConfiguration, true);
     }
 
-    static List<FieldValueAccessData> findFieldPath(ProcessingEnvironment processingEnv, Type type, Map<String, FieldValueAccessData> fieldsMap, AnnotationFieldId fieldId, boolean fieldNameRequired) {
+    static List<FieldValueAccessData> findFieldPath(ProcessingEnvironment processingEnv, TypeMirror type, Map<String, FieldValueAccessData> fieldsMap, AnnotationFieldId fieldId, boolean fieldNameRequired) {
         // check type is accepatble
         if (!fieldId.isTypeAcceptable(processingEnv, type)) return null;
 
@@ -478,13 +479,13 @@ public class FieldConfigurationResolver {
             ret.add(fieldValueAccessData);
 
             if (fieldValueAccessData != null && i < splitedFieldName.length - 1) {
-                if (fieldValueAccessData.getTypeOfGetter() instanceof Type) {
-                    type = (Type) fieldValueAccessData.getTypeOfGetter();
+                if (fieldValueAccessData.getTypeOfGetter() instanceof DeclaredType) {
+                    type = (DeclaredType) fieldValueAccessData.getTypeOfGetter();
                     fieldsMap = ElementUtils.findAllAccesableFields(processingEnv, type);
                     continue;
                 }
-                if (fieldValueAccessData.getTypeOfSetter() instanceof Type) {
-                    type = (Type) fieldValueAccessData.getTypeOfSetter();
+                if (fieldValueAccessData.getTypeOfSetter() instanceof DeclaredType) {
+                    type = (DeclaredType) fieldValueAccessData.getTypeOfSetter();
                     fieldsMap = ElementUtils.findAllAccesableFields(processingEnv, type);
                     continue;
                 }

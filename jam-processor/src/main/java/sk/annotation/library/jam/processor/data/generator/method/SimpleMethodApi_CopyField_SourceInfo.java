@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -56,8 +55,8 @@ public class SimpleMethodApi_CopyField_SourceInfo extends EmptyMethodSourceInfo 
 
 		// remember Source / Destination
 		List<TypeWithVariableInfo> requiredParams = methodApiFullSyntax.getRequiredParams();
-		Type typeFrom = (Type) requiredParams.get(0).getVariableType().getType(null);
-		Type typeTo = (Type) requiredParams.get(1).getVariableType().getType(null);
+		TypeMirror typeFrom = requiredParams.get(0).getVariableType().getType(null);
+		TypeMirror typeTo = requiredParams.get(1).getVariableType().getType(null);
 
 		if (!ElementUtils.hasDefaultConstructor(processingEnv, typeTo)) {
 

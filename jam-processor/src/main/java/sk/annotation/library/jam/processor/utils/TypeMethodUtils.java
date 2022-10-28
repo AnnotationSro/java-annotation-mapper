@@ -1,12 +1,12 @@
 package sk.annotation.library.jam.processor.utils;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.data.TypeInfo;
+import sk.annotation.library.jam.processor.data.mapi.MethodInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ public class TypeMethodUtils {
 
     private static enum TypCompareValue {SAME, REQUIRED_VALUE_AS_PARENT, REQUIRED_VALUE_AS_CHILD}
 
-    static public boolean isMethodCallableForMapper(ProcessingEnvironment processingEnv, ExecutableType requiredMethodType, ExecutableType testedMethodType) {
+    static public boolean isMethodCallableForMapper(ProcessingEnvironment processingEnv, MethodInfo requiredMethodType, MethodInfo testedMethodType) {
         if (testedMethodType == null || requiredMethodType==null) {
             return false;
         }
@@ -44,7 +44,7 @@ public class TypeMethodUtils {
         return typeMethodUtils.testRequiredType(testedMethodType.getReturnType(), requiredMethodType.getReturnType(), TypCompareValue.SAME);
     }
 
-    static public boolean isMethodCallableForInterceptor(ProcessingEnvironment processingEnv, TypeMirror requiredSrcType, TypeMirror requiredDstType, ExecutableType testedMethodType) {
+    static public boolean isMethodCallableForInterceptor(ProcessingEnvironment processingEnv, TypeMirror requiredSrcType, TypeMirror requiredDstType, MethodInfo testedMethodType) {
         if (testedMethodType.getParameterTypes().size() != 2) return false;
         if (TypeInfo.analyzeReturnType(testedMethodType.getReturnType()) != null) return false;
 
@@ -73,11 +73,11 @@ public class TypeMethodUtils {
         if (testParamType == null || requiredParamType == null) {
             return false;
         }
-        if (testParamType instanceof Type.TypeVar) {
-            Type.TypeVar tstType = (Type.TypeVar) testParamType;
+        if (testParamType instanceof TypeVariable) {
+            TypeVariable tstType = (TypeVariable) testParamType;
             if (!testRequiredType(tstType.getUpperBound(), requiredParamType, TypCompareValue.REQUIRED_VALUE_AS_PARENT)) return false;
 
-            String typeVarName = tstType.tsym.toString();
+            String typeVarName = tstType.asElement().toString();
             if (!resolvedParametrizedTypes.containsKey(typeVarName)) {
                 resolvedParametrizedTypes.put(typeVarName, requiredParamType);
                 return true;

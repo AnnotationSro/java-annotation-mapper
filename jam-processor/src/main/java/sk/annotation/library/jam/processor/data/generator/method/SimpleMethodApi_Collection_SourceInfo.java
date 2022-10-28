@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.data.MethodCallApi;
 import sk.annotation.library.jam.processor.data.TypeInfo;
@@ -29,8 +28,8 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
     private TypeConstructorInfo listConstructorType = null;
     private boolean analyzeRequired = true;
 
-    private Type dstType = null;
-    private Type srcType = null;
+    private TypeMirror dstType = null;
+    private TypeMirror srcType = null;
 
     @Override
     protected void analyzeAndGenerateDependMethods(ProcessingEnvironment processingEnv, MethodConfigKey forMethodConfig) {
@@ -59,16 +58,16 @@ public class SimpleMethodApi_Collection_SourceInfo extends AbstractMethodSourceI
         }
     }
 
-    private Type findType(ProcessingEnvironment processingEnv, TypeInfo typeInfo) {
+    private TypeMirror findType(ProcessingEnvironment processingEnv, TypeInfo typeInfo) {
         TypeMirror type = typeInfo.getType(processingEnv);
         if (TypeUtils.isArrayType(processingEnv, type)) {
             ArrayType arrayType = (ArrayType) type;
-            if (arrayType.getComponentType() instanceof Type){
-                return (Type) arrayType.getComponentType();
+            if (arrayType.getComponentType() != null){
+                return arrayType.getComponentType();
             }
             return null;
         }
-        List<Type> types = TypeUtils.getParametrizedTypes(type);
+        List<TypeMirror> types = TypeUtils.getParametrizedTypes(type);
         if (types == null || types.size() != 1 ) {
             return null;	// unknown definition !!!
         }

@@ -1,12 +1,12 @@
 package sk.annotation.library.jam.processor.utils;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.JamVisibility;
 import sk.annotation.library.jam.annotations.enums.MapperVisibility;
 import sk.annotation.library.jam.processor.data.TypeInfo;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.ElementFilter;
 import java.util.List;
 
@@ -58,7 +58,7 @@ abstract public class ApiUtil {
         return false;
     }
 
-    static public List<ExecutableElement> readElementApi(ProcessingEnvironment processingEnv, Type type) {
+    static public List<ExecutableElement> readElementApi(ProcessingEnvironment processingEnv, DeclaredType type) {
         if (type == null) return null;
         if (type.getKind().isPrimitive()) return null;
         List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) type.asElement());

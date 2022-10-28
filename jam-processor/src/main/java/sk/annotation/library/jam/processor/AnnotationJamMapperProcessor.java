@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor;
 
-import com.sun.tools.javac.code.Symbol;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
 import sk.annotation.library.jam.processor.sourcewriter.JavaClassWriter;
@@ -42,6 +41,7 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
     private boolean firstRun = true;
 
     protected static final String version = getVersion();
+
     protected static String getVersion() {
         try {
             InputStream is = AnnotationJamMapperProcessor.class.getResourceAsStream("/META-INF/maven/sk.annotation.library.jam/jam-processor/pom.properties");
@@ -49,12 +49,11 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
                 Properties p = new Properties();
                 p.load(is);
                 String version = p.getProperty("version");
-                if (version != null && version.trim().length()>0) {
+                if (version != null && version.trim().length() > 0) {
                     return " (version= " + version + ")";
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // ignore error
         }
         return "";
@@ -79,13 +78,14 @@ public class AnnotationJamMapperProcessor extends AbstractProcessor {
                 continue;
             }
 
-            if (element instanceof Symbol.MethodSymbol) {
-                Symbol owner = ((Symbol.MethodSymbol) element).owner;
-                String key = ElementUtils.getQualifiedName(owner);
-                newValues.add(key);
-                this.foundMappersPerGeneratedState.putIfAbsent(key, false);
-                continue;
-            }
+//            if (element instanceof Symbol.MethodSymbol) {
+//                Symbol owner = ((Symbol.MethodSymbol) element).owner;
+//                DeclaredType topElementType = TypeUtils.findTopElementType(element.asType());
+//                String key = ElementUtils.getQualifiedName(owner);
+//                newValues.add(key);
+//                this.foundMappersPerGeneratedState.putIfAbsent(key, false);
+//                continue;
+//            }
 
             processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Annotation processor " + this.getClass().getCanonicalName() + version + " - found unsupported element type " + element);
         }

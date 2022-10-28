@@ -69,7 +69,7 @@ public class FieldInfo implements SourceGenerator, SourceRegisterImports {
 		ctx.pw.print("\npublic void set");
 		ctx.pw.print(StringUtils.capitalize(variable.getVariableName()));
 		ctx.pw.print("(");
-		variable.writeSourceCode(ctx, true, false);
+		variable.writeSourceCode(ctx, true, false, false);
 		ctx.pw.print(") {");
 
 		ctx.pw.print("\n\tthis.");

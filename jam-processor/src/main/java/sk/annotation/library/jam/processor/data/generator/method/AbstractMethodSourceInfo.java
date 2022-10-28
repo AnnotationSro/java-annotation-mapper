@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data.generator.method;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.enums.MapperFeature;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.MapperClassInfo;
@@ -386,7 +385,7 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         // Check if its mapping collection onto collection
         if (srcType == null || dstType == null) return new EmptyMethodSourceInfo(ownerClassInfo, subMethodApiSyntax);
 
-        Type[] types = new Type[]{
+        TypeMirror[] types = new TypeMirror[]{
                 TypeUtils.getBaseTypeWithoutParametrizedFields(srcType),
                 TypeUtils.getBaseTypeWithoutParametrizedFields(dstType)
         };
@@ -416,8 +415,8 @@ abstract public class AbstractMethodSourceInfo implements SourceGenerator, Sourc
         return new SimpleMethodApi_CopyField_SourceInfo(ownerClassInfo, subMethodApiSyntax);
     }
 
-    protected static boolean areEnums(ProcessingEnvironment processingEnv, Type... types) {
-        for (Type tp : types) {
+    protected static boolean areEnums(ProcessingEnvironment processingEnv, TypeMirror... types) {
+        for (TypeMirror tp : types) {
             if (!TypeUtils.isEnunType(processingEnv, tp)) return false;
         }
         return true;

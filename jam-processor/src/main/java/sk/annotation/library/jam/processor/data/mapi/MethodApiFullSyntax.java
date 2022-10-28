@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data.mapi;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.Context;
 import sk.annotation.library.jam.annotations.Return;
 import sk.annotation.library.jam.processor.data.AnnotationsInfo;
@@ -19,6 +18,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 import java.util.*;
@@ -109,7 +109,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 		return _getNeccessaryParams;
 	}
 
-	static public MethodApiFullSyntax analyze(ProcessingEnvironment processingEnv, Type methodDeclaredInType, ExecutableElement method) {
+	static public MethodApiFullSyntax analyze(ProcessingEnvironment processingEnv, TypeMirror methodDeclaredInType, ExecutableElement method) {
 		try {
 			String name = method.getSimpleName().toString();
 			ExecutableType methodType = TypeUtils.findType(processingEnv, methodDeclaredInType, method);
@@ -146,7 +146,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 				for (int i=0; i<method.getParameters().size(); i++) {
 					VariableElement variableElement = method.getParameters().get(i);
 					String variableName = variableElement.getSimpleName().toString();
-					Type resolvedType = (Type) methodType.getParameterTypes().get(i);
+					TypeMirror resolvedType = methodType.getParameterTypes().get(i);
 					params.add(new TypeWithVariableInfo(
 							variableElement.getSimpleName().toString(),
 							new TypeInfo(resolvedType),
@@ -227,7 +227,7 @@ public class MethodApiFullSyntax implements SourceRegisterImports {
 
 			if (writeSeparator) ctx.pw.print(", ");
 			writeSeparator = true;
-			param.writeSourceCode(ctx, true, true);
+			param.writeSourceCode(ctx, true, true, true);
 
 			if (param.isMarkedAsReturn()) {
 				ctx.pw.print( " /* returnLastParamRequired="+returnLastParamRequired+" */ ");

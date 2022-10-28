@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.sourcewriter;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 import sk.annotation.library.jam.processor.utils.commons.StringUtils;
 
@@ -8,6 +7,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
@@ -36,7 +36,7 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 		if (type == null || type.getKind() == TypeKind.VOID) return null;
 		if (type.getKind().isPrimitive()) return type.toString();
 
-		if (!(type instanceof Type)) {
+		if (!(type instanceof DeclaredType)) {
 			return type.toString();
 		}
 
@@ -87,10 +87,10 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 	}
 
 	protected ResolveImportStatus resolveImportStatus(ProcessingEnvironment processingEnv, String simpleName) {
-		TypeMirror type = TypeUtils.convertToType(processingEnv, simpleName);
+		TypeMirror type = TypeUtils.convertToTypeMirror(processingEnv, simpleName);
 		if (type == null) return null;
 
-		Type topElementType = TypeUtils.findTopElementType(type);
+		DeclaredType topElementType = TypeUtils.findTopElementType(type);
 		if (topElementType == null) return null;
 
 		String packageName = TypeUtils.findPackageName(topElementType);
@@ -116,7 +116,7 @@ public class ImportsTypeDefinitions implements SourceGenerator {
 		if (StringUtils.startsWith(packageName, "sk.annotation.library.jam.utils")) return;
 
 		if (type.getKind() != TypeKind.DECLARED) return;
-		Element element = ((Type) type).asElement();
+		Element element = ((DeclaredType) type).asElement();
 
 		if (element.getKind() == ElementKind.ANNOTATION_TYPE) return;
 //		if (element.getKind() == ElementKind.) return;

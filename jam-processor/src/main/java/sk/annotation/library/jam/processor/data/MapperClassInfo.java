@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.data;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.Constants;
 import sk.annotation.library.jam.processor.data.generator.method.AbstractMethodSourceInfo;
@@ -8,6 +7,7 @@ import sk.annotation.library.jam.processor.data.generator.method.DeclaredMethodS
 import sk.annotation.library.jam.processor.data.keys.MethodConfigKey;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiKey;
+import sk.annotation.library.jam.processor.data.mapi.MethodInfo;
 import sk.annotation.library.jam.processor.sourcewriter.ImportsTypeDefinitions;
 import sk.annotation.library.jam.processor.utils.*;
 import sk.annotation.library.jam.processor.utils.annotations.AnnotationValueUtils;
@@ -18,7 +18,7 @@ import sk.annotation.library.jam.utils.MapperUtil;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
-import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
@@ -212,12 +212,12 @@ public class MapperClassInfo {
     }
 
 
-    private void registerCustomFields(ProcessingEnvironment processingEnv, List<Type> values) {
+    private void registerCustomFields(ProcessingEnvironment processingEnv, List<DeclaredType> values) {
         registerCustomFields(processingEnv, values, null);
     }
 
-    protected boolean alreadyExistsFieldType(ProcessingEnvironment processingEnv, Type fieldType) {
-        for (Type existFieldValue : allFieldsTypes.values()) {
+    protected boolean alreadyExistsFieldType(ProcessingEnvironment processingEnv, TypeMirror fieldType) {
+        for (DeclaredType existFieldValue : allFieldsTypes.values()) {
             if (TypeUtils.isSameType(processingEnv,existFieldValue, fieldType)) return true; // already exists
             if (TypeUtils.isSameType(processingEnv,existFieldValue, parentElement.asType())) return true; // already exists
         }
@@ -225,11 +225,11 @@ public class MapperClassInfo {
         return false;
     }
 
-    private void registerCustomFields(ProcessingEnvironment processingEnv, List<Type> values, MethodConfigKey topMmethodConfigKey) {
+    private void registerCustomFields(ProcessingEnvironment processingEnv, List<DeclaredType> values, MethodConfigKey topMmethodConfigKey) {
         if (values == null || values.isEmpty()) return;
 
         AnnotationsInfo fieldInjectionAnnotations = IoCUtils.getFieldAnnotationType(processingEnv, parentElement, null);
-        for (Type fieldType : values) {
+        for (DeclaredType fieldType : values) {
             if (alreadyExistsFieldType(processingEnv, fieldType)) continue;
 
             // Try name
@@ -244,11 +244,11 @@ public class MapperClassInfo {
         }
     }
 
-    Map<String, Type> allFieldsTypes = new LinkedHashMap<>();
+    Map<String, DeclaredType> allFieldsTypes = new LinkedHashMap<>();
 
     private void registerField(ProcessingEnvironment processingEnv, VariableElement field) {
         if (ApiUtil.ignoreUsing(true, field)) return;
-        Type type = TypeUtils.findType(processingEnv, (Type) parentElement.asType(), field);
+        DeclaredType type = TypeUtils.findType(processingEnv, parentElement.asType(), field);
         // Authomatically ignored same mapper
         if (TypeUtils.isSame(processingEnv, type, parentElement.asType())) return;
         if (alreadyExistsFieldType(processingEnv, type)) return;
@@ -259,7 +259,7 @@ public class MapperClassInfo {
         registerApiForPath(processingEnv, field.getSimpleName().toString(), type, methods, null);
     }
 
-    private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, Type fieldType, List<ExecutableElement> executableElements, MethodConfigKey topMmethodConfigKey) {
+    private void registerApiForPath(ProcessingEnvironment processingEnv, String pathApi, DeclaredType fieldType, List<ExecutableElement> executableElements, MethodConfigKey topMmethodConfigKey) {
         // cannot register own paths
         if (TypeUtils.isSame(processingEnv, fieldType, parentElement.asType())) return;
 
@@ -293,7 +293,7 @@ public class MapperClassInfo {
             MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
             if (methodApiKey.isApiWithReturnType()) continue;
 
-            ExecutableType testMethodType = methodApiKey.createMethodExecutableType(processingEnv, this.parentElement);
+            MethodInfo testMethodType = methodApiKey.createMethodExecutableType(processingEnv, this.parentElement);
             if (TypeMethodUtils.isMethodCallableForInterceptor(processingEnv, srcType, dstType, testMethodType)) {
                 // Function is OK, thay can be call
                 interceptors.add(MethodCallApi.createFrom("", methodApiFullSyntax, null));
@@ -306,7 +306,7 @@ public class MapperClassInfo {
                 MethodApiKey methodApiKey = methodApiFullSyntax.getApiKey();
                 if (methodApiKey.isApiWithReturnType()) continue;
 
-                ExecutableType testMethodType = methodApiKey.createMethodExecutableType(processingEnv, this.parentElement);
+                MethodInfo testMethodType = methodApiKey.createMethodExecutableType(processingEnv, this.parentElement);
                 if (TypeMethodUtils.isMethodCallableForInterceptor(processingEnv, srcType, dstType, testMethodType)) {
                     // Function is OK, thay can be call
                     interceptors.add(MethodCallApi.createFrom(e.getKey()+".", methodApiFullSyntax, null));
@@ -342,10 +342,10 @@ public class MapperClassInfo {
 
 
             // parameters
-            if (visibleType instanceof Type.ClassType) {
-                Type.ClassType tp = (Type.ClassType) visibleType;
-                if (tp.allparams() != null && !tp.allparams().isEmpty()) {
-                    for (Type allparam : tp.allparams()) {
+            if (visibleType instanceof DeclaredType) {
+                DeclaredType tp = (DeclaredType) visibleType;
+                if (tp.getTypeArguments()!=null) {
+                    for (TypeMirror allparam : tp.getTypeArguments()) {
                         String miniNameType = TypeUtils.getClassSimpleName(allparam);
                         if (StringUtils.isNotEmpty(miniNameType)) {
                             sb.append("_with").append(miniNameType);
@@ -353,6 +353,17 @@ public class MapperClassInfo {
                     }
                 }
             }
+//            if (visibleType instanceof Type.ClassType) {
+//                Type.ClassType tp = (Type.ClassType) visibleType;
+//                if (tp.allparams() != null && !tp.allparams().isEmpty()) {
+//                    for (Type allparam : tp.allparams()) {
+//                        String miniNameType = TypeUtils.getClassSimpleName(allparam);
+//                        if (StringUtils.isNotEmpty(miniNameType)) {
+//                            sb.append("_with").append(miniNameType);
+//                        }
+//                    }
+//                }
+//            }
         }
         return NameUtils.findBestName(usedNames, sb.toString());
     }
@@ -410,10 +421,10 @@ public class MapperClassInfo {
     }
 
     private MethodApiFullSyntax findBestMatchMethodApiFullSyntax(ProcessingEnvironment processingEnv, List<MethodApiFullSyntax> allMethods, MethodApiKey apiKey) {
-        ExecutableType requiredMethodType = apiKey.createMethodExecutableType(processingEnv, this.parentElement);
+        MethodInfo requiredMethodType = apiKey.createMethodExecutableType(processingEnv, this.parentElement);
 
         for (MethodApiFullSyntax method : allMethods) {
-            ExecutableType testedMethodType = method.getApiKey().createMethodExecutableType(processingEnv, this.parentElement);
+            MethodInfo testedMethodType = method.getApiKey().createMethodExecutableType(processingEnv, this.parentElement);
 
             if (TypeMethodUtils.isMethodCallableForMapper(processingEnv, requiredMethodType, testedMethodType)) {
                 return method;
@@ -434,7 +445,7 @@ public class MapperClassInfo {
 
 
     private void registerTopMethod(ProcessingEnvironment processingEnv, ExecutableElement method) {
-        MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, (Type) parentElement.asType(), method);
+        MethodApiFullSyntax methodSyntax = MethodApiFullSyntax.analyze(processingEnv, (DeclaredType) parentElement.asType(), method);
         if (methodSyntax == null || !methodSyntax.getErrorsMapping().isEmpty()) {
             // Ignore bad API
             processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, methodSyntax.getErrorsMapping().toString(), method);
@@ -564,7 +575,7 @@ public class MapperClassInfo {
         return features;
     }
 
-    public Map<String, Type> getAllFieldsTypes() {
+    public Map<String, DeclaredType> getAllFieldsTypes() {
         return allFieldsTypes;
     }
 

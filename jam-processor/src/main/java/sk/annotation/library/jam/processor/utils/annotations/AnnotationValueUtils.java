@@ -1,6 +1,5 @@
 package sk.annotation.library.jam.processor.utils.annotations;
 
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.MapperConfig;
 import sk.annotation.library.jam.annotations.enums.ApplyFieldStrategy;
 import sk.annotation.library.jam.annotations.enums.IgnoreType;
@@ -18,6 +17,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.util.Collections;
@@ -143,7 +143,7 @@ abstract public class AnnotationValueUtils {
 
     public static boolean isConfiguredAsImmutableType(ProcessingEnvironment processingEnv, MapperClassInfo ownerClassInfo, TypeMirror type) {
         for (AnnotationMapperConfig annotationMapperConfig : resolveMapperConfigData(processingEnv, ownerClassInfo.parentElement)) {
-            for (Type anotationTypeValue : annotationMapperConfig.getImmutable()) {
+            for (DeclaredType anotationTypeValue : annotationMapperConfig.getImmutable()) {
                 if (TypeUtils.isSame(processingEnv, type, anotationTypeValue)) return true;
             }
         }

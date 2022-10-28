@@ -23,7 +23,7 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 	private String rawName;
 
 	public TypeInfo(ProcessingEnvironment processingEnv, String cls) {
-		this(TypeUtils.convertToType(processingEnv, cls));
+		this(TypeUtils.convertToTypeMirror(processingEnv, cls));
 
 		if (clsType==null && type==null) {
 			try {
@@ -74,14 +74,19 @@ public class TypeInfo implements SourceRegisterImports, SourceGenerator {
 		imports.registerImports(processingEnv, getType(processingEnv));
 	}
 
-	@Override
-	public boolean writeSourceCode(SourceGeneratorContext ctx) {
+	public boolean writeSourceCode(SourceGeneratorContext ctx, boolean methodDeclaration) {
 		TypeMirror type = getType(ctx.processingEnv);
 		String resolvedType = ctx.javaClassWriter.imports.resolveType(type);
-		// https://github.com/AnnotationSro/java-annotation-mapper/issues/28 - remove not supported constructions "? extends "
-		resolvedType = StringUtils.replace(resolvedType, "? extends ", "").trim();
+		if (!methodDeclaration) {
+			// https://github.com/AnnotationSro/java-annotation-mapper/issues/28 - remove not supported constructions "? extends "
+			resolvedType = StringUtils.replace(resolvedType, "? extends ", "").trim();
+		}
 		ctx.pw.print(resolvedType);
 		return true;
+	}
+	@Override
+	public boolean writeSourceCode(SourceGeneratorContext ctx) {
+		return writeSourceCode(ctx, false);
 	}
 
 	@Override

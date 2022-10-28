@@ -48,6 +48,20 @@ pipeline {
               }
           }
         }
+        stage('Tests jdk-17') {
+          tools {
+            jdk "zulu-jdk-17"
+            maven 'Maven 3.6.1'
+          }
+          steps {
+            sh script: 'mvn clean test -P-jdk8,jdk11,run-jam-tests'
+          }
+          post {
+              always {
+                  junit '**/target/surefire-reports/**/*.xml'
+              }
+          }
+        }
         stage('Deploy jdk-8') {
             tools {
               jdk "zulu-jdk-8"

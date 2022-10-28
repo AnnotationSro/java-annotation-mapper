@@ -16,7 +16,7 @@ public class DateRowValueTransformator extends AbstractRowValueTransformator {
     private Map<Class, TypeMirror> cache = new LinkedHashMap<>();
 
     protected TypeMirror getType(ProcessingEnvironment processingEnv, Class cls) {
-        return cache.computeIfAbsent(cls, (a) -> TypeUtils.convertToType(processingEnv, cls));
+        return cache.computeIfAbsent(cls, (a) -> TypeUtils.convertToTypeMirror(processingEnv, cls));
     }
 
     protected boolean isOneOfAcceptedType(ProcessingEnvironment processingEnv, TypeMirror type) {

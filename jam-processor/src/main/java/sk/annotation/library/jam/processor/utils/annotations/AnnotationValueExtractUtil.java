@@ -1,16 +1,12 @@
 package sk.annotation.library.jam.processor.utils.annotations;
 
-import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.processor.utils.ElementUtils;
 import sk.annotation.library.jam.processor.utils.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
@@ -22,9 +18,9 @@ abstract public class AnnotationValueExtractUtil {
 
 	static List<Map<String, AnnotationValue>> getAnnotationValue_innerValueMapList(ProcessingEnvironment processingEnv, AnnotationValue value) {
 		return getAnnotationValue_common(processingEnv, value, val -> {
-			if (val instanceof Attribute.Compound) {
+			if (val instanceof AnnotationMirror) {
 				Map<String, AnnotationValue> ret = new HashMap<>();
-				Attribute.Compound obj = (Attribute.Compound) val;
+				AnnotationMirror obj = (AnnotationMirror) val;
 				if (obj.getElementValues() == null) return ret;
 //				Map<Symbol.MethodSymbol, Attribute> map = obj.getElementValues();
 //				for (Map.Entry<Symbol.MethodSymbol, Attribute> entry : map.entrySet()) {
@@ -46,22 +42,31 @@ abstract public class AnnotationValueExtractUtil {
 		return v;
 	}
 
-	static List<Type> getAnnotationValue_ClassList(ProcessingEnvironment processingEnv, AnnotationValue value) {
+	static List<DeclaredType> getAnnotationValue_ClassList(ProcessingEnvironment processingEnv, AnnotationValue value) {
 		if (value == null) {
 			throw new IllegalStateException("Annotation value cannot be null!");
 		}
-		List<Type> ret = getAnnotationValue_common(processingEnv, value, val -> {
-			if (val instanceof Attribute.Class) {
-				return ((Attribute.Class)val).getValue();
-			}
-			if (val instanceof Type) {
-				return (Type) val;
-			}
-
+		List<DeclaredType> ret = getAnnotationValue_common(processingEnv, value, val -> {
 			// Compilation errors
-			if (val instanceof Attribute.Error) {
+			if ("<error>".contains(val.toString())) {
 				return null;
 			}
+			if (val instanceof DeclaredType) {
+				return (DeclaredType) val;
+			}
+			if (val instanceof AnnotationValue) {
+				return (DeclaredType) ((AnnotationValue)val).getValue();
+			}
+//			if (val instanceof Type) {
+//				return (Type) val;
+//			}
+//			if (val instanceof Attribute.Class) {
+//				return ((Attribute.Class)val).getValue();
+//			}
+
+//			if (val instanceof Attribute.Error) {
+//				return null;
+//			}
 			throw new IllegalStateException("Unknown type value " + val.toString());
 		});
 
@@ -75,8 +80,8 @@ abstract public class AnnotationValueExtractUtil {
 			throw new IllegalStateException("Annotation value cannot be null!");
 		}
 		List<T> ret = getAnnotationValue_common(processingEnv, value, val -> {
-			if (val instanceof Attribute.Constant) {
-				Attribute.Constant constant = (Attribute.Constant)val;
+			if (val instanceof AnnotationValue) {
+				AnnotationValue constant = (AnnotationValue)val;
 				return (T) constant.getValue();
 			}
 			return (T) val;
@@ -89,8 +94,8 @@ abstract public class AnnotationValueExtractUtil {
 	static <T> T getAnnotationValue_constant(ProcessingEnvironment processingEnv, AnnotationValue value) {
 		if (value == null) return null;
 		return getAnnotationValue_common(processingEnv, value, val -> {
-			if (val instanceof Attribute.Constant) {
-				Attribute.Constant constant = (Attribute.Constant)val;
+			if (val instanceof AnnotationValue) {
+				AnnotationValue constant = (AnnotationValue)val;
 				return (T) constant.getValue();
 			}
 			return (T) val;
@@ -105,8 +110,8 @@ abstract public class AnnotationValueExtractUtil {
 	static <T extends Enum> List<T> getAnnotationValue_enumList(ProcessingEnvironment processingEnv, AnnotationValue value, Class<T> cls) {
 		if (value == null) return null;
 		return getAnnotationValue_common(processingEnv, value, val -> {
-			if (val instanceof Symbol.VarSymbol) {
-				Symbol.VarSymbol symbol = (Symbol.VarSymbol)val;
+			if (val instanceof VariableElement) {
+				VariableElement symbol = (VariableElement)val;
 				String enumName = symbol.getSimpleName().toString();
 				for (T e : cls.getEnumConstants()) {
 					if (e.name().equals(enumName)) {
@@ -115,9 +120,13 @@ abstract public class AnnotationValueExtractUtil {
 				}
 				return null;
 			}
-			if (val instanceof Attribute.Enum) {
-				Attribute.Enum symbol = (Attribute.Enum)val;
-				String enumName = symbol.value.getSimpleName().toString();
+			if (val instanceof AnnotationValue) {
+				AnnotationValue s = (AnnotationValue) val;
+				String enumName = s.getValue().toString();
+
+
+//				Attribute.Enum symbol = (Attribute.Enum)val;
+//				String enumName = symbol.value.getSimpleName().toString();
 				for (T e : cls.getEnumConstants()) {
 					if (e.name().equals(enumName)) {
 						return e;
@@ -162,7 +171,7 @@ abstract public class AnnotationValueExtractUtil {
 	public static <T extends Annotation> AnnotationMirror findAnnotationMirror(ProcessingEnvironment processingEnv, Element element, Class<T> cls) {
 		if (element == null || element.getAnnotationMirrors()==null || element.getAnnotationMirrors().isEmpty()) return null;
 
-		Type typeMapperFieldConfig = TypeUtils.convertToType(processingEnv, cls);
+		TypeMirror typeMapperFieldConfig = TypeUtils.convertToTypeMirror(processingEnv, cls);
 
 		for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
 			if (!TypeUtils.isSameType(processingEnv,annotationMirror.getAnnotationType(), typeMapperFieldConfig))

@@ -1,7 +1,5 @@
 package sk.annotation.library.jam.processor.utils;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
@@ -11,6 +9,7 @@ import sk.annotation.library.jam.utils.MapperUtil;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.ElementFilter;
@@ -18,7 +17,6 @@ import javax.tools.Diagnostic;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 abstract public class ElementUtils {
 
@@ -36,16 +34,21 @@ abstract public class ElementUtils {
 	static public String getQualifiedName(Element element) {
 		if (element == null) return null;
 
-		if (element instanceof TypeElement) {
-			TypeElement typeElement = (TypeElement) element;
+		if (element instanceof QualifiedNameable) {
+			QualifiedNameable typeElement = (QualifiedNameable) element;
 			return typeElement.getQualifiedName() + "";
 		}
 
-		if (element instanceof Symbol) {
-			Symbol symbol = (Symbol) element;
-			return symbol.getQualifiedName() + "";
-		}
-
+//		if (element instanceof TypeElement) {
+//			TypeElement typeElement = (TypeElement) element;
+//			return typeElement.getQualifiedName() + "";
+//		}
+//
+//		if (element instanceof Symbol) {
+//			Symbol symbol = (Symbol) element;
+//			return symbol.getQualifiedName() + "";
+//		}
+//
 		return null;
 	}
 
@@ -53,22 +56,25 @@ abstract public class ElementUtils {
 		if (element == null) return null;
 		if (element.asType() == null) return null;
 		if (element.getKind() == ElementKind.PACKAGE) {
-			TypeMirror typeMirror = element.asType();
-			if (typeMirror instanceof Type.PackageType) {
-				return (((Type.PackageType) element.asType()).tsym).owner;
+			String pckName = element.toString();
+			int dot = pckName.lastIndexOf(".");
+			if (dot<0) {
+				return null;
 			}
-			if (typeMirror instanceof Symbol.PackageSymbol) {
-				return ((Symbol.PackageSymbol) element.asType()).owner;
+			String pckParentName = pckName.substring(0, dot);
+			Iterator<? extends PackageElement> iterator = processingEnv.getElementUtils().getAllPackageElements(pckParentName).iterator();
+			if (iterator.hasNext()) {
+				return iterator.next();
 			}
 		}
 		return element.getEnclosingElement();
 	}
 
-	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
-		return findAllElementsWithAnnotationsInStructure(processingEnv, element, e ->
-			e !=null && e.getAnnotation(annotationType)!=null
-		);
-	}
+//	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
+//		return findAllElementsWithAnnotationsInStructure(processingEnv, element, e ->
+//			e !=null && e.getAnnotation(annotationType)!=null
+//		);
+//	}
 	static public <T extends Annotation> List<Element> findAllElementsWithAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Function<Element, Boolean> accept) {
 		List<Element> ret = new LinkedList<>();
 
@@ -83,9 +89,9 @@ abstract public class ElementUtils {
 
 		return ret;
 	}
-	static public <T extends Annotation> List<T> findAllAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
-		return findAllElementsWithAnnotationsInStructure(processingEnv, element, annotationType).stream().map(e -> e.getAnnotation(annotationType)).collect(Collectors.toList());
-	}
+//	static public <T extends Annotation> List<T> findAllAnnotationsInStructure(ProcessingEnvironment processingEnv, Element element, Class<T> annotationType) {
+//		return findAllElementsWithAnnotationsInStructure(processingEnv, element, annotationType).stream().map(e -> e.getAnnotation(annotationType)).collect(Collectors.toList());
+//	}
 
 // Working, but not important now
 //	static public TypeElement findTopElementType(ProcessingEnvironment processingEnv, Element element) {
@@ -152,10 +158,14 @@ abstract public class ElementUtils {
 			allAcceptedMembers.add(member);
 		}
 
-		if (element.getSuperclass() instanceof Type.ClassType) {
-			Type.ClassType superClass = (Type.ClassType) element.getSuperclass();
-			if (TypeUtils.isSame(processingEnv, superClass, TypeUtils.convertToType(processingEnv, Object.class))) return;
-			if (Object.class.getCanonicalName().equals(superClass.toString())) return;
+		if (element.getSuperclass() instanceof DeclaredType) {
+			DeclaredType superClass = (DeclaredType) element.getSuperclass();
+			if (TypeUtils.isSame(processingEnv, superClass, TypeUtils.convertToTypeMirror(processingEnv, Object.class))) {
+				return;
+			}
+			if (Object.class.getCanonicalName().equals(superClass.toString())) {
+				return;
+			}
 
 			addAcceptedMembers(processingEnv, allAcceptedMembers, (TypeElement)(superClass).asElement());
 		}
@@ -166,11 +176,10 @@ abstract public class ElementUtils {
 			if (TypeUtils.isArrayType(processingEnv, typeFrom)) return true;
 
 			TypeMirror typeFromConstructor = TypeUtils._resolveConstructorType(processingEnv, typeFrom);
-			List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((Type) typeFromConstructor).asElement());
+			List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((DeclaredType) typeFromConstructor).asElement());
 			for (Element member : allMembers) {
-				if (member instanceof Symbol.MethodSymbol) {
-					Symbol.MethodSymbol method = (Symbol.MethodSymbol) member;
-					if (method.isConstructor() && member.getModifiers().contains(Modifier.PUBLIC)) return true;
+				if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
+					return true;
 				}
 			}
 		}
@@ -181,18 +190,22 @@ abstract public class ElementUtils {
 		return false;
 	}
 
-	static private final Map<Type, Map<String, FieldValueAccessData>> cachedValues = new HashMap<>();
-	public static Map<String, FieldValueAccessData> findAllAccesableFields(ProcessingEnvironment processingEnv, Type typeFrom) {
+	static private final Map<TypeMirror, Map<String, FieldValueAccessData>> cachedValues = new HashMap<>();
+	public static Map<String, FieldValueAccessData> findAllAccesableFields(ProcessingEnvironment processingEnv, TypeMirror typeFrom) {
 		if (typeFrom == null || typeFrom.getKind().isPrimitive()) {
 			return Collections.emptyMap();
 		}
 
 		if (typeFrom instanceof TypeVariable) {
-			return findAllAccesableFields(processingEnv, (Type) ((TypeVariable)typeFrom).getUpperBound());
+			return findAllAccesableFields(processingEnv, ((TypeVariable)typeFrom).getUpperBound());
+		}
+
+		if (!(typeFrom instanceof DeclaredType)) {
+			return Collections.emptyMap();
 		}
 
 		return cachedValues.computeIfAbsent(typeFrom, (aaa) -> {
-			List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) typeFrom.asElement());
+			List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((DeclaredType) typeFrom).asElement());
 			Map<String, FieldValueAccessData> ret = new HashMap<>();
 
 			for (Element member : allMembers) {
