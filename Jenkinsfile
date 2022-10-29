@@ -1,8 +1,8 @@
 pipeline {
     agent any
-    parameters {
-        booleanParam(name: 'doPublicRelease', defaultValue: false, description: 'Deploy to maven central repostiroy')
-    }
+//     parameters {
+//         booleanParam(name: 'doPublicRelease', defaultValue: false, description: 'Deploy to maven central repostiroy')
+//     }
   triggers {
       pollSCM 'H H * * *'
   }
