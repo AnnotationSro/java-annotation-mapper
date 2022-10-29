@@ -69,7 +69,7 @@ pipeline {
             }
             steps {
               echo "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
-              sh script: "mvn clean install  -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
+              sh script: "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
         stage('Deploy jdk-11') {
@@ -79,7 +79,7 @@ pipeline {
             }
             steps {
               echo "mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
-              sh script: "mvn clean install  -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
+              sh script: "mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
             }
         }
       }
