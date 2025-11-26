@@ -1,5 +1,6 @@
 package sk.annotation.library.jam.processor.utils;
 
+import com.sun.tools.javac.code.Type;
 import sk.annotation.library.jam.annotations.Mapper;
 import sk.annotation.library.jam.processor.data.confwrappers.FieldValueAccessData;
 import sk.annotation.library.jam.processor.data.mapi.MethodApiFullSyntax;
@@ -177,15 +178,36 @@ abstract public class ElementUtils {
 
 	public static boolean hasDefaultConstructor(ProcessingEnvironment processingEnv, TypeMirror typeFrom) {
 		try {
-			if (TypeUtils.isArrayType(processingEnv, typeFrom)) return true;
+            if (TypeUtils.isArrayType(processingEnv, typeFrom)) return true;
 
-			TypeMirror typeFromConstructor = TypeUtils._resolveConstructorType(processingEnv, typeFrom);
-			List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((DeclaredType) typeFromConstructor).asElement());
-			for (Element member : allMembers) {
-				if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
-					return true;
-				}
-			}
+            TypeMirror typeFromConstructor = TypeUtils._resolveConstructorType(processingEnv, typeFrom);
+            if (typeFromConstructor instanceof DeclaredType) {
+                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((DeclaredType) typeFromConstructor).asElement());
+                for (Element member : allMembers) {
+                    if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
+                        return true;
+                    }
+                }
+            }
+            if (typeFromConstructor instanceof Type.TypeVar) {
+                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((Type.TypeVar) typeFromConstructor).asElement());
+                for (Element member : allMembers) {
+                    if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
+                        return true;
+                    }
+                }
+            }
+
+            if (typeFromConstructor instanceof Type) {
+                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((Type) typeFromConstructor).asElement());
+                for (Element member : allMembers) {
+                    if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
+                        return true;
+                    }
+                }
+            }
+
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Cannot find default constructor for type: " + typeFromConstructor + "  (typeMirror="+typeFrom+")", null);
 		}
 		catch (Exception e) {
 			//warninr
