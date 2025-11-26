@@ -22,10 +22,12 @@ pipeline {
     stages {
         stage('Tests jdk-8') {
           steps {
-            sh script: 'source  ~/.bashrc'
-            sh script: 'sdk install java 8.0.462-zulu && sdk use java 8.0.462-zulu'
-            sh script: 'sdk install maven 3.6.1 && sdk use  maven 3.6.1'
-            sh script: 'mvn clean test -Pjdk8,-jdk11,run-jam-tests'
+	          bash """
+	            source  ~/.bashrc
+	            sdk install java 8.0.462-zulu && sdk use java 8.0.462-zulu
+	            sdk install maven 3.6.1 && sdk use  maven 3.6.1
+	            mvn clean test -Pjdk8,-jdk11,run-jam-tests
+	          """
           }
           post {
             always {
@@ -96,11 +98,12 @@ pipeline {
         }
         stage('Deploy jdk-11') {
             steps {
-	            sh script: 'source  ~/.bashrc'
-				sh script: 'sdk install java  11.0.29-zulu && sdk use java 11.0.29-zulu'
-				sh script: 'sdk install maven 3.6.1 && sdk use  maven 3.6.1'
-				echo "mvn clean install deploy -P-jdk8,jdk11${params.doPublicRelease ?',release':''} -e"
-				sh script: "mvn clean install deploy -P-jdk8,jdk11,release -e"
+				bash """
+					source ~/.bashrc
+					sdk install java 11.0.29-zulu && sdk use java 11.0.29-zulu
+					sdk install maven 3.6.1 && sdk use maven 3.6.1
+					mvn clean install deploy -P-jdk8,jdk11,release -e
+				"""
             }
         }
       }
