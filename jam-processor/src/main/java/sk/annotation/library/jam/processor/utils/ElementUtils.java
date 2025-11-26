@@ -182,46 +182,34 @@ abstract public class ElementUtils {
 
             TypeMirror typeFromConstructor = TypeUtils._resolveConstructorType(processingEnv, typeFrom);
             if (typeFromConstructor instanceof DeclaredType) {
-                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((DeclaredType) typeFromConstructor).asElement());
-                for (Element member : allMembers) {
-                    if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
-                        return true;
-                    }
-                }
+                return hasDefaultConstructor_forElement(processingEnv, ((DeclaredType) typeFromConstructor).asElement());
             }
 
             if (typeFromConstructor instanceof TypeVariable) {
-                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((TypeVariable) typeFromConstructor).asElement());
+                return hasDefaultConstructor_forElement(processingEnv, ((TypeVariable) typeFromConstructor).asElement());
+            }
+
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Cannot find default constructor for type: " + typeFromConstructor + "  (typeMirror.class=" + typeFrom.getClass() + ")", null);
+        } catch (Exception e) {
+            new RuntimeException("Cannot find default constructor for type: " + typeFrom, e).printStackTrace();
+        }
+        return false;
+    }
+    private static boolean hasDefaultConstructor_forElement(ProcessingEnvironment processingEnv, Element typeAsElement) {
+        try {
+            if (typeAsElement instanceof TypeElement) {
+                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) typeAsElement);
                 for (Element member : allMembers) {
                     if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
                         return true;
                     }
                 }
             }
-            //        // import com.sun.tools.javac.code.Type;
-            //
-            //            if (typeFromConstructor instanceof Type.TypeVar) {
-            //                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((Type.TypeVar) typeFromConstructor).asElement());
-            //                for (Element member : allMembers) {
-            //                    if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
-            //                        return true;
-            //                    }
-            //                }
-            //            }
-            //
-            //            if (typeFromConstructor instanceof Type) {
-            //                List<? extends Element> allMembers = ElementUtils.findAllAcceptedMember(processingEnv, (TypeElement) ((Type) typeFromConstructor).asElement());
-            //                for (Element member : allMembers) {
-            //                    if (member.getKind() == ElementKind.CONSTRUCTOR && member.getModifiers().contains(Modifier.PUBLIC)) {
-            //                        return true;
-            //                    }
-            //                }
-            //            }
 
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Cannot find default constructor for type: " + typeFromConstructor + "  (typeMirror.class=" + typeFrom.getClass() + ")", null);
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, "Cannot find default constructor for type: " + typeAsElement, null);
         } catch (Exception e) {
             //warninr
-            e.printStackTrace();
+            new RuntimeException("Cannot find default constructor for type: " + typeAsElement, e).printStackTrace();
         }
         return false;
     }
