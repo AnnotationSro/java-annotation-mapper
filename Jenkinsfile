@@ -10,9 +10,9 @@ pipeline {
         disableConcurrentBuilds()
         ansiColor('xterm')
         buildDiscarder(logRotator(
-                    artifactDaysToKeepStr: "5",
+                    artifactDaysToKeepStr: "",
                     artifactNumToKeepStr: "5",
-                    daysToKeepStr: "20",
+                    daysToKeepStr: "",
                     numToKeepStr: "10"
         ))
         timeout(time: 5, unit: 'MINUTES')
