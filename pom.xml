@@ -236,29 +236,29 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-          <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
-          <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
-          <autoDropAfterRelease>true</autoDropAfterRelease>
+<!--      <plugin>-->
+<!--        <groupId>org.sonatype.plugins</groupId>-->
+<!--        <artifactId>nexus-staging-maven-plugin</artifactId>-->
+<!--        <configuration>-->
+<!--          <serverId>ossrh</serverId>-->
+<!--          <nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
+<!--          <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
+<!--          <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>-->
+<!--          <skipStagingRepositoryClose>false</skipStagingRepositoryClose>-->
+<!--          <autoDropAfterRelease>true</autoDropAfterRelease>-->
 
-          <stagingDescription>version ${project.version}</stagingDescription>
-        </configuration>
-        <executions>
-          <execution>
-            <id>deploy-release</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>deploy</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+<!--          <stagingDescription>version ${project.version}</stagingDescription>-->
+<!--        </configuration>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>deploy-release</id>-->
+<!--            <phase>deploy</phase>-->
+<!--            <goals>-->
+<!--              <goal>deploy</goal>-->
+<!--            </goals>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
     </plugins>
     <pluginManagement>
       <plugins>
@@ -280,10 +280,11 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0-M1</version>
+<!--          <version>3.0.0-M1</version>-->
+          <version>3.1.4</version>
           <!--                    <configuration><skip>${maven.deploy.skip}</skip></configuration>-->
           <configuration>
-            <skip>true</skip>
+<!--            <skip>true</skip>-->
           </configuration>
         </plugin>
         <plugin>
@@ -309,7 +310,7 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.8</version>
+          <version>1.7.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -378,22 +379,14 @@
   </profiles>
 
   <distributionManagement>
-<!--    <repository>-->
-<!--      <id>annotation-releases</id>-->
-<!--      <url>https://nexus.annotation.sk/content/repositories/annotation-releases</url>-->
-<!--    </repository>-->
-<!--    <snapshotRepository>-->
-<!--      <id>annotation-snapshots</id>-->
-<!--      <url>https://nexus.annotation.sk/content/repositories/annotation-snapshots</url>-->
-<!--    </snapshotRepository>-->
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>annotation-releases</id>
+      <url>https://nexus.annotation.sk/content/repositories/annotation-releases</url>
     </repository>
+    <snapshotRepository>
+      <id>annotation-snapshots</id>
+      <url>https://nexus.annotation.sk/content/repositories/annotation-snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <scm>

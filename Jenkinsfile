@@ -25,7 +25,7 @@ pipeline {
 	          sh '''#!/bin/bash
 	            source  ~/.bashrc
 	            sdk install java 8.0.462-zulu && sdk use java 8.0.462-zulu
-	            sdk install maven 3.6.1 && sdk use  maven 3.6.1
+	            sdk install maven 3.9.6 && sdk use  maven 3.9.6
 	            mvn clean test -Pjdk8,-jdk11,run-jam-tests
 	          '''
           }
@@ -40,7 +40,7 @@ pipeline {
 	          sh '''#!/bin/bash
 	            source  ~/.bashrc
 	            sdk install java  11.0.29-zulu && sdk use java 11.0.29-zulu
-	            sdk install maven 3.6.1 && sdk use  maven 3.6.1
+	            sdk install maven 3.9.6 && sdk use  maven 3.9.6
 	            mvn clean test -P-jdk8,jdk11,run-jam-tests
 	          '''
           }
@@ -55,7 +55,7 @@ pipeline {
 	          sh '''#!/bin/bash
 	            source  ~/.bashrc
                 sdk install java  17.0.17-zulu && sdk use java 17.0.17-zulu
-                sdk install maven 3.6.1 && sdk use  maven 3.6.1
+                sdk install maven 3.9.6 && sdk use  maven 3.9.6
                 mvn clean test -P-jdk8,jdk11,run-jam-tests
 	          '''
           }
@@ -70,7 +70,7 @@ pipeline {
             sh '''#!/bin/bash
             	source  ~/.bashrc
                 sdk install java  21.0.9-zulu && sdk use java 21.0.9-zulu
-                sdk install maven 3.6.1 && sdk use  maven 3.6.1
+                sdk install maven 3.9.6 && sdk use  maven 3.9.6
                 mvn clean test -P-jdk8,jdk11,run-jam-tests
 	          '''
           }
@@ -85,7 +85,7 @@ pipeline {
             sh '''#!/bin/bash
             	source  ~/.bashrc
                 sdk install java 25.0.1-zulu  && sdk use java 25.0.1-zulu
-                sdk install maven 3.6.1 && sdk use  maven 3.6.1
+                sdk install maven 3.9.6 && sdk use  maven 3.9.6
                 mvn clean test -P-jdk8,jdk11,run-jam-tests
 	          '''
           }
@@ -100,8 +100,8 @@ pipeline {
 				echo "mvn clean install deploy -Pjdk8,-jdk11${params.doPublicRelease ?',release':''} -e"
 	            sh '''#!/bin/bash
 	                source  ~/.bashrc
-					sdk install java 25.0.1-zulu  && sdk use java 25.0.1-zulu
-					sdk install maven 3.6.1 && sdk use  maven 3.6.1
+					sdk install java 8.0.462-zulu && sdk use java 8.0.462-zulu
+					sdk install maven 3.9.6 && sdk use  maven 3.9.6
 					mvn clean install deploy -Pjdk8,-jdk11,release -e
 	          '''
             }
@@ -111,7 +111,7 @@ pipeline {
 				sh '''#!/bin/bash
 					source ~/.bashrc
 					sdk install java 11.0.29-zulu && sdk use java 11.0.29-zulu
-					sdk install maven 3.6.1 && sdk use maven 3.6.1
+					sdk install maven 3.9.6 && sdk use maven 3.9.6
 					mvn clean install deploy -P-jdk8,jdk11,release -e
 	          '''
             }
