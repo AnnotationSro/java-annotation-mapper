@@ -56,7 +56,7 @@
     <gpg.skip.old>true</gpg.skip.old>
 
     <version-variant />
-    <jam.version>0.9.20${version-variant}-SNAPSHOT</jam.version>
+    <jam.version>0.9.20${version-variant}</jam.version>
 
     <!-- - - - - - - - - - - - - - - - - - - - - - -->
     <!-- Annotation standard properties            -->
