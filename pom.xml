@@ -1,399 +1,401 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>sk.annotation.library.jam</groupId>
-  <artifactId>jam-root</artifactId>
-  <version>${jam.version}</version>
-  <packaging>pom</packaging>
+    <groupId>sk.annotation.library.jam</groupId>
+    <artifactId>jam-root</artifactId>
+    <version>${jam.version}</version>
+    <packaging>pom</packaging>
 
-  <name>jam-root</name>
-  <description>JAM as Java Annotation Mapper is mapping at compile time without reflection !</description>
-  <url>https://github.com/AnnotationSro/java-annotation-mapper</url>
+    <name>jam-root</name>
+    <description>JAM as Java Annotation Mapper is mapping at compile time without reflection !</description>
+    <url>https://github.com/AnnotationSro/java-annotation-mapper</url>
 
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
-
-  <developers>
-    <developer>
-      <name>Pavol Slaný</name>
-      <email>pavol.slany(at)annotation.sk</email>
-      <organization>Annotation, s.r.o.</organization>
-      <organizationUrl>https://www.annotation.sk/en/</organizationUrl>
-      <roles>
-        <role>SW Architect</role>
-      </roles>
-    </developer>
-    <developer>
-      <name>Michal Vozný</name>
-      <email>michal.vozny(at)gmail.com</email>
-      <roles>
-        <role>Developer</role>
-      </roles>
-    </developer>
-  </developers>
-
-  <modules>
-    <module>jam-common</module>
-    <module>jam-processor</module>
-    <!--
-    Disabled submodule here - tests are run in jenkins only (this solution can avoid to deploy tests jars to public maven repositories)
-    conditionaly enabled in profile -Prun-jam-tests
-    <module>jam-tests</module>
-    -->
-  </modules>
-
-  <properties>
-    <!-- - - - - - - - - - - - - - - - - - - - - - -->
-    <!-- Disable deploy every module               -->
-    <maven.deploy.skip>true</maven.deploy.skip>
-    <maven.javadoc.skip>true</maven.javadoc.skip>
-    <maven.source.skip>true</maven.source.skip>
-    <gpg.skip.new>true</gpg.skip.new>
-    <gpg.skip.old>true</gpg.skip.old>
-
-    <version-variant />
-    <jam.version>0.9.21${version-variant}-SNAPSHOT</jam.version>
-
-    <!-- - - - - - - - - - - - - - - - - - - - - - -->
-    <!-- Annotation standard properties            -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.build.timestamp.format>yyyy-MM-dd-HH-mm-ss</maven.build.timestamp.format>
-    <maven.test.skip>false</maven.test.skip>
-  </properties>
-
-  <dependencies>
-    <!-- ... -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.8.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>1.9.5</version>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>5.2.22.RELEASE</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>flatten-maven-plugin</artifactId>
-        <configuration>
-          <updatePomFile>true</updatePomFile>
-          <flattenMode>resolveCiFriendliesOnly</flattenMode>
-        </configuration>
-        <executions>
-          <execution>
-            <id>flatten</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>flatten</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>flatten.clean</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.3</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>create</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <doCheck>false</doCheck>
-          <doUpdate>false</doUpdate>
-          <timestampFormat>{0, date, yyyy-MM-dd HH:mm:ss}</timestampFormat>
-          <timestampPropertyName>build.datetime</timestampPropertyName>
-          <buildNumberPropertyName>build.hash</buildNumberPropertyName>
-          <scmBranchPropertyName>build.branch</scmBranchPropertyName>
-        </configuration>
-      </plugin>
-  <!--      <plugin>-->
-  <!--        <groupId>org.apache.maven.plugins</groupId>-->
-  <!--        <artifactId>maven-release-plugin</artifactId>-->
-  <!--        <configuration>-->
-  <!--          <localCheckout>true</localCheckout>-->
-  <!--          <tagNameFormat>release-@{project.version}</tagNameFormat>-->
-  <!--          <autoVersionSubmodules>true</autoVersionSubmodules>-->
-  <!--          <releaseProfiles>release</releaseProfiles>-->
-  <!--          <arguments>-Pjdk11,-jdk8,release</arguments>-->
-  <!--        </configuration>-->
-  <!--        <dependencies>-->
-  <!--          <dependency>-->
-  <!--            <groupId>org.apache.maven.scm</groupId>-->
-  <!--            <artifactId>maven-scm-provider-gitexe</artifactId>-->
-  <!--            <version>1.8.1</version>-->
-  <!--          </dependency>-->
-  <!--        </dependencies>-->
-  <!--      </plugin>-->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <useIncrementalCompilation>false</useIncrementalCompilation>
-          <showWarnings>true</showWarnings>
-          <optimize>true</optimize>
-          <showDeprecation>true</showDeprecation>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <executions>
-          <execution>
-            <!-- Note - check: -Dgpg.passphrase=... -->
-            <id>sign-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-            <configuration>
-              <skip>${gpg.skip.new}</skip>
-              <gpgArguments>
-                <!-- for older PGP this not working -->
-                <arg>--pinentry-mode</arg>
-                <arg>loopback</arg>
-              </gpgArguments>
-            </configuration>
-          </execution>
-          <execution>
-            <!-- Note - check: -Dgpg.passphrase=... -->
-            <id>sign-artifacts-old-compatibility</id>
-            <phase>package</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-            <configuration>
-              <skip>${gpg.skip.old}</skip>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-<!--      <plugin>-->
-<!--        <groupId>org.sonatype.plugins</groupId>-->
-<!--        <artifactId>nexus-staging-maven-plugin</artifactId>-->
-<!--        <configuration>-->
-<!--          <serverId>ossrh</serverId>-->
-<!--          <nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
-<!--          <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
-<!--          <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>-->
-<!--          <skipStagingRepositoryClose>false</skipStagingRepositoryClose>-->
-<!--          <autoDropAfterRelease>true</autoDropAfterRelease>-->
-
-<!--          <stagingDescription>version ${project.version}</stagingDescription>-->
-<!--        </configuration>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <id>deploy-release</id>-->
-<!--            <phase>deploy</phase>-->
-<!--            <goals>-->
-<!--              <goal>deploy</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
-    </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.6</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.10.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-<!--          <version>3.0.0-M1</version>-->
-          <version>3.1.4</version>
-          <!--                    <configuration><skip>${maven.deploy.skip}</skip></configuration>-->
-          <configuration>
-<!--            <skip>true</skip>-->
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.4.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>3.2.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.0.0-M3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0-M3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.7.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>flatten-maven-plugin</artifactId>
-          <version>1.1.0</version>
-        </plugin>
-
-      </plugins>
-    </pluginManagement>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <properties>
-        <maven.deploy.skip>false</maven.deploy.skip>
-        <maven.javadoc.skip>false</maven.javadoc.skip>
-        <maven.source.skip>false</maven.source.skip>
-        <gpg.skip.new>false</gpg.skip.new>
-        <gpg.skip.old>true</gpg.skip.old>
-      </properties>
-    </profile>
-    <profile>
-      <id>old-gpg</id>
-      <properties>
+    <properties>
+        <!-- - - - - - - - - - - - - - - - - - - - - - -->
+        <!-- Disable deploy every module               -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.source.skip>true</maven.source.skip>
         <gpg.skip.new>true</gpg.skip.new>
-        <gpg.skip.old>false</gpg.skip.old>
-      </properties>
-    </profile>
-    <profile>
-      <id>run-jam-tests</id>
-      <modules>
+        <gpg.skip.old>true</gpg.skip.old>
+
+        <version-variant/>
+        <jam.version>0.9.21${version-variant}-SNAPSHOT</jam.version>
+
+        <!-- - - - - - - - - - - - - - - - - - - - - - -->
+        <!-- Annotation standard properties            -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd-HH-mm-ss</maven.build.timestamp.format>
+        <maven.test.skip>false</maven.test.skip>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Pavol Slaný</name>
+            <email>pavol.slany(at)annotation.sk</email>
+            <organization>Annotation, s.r.o.</organization>
+            <organizationUrl>https://www.annotation.sk/en/</organizationUrl>
+            <roles>
+                <role>SW Architect</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Michal Vozný</name>
+            <email>michal.vozny(at)gmail.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>jam-common</module>
+        <module>jam-processor</module>
+        <!--
+        Disabled submodule here - tests are run in jenkins only (this solution can avoid to deploy tests jars to public maven repositories)
+        conditionaly enabled in profile -Prun-jam-tests
         <module>jam-tests</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>run-jam-custom-module-for-debug-test</id>
-<!--      <modules>-->
-<!--        <module>jam-processor-debug-test</module>-->
-<!--      </modules>-->
-    </profile>
+        -->
+    </modules>
 
-    <profile>
-      <id>jdk8</id>
-      <properties>
-        <version-variant>-jdk8</version-variant>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-      </properties>
-    </profile>
-    <profile>
-      <id>jdk11</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-      </properties>
-    </profile>
-  </profiles>
+    <dependencies>
+        <!-- ... -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.1</version>
+            <scope>test</scope>
+        </dependency>
 
-  <distributionManagement>
-    <repository>
-      <id>annotation-releases</id>
-      <url>https://nexus.annotation.sk/content/repositories/annotation-releases</url>
-    </repository>
-    <snapshotRepository>
-      <id>annotation-snapshots</id>
-      <url>https://nexus.annotation.sk/content/repositories/annotation-snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
 
-  <scm>
-    <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
-    <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
-    <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
-    <tag>HEAD</tag>
-  </scm>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>5.2.22.RELEASE</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <timestampFormat>{0, date, yyyy-MM-dd HH:mm:ss}</timestampFormat>
+                    <timestampPropertyName>build.datetime</timestampPropertyName>
+                    <buildNumberPropertyName>build.hash</buildNumberPropertyName>
+                    <scmBranchPropertyName>build.branch</scmBranchPropertyName>
+                </configuration>
+            </plugin>
+            <!--      <plugin>-->
+            <!--        <groupId>org.apache.maven.plugins</groupId>-->
+            <!--        <artifactId>maven-release-plugin</artifactId>-->
+            <!--        <configuration>-->
+            <!--          <localCheckout>true</localCheckout>-->
+            <!--          <tagNameFormat>release-@{project.version}</tagNameFormat>-->
+            <!--          <autoVersionSubmodules>true</autoVersionSubmodules>-->
+            <!--          <releaseProfiles>release</releaseProfiles>-->
+            <!--          <arguments>-Pjdk11,-jdk8,release</arguments>-->
+            <!--        </configuration>-->
+            <!--        <dependencies>-->
+            <!--          <dependency>-->
+            <!--            <groupId>org.apache.maven.scm</groupId>-->
+            <!--            <artifactId>maven-scm-provider-gitexe</artifactId>-->
+            <!--            <version>1.8.1</version>-->
+            <!--          </dependency>-->
+            <!--        </dependencies>-->
+            <!--      </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
+                    <showWarnings>true</showWarnings>
+                    <optimize>true</optimize>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- Note - check: -Dgpg.passphrase=... -->
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${gpg.skip.new}</skip>
+                            <gpgArguments>
+                                <!-- for older PGP this not working -->
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Note - check: -Dgpg.passphrase=... -->
+                        <id>sign-artifacts-old-compatibility</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${gpg.skip.old}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--      <plugin>-->
+            <!--        <groupId>org.sonatype.plugins</groupId>-->
+            <!--        <artifactId>nexus-staging-maven-plugin</artifactId>-->
+            <!--        <configuration>-->
+            <!--          <serverId>ossrh</serverId>-->
+            <!--          <nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
+            <!--          <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
+            <!--          <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>-->
+            <!--          <skipStagingRepositoryClose>false</skipStagingRepositoryClose>-->
+            <!--          <autoDropAfterRelease>true</autoDropAfterRelease>-->
+
+            <!--          <stagingDescription>version ${project.version}</stagingDescription>-->
+            <!--        </configuration>-->
+            <!--        <executions>-->
+            <!--          <execution>-->
+            <!--            <id>deploy-release</id>-->
+            <!--            <phase>deploy</phase>-->
+            <!--            <goals>-->
+            <!--              <goal>deploy</goal>-->
+            <!--            </goals>-->
+            <!--          </execution>-->
+            <!--        </executions>-->
+            <!--      </plugin>-->
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.8</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.1</version>
+                </plugin>
+                <!--        <plugin>-->
+                <!--          <groupId>org.apache.maven.plugins</groupId>-->
+                <!--          <artifactId>maven-release-plugin</artifactId>-->
+                <!--          <version>2.5.3</version>-->
+                <!--            -->
+                <!--        </plugin>-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <!--          <version>3.0.0-M1</version>-->
+                    <version>3.1.4</version>
+                    <!--                    <configuration><skip>${maven.deploy.skip}</skip></configuration>-->
+                    <configuration>
+                        <!--            <skip>true</skip>-->
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.4.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.0.0-M3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.7.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>1.1.0</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <maven.source.skip>false</maven.source.skip>
+                <gpg.skip.new>false</gpg.skip.new>
+                <gpg.skip.old>true</gpg.skip.old>
+            </properties>
+        </profile>
+        <profile>
+            <id>old-gpg</id>
+            <properties>
+                <gpg.skip.new>true</gpg.skip.new>
+                <gpg.skip.old>false</gpg.skip.old>
+            </properties>
+        </profile>
+        <profile>
+            <id>run-jam-tests</id>
+            <modules>
+                <module>jam-tests</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>run-jam-custom-module-for-debug-test</id>
+            <!--      <modules>-->
+            <!--        <module>jam-processor-debug-test</module>-->
+            <!--      </modules>-->
+        </profile>
+
+        <profile>
+            <id>jdk8</id>
+            <properties>
+                <version-variant>-jdk8</version-variant>
+                <maven.compiler.source>8</maven.compiler.source>
+                <maven.compiler.target>8</maven.compiler.target>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk11</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <maven.compiler.source>11</maven.compiler.source>
+                <maven.compiler.target>11</maven.compiler.target>
+            </properties>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <repository>
+            <id>annotation-releases</id>
+            <url>https://nexus.annotation.sk/content/repositories/annotation-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>annotation-snapshots</id>
+            <url>https://nexus.annotation.sk/content/repositories/annotation-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</connection>
+        <developerConnection>scm:git:git@github.com:AnnotationSro/java-annotation-mapper.git</developerConnection>
+        <url>https://github.com/AnnotationSro/java-annotation-mapper.git</url>
+        <tag>HEAD</tag>
+    </scm>
 </project>
 
