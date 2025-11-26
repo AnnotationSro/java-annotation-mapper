@@ -9,6 +9,7 @@
 	</parent>
 
 	<artifactId>jam-common</artifactId>
+	<name>jam-common</name>
 	<packaging>jar</packaging>
 
 	<profiles>

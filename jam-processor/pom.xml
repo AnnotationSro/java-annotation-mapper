@@ -9,6 +9,7 @@
   </parent>
 
   <artifactId>jam-processor</artifactId>
+  <name>jam-processor</name>
   <packaging>jar</packaging>
 
   <dependencies>
