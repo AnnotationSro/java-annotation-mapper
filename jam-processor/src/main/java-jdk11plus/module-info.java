@@ -4,4 +4,6 @@ module jam.compiler {
 //    requires jdk.compiler;
     requires java.compiler;
     requires jam.common;
+
+
 }
