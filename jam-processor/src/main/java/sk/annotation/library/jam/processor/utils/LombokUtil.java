@@ -16,7 +16,13 @@ abstract public class LombokUtil {
 	private final static String lombokAnnotationDATA = "lombok.Data";
 	private final static String lombokAnnotationSetter = "lombok.Setter";
 	private final static String lombokAnnotationGetter = "lombok.Getter";
-	private final static String lombokAccessLevelPUBLIC = "lombok.AccessLevel.PUBLIC";
+
+	private static boolean isAccessLevelPublic(AnnotationValue value) {
+		if (value == null) return false;
+		if ("lombok.AccessLevel.PUBLIC".equals(String.valueOf(value))) return true;
+		if (String.valueOf(value).toUpperCase().contains("PUBLIC")) return true;
+		return false;
+	}
 
 	public static String findLombokPublicSetter(ProcessingEnvironment processingEnv, VariableElement field) {
 		if (field == null) return null;
@@ -25,13 +31,13 @@ abstract public class LombokUtil {
 
 		Map<String, AnnotationValue> s = AnnotationValueExtractUtil.getAnnotationValues(processingEnv, field, lombokAnnotationSetter);
 		if (s != null) {
-			if (lombokAccessLevelPUBLIC.equals(String.valueOf(s.get("value")))) return methodName;
+			if (isAccessLevelPublic(s.get("value"))) return methodName;
 			return null;
 		}
 
 		s = AnnotationValueExtractUtil.getAnnotationValues(processingEnv, field.getEnclosingElement(), lombokAnnotationSetter);
 		if (s != null) {
-			if (lombokAccessLevelPUBLIC.equals(String.valueOf(s.get("value")))) return methodName;
+			if (isAccessLevelPublic(s.get("value"))) return methodName;
 			return null;
 		}
 
@@ -50,13 +56,13 @@ abstract public class LombokUtil {
 
 		Map<String, AnnotationValue> s = AnnotationValueExtractUtil.getAnnotationValues(processingEnv, field, lombokAnnotationGetter);
 		if (s != null) {
-			if (lombokAccessLevelPUBLIC.equals(String.valueOf(s.get("value")))) return methodName;
+			if (isAccessLevelPublic(s.get("value"))) return methodName;
 			return null;
 		}
 
 		s = AnnotationValueExtractUtil.getAnnotationValues(processingEnv, field.getEnclosingElement(), lombokAnnotationGetter);
 		if (s != null) {
-			if (lombokAccessLevelPUBLIC.equals(String.valueOf(s.get("value")))) return methodName;
+			if (isAccessLevelPublic(s.get("value"))) return methodName;
 			return null;
 		}
 
