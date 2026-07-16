@@ -1,0 +1,45 @@
+Create (overwrite) an LLM.md file at the repository root. Its purpose is to let LLM models /
+coding assistants quickly understand what this repository is, when to use it, and how to use it.
+
+Requirements for the process (accuracy matters more than speed):
+
+1. Derive every fact from the repository itself — never from memory or the README alone.
+   Cross-check the README against pom.xml files and git tags; if they disagree (e.g. stale
+   version numbers), trust the poms/tags and flag the README as stale in the doc.
+2. For every code example you include, state which module/package it comes from. If a snippet
+   is illustrative rather than copied from real code, label it as such. Do not attribute an
+   example to a location where it doesn't exist.
+3. For non-obvious runtime semantics (e.g. interceptors), do not guess from the annotated
+   sources: build the test module (`mvn -P jdk11 install/compile`, parent poms first if needed)
+   and read the generated `*JAMImpl` sources under `target/generated-sources/annotations/`,
+   plus the relevant processor code (e.g. `TypeMethodUtils.isMethodCallableForInterceptor`).
+   Document what the generated code actually does.
+4. After writing, verify the document against the source with fresh eyes (or a subagent):
+   every annotation name/attribute, enum constant, method signature, Maven coordinate,
+   version, and example attribution must match reality. Fix what doesn't.
+
+Required content/sections:
+
+- **What this repository is** — compile-time annotation-processor object mapper (JAM),
+  modules (jam-common runtime, jam-processor, jam-tests), Maven coordinates, current version
+  vs latest release tag, Java version support (jdk8/jdk11 profiles), license, upstream URL.
+- **When to use it** — the problems it solves (compile-time generation, no reflection,
+  cyclic graphs, in-place updates, Spring/CDI integration); comparable tools (MapStruct/SELMA).
+- **Installation** — Maven dependency snippet (jam-common compile, jam-processor provided).
+- **Quick start** — minimal @Mapper interface + MapperUtil.getMapper usage, note the
+  generated `<Name>JAMImpl` naming and Lombok accessor support.
+- **Public API** — table of all annotations in `sk.annotation.library.jam.annotations` with
+  their targets and attributes; the enums with all constants; MapperUtil / MapperRunCtxData /
+  InstanceCache signatures.
+- **Examples** — representative snippets from jam-tests (renamed fields, field ignoring,
+  aggregation, immutable/withCustom, @Return updates, Spring integration), each with its
+  real source location.
+- **Custom conversion methods and interceptors** — based on ex23 (MapperWithGenerics) and
+  ex19: signature-matched factory/converter methods; interceptor matching rules (void, exactly
+  two params, source assignable to param 1, destination to param 2, generic bounds); when they
+  fire (end of each generated transform, declaration order) and when they don't (direct
+  delegation to user methods). Include a generated-code excerpt.
+- **Feature catalog** — one table row per jam-tests-minimum example package (ex1..ex23):
+  feature demonstrated + key classes, verified against each package's mapper and test.
+- **Gotchas** — @Return semantics, cyclic-mapping instance cache, config scoping
+  (package/type/method), interceptor bypass, stale README versions.
